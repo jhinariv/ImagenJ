@@ -6,15 +6,15 @@ import java.util.*;
 
 /** This plugin implements the Plugins/Utilities/Proxy Settings command. It sets
 * 	the JVM proxy properties to allow the Help/Update ImageJ command
-*	and File/Open Samples menu to work on networks behind a proxy server. 
-* 
+*	and File/Open Samples menu to work on networks behind a proxy server.
+*
 *     @author	Dimiter Prodanov
 */
 public class ProxySettings implements PlugIn {
 	private Properties props = System.getProperties();
 	private String proxyhost = Prefs.get("proxy.server", "");
 	private int proxyport = (int)Prefs.get("proxy.port", 8080);
-	
+
 	public void run(String arg) {
 		if (IJ.getApplet()!=null) return;
 		String host = System.getProperty("http.proxyHost");
@@ -50,17 +50,17 @@ public class ProxySettings implements PlugIn {
 		try {
 			System.setProperty("java.net.useSystemProxies", Prefs.useSystemProxies?"true":"false");
 		} catch(Exception e) {}
-		if (IJ.debugMode)
+		if (IJDebugMode.debugMode)
 			logProperties();
 	}
-	
+
 	public void logProperties() {
-		IJ.log("proxy set: "+ System.getProperty("proxySet"));
-		IJ.log("http proxy host: "+ System.getProperty("http.proxyHost"));
-		IJ.log("http proxy port: "+System.getProperty("http.proxyPort"));
-		IJ.log("https proxy host: "+ System.getProperty("https.proxyHost"));
-		IJ.log("https proxy port: "+System.getProperty("https.proxyPort"));
-		IJ.log("java.net.useSystemProxies: "+System.getProperty("java.net.useSystemProxies"));
+		IJMessage.log("proxy set: "+ System.getProperty("proxySet"));
+		IJMessage.log("http proxy host: "+ System.getProperty("http.proxyHost"));
+		IJMessage.log("http proxy port: "+System.getProperty("http.proxyPort"));
+		IJMessage.log("https proxy host: "+ System.getProperty("https.proxyHost"));
+		IJMessage.log("https proxy port: "+System.getProperty("https.proxyPort"));
+		IJMessage.log("java.net.useSystemProxies: "+System.getProperty("java.net.useSystemProxies"));
 	}
 
 	boolean showDialog()   {

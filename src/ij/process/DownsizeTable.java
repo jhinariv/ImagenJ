@@ -43,7 +43,7 @@ public class DownsizeTable {
 
 
 	/** Create a table for 1-dimensional downscaling interpolation.
-	 *	Interpolation is done by 
+	 *	Interpolation is done by
 	 * @param srcSize	 Size of source data, i.e., width or height of input image
 	 * @param srcOrigin	 Index of first pixel of source data that corresponds to an ouput pixel,
 	 *					 0 or origin of source rectangle if only a roi is scaled
@@ -66,7 +66,7 @@ public class DownsizeTable {
 		indices = new int[arraySize];
 		weights = new float[arraySize];
 		Arrays.fill(indices, UNUSED);
-		//IJ.log("src size="+srcSize+" range="+srcStart+"-"+srcEnd+" array:"+arraySize+" scale="+(float)scale);
+		//IJMessage.log("src size="+srcSize+" range="+srcStart+"-"+srcEnd+" array:"+arraySize+" scale="+(float)scale);
 
 		for (int dst=0; dst<dstSize; dst++) {
 			double sum = 0;
@@ -80,19 +80,19 @@ public class DownsizeTable {
 												// arrays reserved for this source pixel
 				while(indices[p]!=UNUSED && indices[p]!=dst)
 					p++;					//position used for other destination pixel, try the next one
-				//if(p-(s-srcStart)*kernelSize>=kernelSize)IJ.log(srcSize+">"+dstSize+": too long: src="+src+" dst="+dst);
+				//if(p-(s-srcStart)*kernelSize>=kernelSize)IJMessage.log(srcSize+">"+dstSize+": too long: src="+src+" dst="+dst);
 				indices[p] = dst;
 				float weight = kernel(dst - dstIndex(src));
 				sum += weight;
 				weights[p] += weight;
-				//IJ.log("src="+src+"("+s+") to "+dst+" w="+weight+" p="+p);
+				//IJMessage.log("src="+src+"("+s+") to "+dst+" w="+weight+" p="+p);
 			}
 			//normalize: sum of weights contributing to this destination pixel should be 1
 			int iStart = (lowestS-srcStart)*kernelSize;
 			if (iStart < 0) iStart = 0;
 			int iStop = (highestS-srcStart)*kernelSize+(kernelSize-1);
 			if (iStop>=indices.length) iStop = indices.length-1;
-			//IJ.log("normalize "+iStart+"-"+iStop+" sum="+sum);
+			//IJMessage.log("normalize "+iStart+"-"+iStop+" sum="+sum);
 			for (int i=iStart; i<=iStop; i++)
 				if (indices[i] == dst)
 					weights[i] = (float)(weights[i]/sum);

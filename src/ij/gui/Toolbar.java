@@ -43,12 +43,12 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 	public static final int CUSTOM5 = 19;
 	public static final int CUSTOM6 = 20;
 	public static final int CUSTOM7 = 21;
-	
+
 	public static final int DOUBLE_CLICK_THRESHOLD = 650; //ms
 
 	public static final int RECT_ROI=0, ROUNDED_RECT_ROI=1, ROTATED_RECT_ROI=2;
 	public static final int OVAL_ROI=0, ELLIPSE_ROI=1, BRUSH_ROI=2;
-	
+
 	public static final String[] builtInTools = {"Arrow","Brush","Command Finder", "Developer Menu","Flood Filler",
 		"Label Maker","LUT Menu","Overlay Brush","Pencil","Pixel Inspector","Selection Rotator",
 		"Spray Can","Stacks Menu","ROI Menu"};
@@ -66,7 +66,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 	private static final String BRUSH_SIZE = "toolbar.brush.size";
 	public static final String CORNER_DIAMETER = "toolbar.arc.size";
 	public static String TOOL_KEY = "toolbar.tool";
-		
+
 	private Dimension ps;
 	private boolean[] down;
 	private static int current;
@@ -98,7 +98,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 	private Timer pressTimer;
 	private static int longClickDelay = 600; //ms
 	private boolean disableRecording;
-	
+
 	private static Color foregroundColor = Prefs.getColor(Prefs.FCOLOR,Color.white);
 	private static Color backgroundColor = Prefs.getColor(Prefs.BCOLOR,Color.black);
 	private static double foregroundValue = Double.NaN;
@@ -117,16 +117,16 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 	private static int buttonHeight;
 	private static int gapSize;
 	private static int offset;
-	
+
 	private Color gray = new Color(228,228,228);
 	private Color brighter = gray.brighter();
 	private Color darker = new Color(180, 180, 180);
 	private Color evenDarker = new Color(110, 110, 110);
 	private Color triangleColor = new Color(150, 0, 0);
 	private Color toolColor = new Color(0, 25, 45);
-	
+
 	/** Obsolete public constants */
-	public static final int SPARE1=UNUSED, SPARE2=CUSTOM1, SPARE3=CUSTOM2, SPARE4=CUSTOM3, 
+	public static final int SPARE1=UNUSED, SPARE2=CUSTOM1, SPARE3=CUSTOM2, SPARE4=CUSTOM3,
 		SPARE5=CUSTOM4, SPARE6=CUSTOM5, SPARE7=CUSTOM6, SPARE8=CUSTOM7, SPARE9=22;
 
 
@@ -144,7 +144,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 		icons[getNumTools()-1] = "C900T0d18>T6d18>"; // ">>"
 		addPopupMenus();
 	}
-	
+
 	public void init() {
 		dscale = Prefs.getGuiScale();
 		scale = (int)Math.round(dscale);
@@ -250,19 +250,19 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 		addMenuItem(pickerPopup, "Colors...");
 		addMenuItem(pickerPopup, "Color Picker...");
 		add(pickerPopup);
-		
+
 		switchPopup = new PopupMenu();
 		if (Menus.getFontSize()!=0)
 			switchPopup.setFont(Menus.getFont());
 		add(switchPopup);
 	}
-	
+
 	private void addMenuItem(PopupMenu menu, String command) {
 		MenuItem item = new MenuItem(command);
 		item.addActionListener(this);
 		menu.add(item);
 	}
-	
+
 	/** Returns the ID of the current tool (Toolbar.RECTANGLE, Toolbar.OVAL, etc.). */
 	public static int getToolId() {
 		int id = current;
@@ -283,7 +283,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 			if (names[i]!=null && names[i].startsWith(name)) {
 				tool = i;
 				break;
-			}			
+			}
 		}
 		return tool;
 	}
@@ -328,7 +328,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 		g.setColor(raised ? evenDarker : brighter);
 		g.drawLine(x + 1, y + height - 1, x + width - 1, y + height - 1);
 		g.drawLine(x + width - 1, y, x + width - 1, y + height - 2);
-	}    
+	}
 
 	private void drawButton(Graphics g, int tool) {
 		if (g==null) return;
@@ -365,7 +365,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 				if (rectType==ROUNDED_RECT_ROI)
 					g.drawRoundRect(x-1*scale, y+1*scale, 17*scale, 13*scale, 8*scale, 8*scale);
 				else if (rectType==ROTATED_RECT_ROI)
-					polyline(0,10,7,0,15,6,8,16,0,10); 
+					polyline(0,10,7,0,15,6,8,16,0,10);
 				else
 					g.drawRect(x-1*scale, y+1*scale, 17*scale, 13*scale);
 				drawTriangle(16,16);
@@ -389,7 +389,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 				return;
 			case FREEROI:
 				xOffset = x; yOffset = y+3;
-				polyline(2,0,5,0,7,3,10,3,12,0,15,0,17,2,17,5,16,8,13,10,11,11,6,11,4,10,1,8,0,6,0,2,2,0); 
+				polyline(2,0,5,0,7,3,10,3,12,0,15,0,17,2,17,5,16,8,13,10,11,11,6,11,4,10,1,8,0,6,0,2,2,0);
 				return;
 			case LINE:
 				if (arrowMode) {
@@ -441,7 +441,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 				m(0,16); d(2,16);
 				m(15,16); d(17,16);
 				m(4,10); d(13,10);
-				return; 
+				return;
 			case MAGNIFIER:
 				xOffset = x; yOffset = y;
 				g.drawOval(x+3, y, 13*scale, 13*scale);
@@ -453,13 +453,13 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 				polyline(5,17,5,16,0,11,0,8,1,8,5,11,5,2,8,2,8,8,8,0,11,0,11,8,11,1,14,1,14,9,14,3,17,3,17,12,16,13,16,17);
 				return;
 			case DROPPER:
-				// draw foreground/background rectangles	
+				// draw foreground/background rectangles
 				g.setColor(backgroundColor);
 				g.fillRect(x+2*scale, y+3*scale, 15*scale, 16*scale);
 				g.drawRect(x, y+2*scale, 13*scale, 13*scale);
 				g.setColor(foregroundColor);
 				g.fillRect(x, y+2*scale, 13*scale, 13*scale);
-				// draw dropper icon		
+				// draw dropper icon
 				xOffset = x+3; yOffset = y-4;
 				g.setColor(toolColor);
 				m(12,2); d(14,2);
@@ -475,19 +475,19 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 				return;
 			case ANGLE:
 				xOffset = x; yOffset = y+3;
-				m(0,11); d(13,-1); m(0,11); d(16,11); 
+				m(0,11); d(13,-1); m(0,11); d(16,11);
 				m(10,11); d(10,8); m(9,7); d(9,6); dot(8,5);
 				drawDot(13,-2); drawDot(16,10);
 				return;
 		}
 	}
-	
+
 	void drawTriangle(int x, int y) {
 		g.setColor(triangleColor);
 		xOffset+=x*scale; yOffset+=y*scale;
 		m(0,0); d(4,0); m(1,1); d(3,1); m(2,2); d(2,2);
 	}
-	
+
 	void drawDot(int x, int y) {
 		g.fillRect(xOffset+x*scale, yOffset+y*scale, 2*scale, 2*scale);
 	}
@@ -499,7 +499,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 		g.setColor(Roi.getColor());
 		dot(x,y); dot(x-1,y-1);
 	}
-	
+
 	void drawIcon(Graphics g, int tool, int x, int y) {
 		if (null==g) return;
 		icon = icons[tool];
@@ -518,7 +518,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 					g.drawImage(bi,x-5*scale,y-5*scale, size*scale,size*scale,null);
 				}
 			} catch (Exception e) {
-				IJ.error("Toolbar", "Error reading tool icon:\n"+path);
+				IJMessage.error("Toolbar", "Error reading tool icon:\n"+path);
 			}
 		} else {
 			while (true) {
@@ -540,7 +540,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 						Color color = v1==1&&v2==2&&v3==3?foregroundColor:new Color(red,green,blue);
 						g.setColor(color);
 						scale = saveScale;
-						break; 
+						break;
 					case 'L': g.drawLine(x+v(), y+v(), x+v(), y+v()); break; // line
 					case 'D':  g.fillRect(x+v(), y+v(), scale, scale); break; // dot
 					case 'P': // polyline
@@ -581,12 +581,12 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 				if (pc>=icon.length()) break;
 			}
 		}
-		if (menus[tool]!=null && menus[tool].getItemCount()>0) { 
+		if (menus[tool]!=null && menus[tool].getItemCount()>0) {
 			xOffset = x; yOffset = y;
 			drawTriangle(15, 16);
 		}
 	}
-	
+
 	int v() {
 		if (pc>=icon.length()) return 0;
 		char c = icon.charAt(pc++);
@@ -618,7 +618,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 			default: return 0;
 		}
 	}
-	
+
 	private void showMessage(int tool) {
 		if (IJ.statusBarProtected())
 			return;
@@ -632,7 +632,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 				if (index!=-1)
 					name = name.substring(0, index+4);
 			}
-			IJ.showStatus(name);
+			IJMessage.showStatus(name);
 			return;
 		}
 		String hint = " (alt or long click to switch)";
@@ -640,66 +640,66 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 		switch (tool) {
 			case RECTANGLE:
 				if (rectType==ROUNDED_RECT_ROI)
-					IJ.showStatus("Rectangle, *rounded rect* or rotated rect"+hint);
+					IJMessage.showStatus("Rectangle, *rounded rect* or rotated rect"+hint);
 				else if (rectType==ROTATED_RECT_ROI)
-					IJ.showStatus("Rectangle, rounded rect or *rotated rect*"+hint);
+					IJMessage.showStatus("Rectangle, rounded rect or *rotated rect*"+hint);
 				else
-					IJ.showStatus("*Rectangle*, rounded rect or rotated rect"+hint);
+					IJMessage.showStatus("*Rectangle*, rounded rect or rotated rect"+hint);
 				return;
 			case OVAL:
 				if (ovalType==BRUSH_ROI)
-					IJ.showStatus("Oval, elliptical or *brush* selections"+hint);
+					IJMessage.showStatus("Oval, elliptical or *brush* selections"+hint);
 				else if (ovalType==ELLIPSE_ROI)
-					IJ.showStatus("Oval, *elliptical* or brush selections"+hint);
+					IJMessage.showStatus("Oval, *elliptical* or brush selections"+hint);
 				else
-					IJ.showStatus("*Oval*, elliptical or brush selections"+hint);
+					IJMessage.showStatus("*Oval*, elliptical or brush selections"+hint);
 				return;
 			case POLYGON:
-				IJ.showStatus("Polygon selections");
+				IJMessage.showStatus("Polygon selections");
 				return;
 			case FREEROI:
-				IJ.showStatus("Freehand selections");
+				IJMessage.showStatus("Freehand selections");
 				return;
 			case LINE:
 				if (arrowMode)
-					IJ.showStatus("Straight, segmented or freehand lines, or *arrows*"+hint);
+					IJMessage.showStatus("Straight, segmented or freehand lines, or *arrows*"+hint);
 				else
-					IJ.showStatus("*Straight*, segmented or freehand lines, or arrows"+hint);
+					IJMessage.showStatus("*Straight*, segmented or freehand lines, or arrows"+hint);
 				return;
 			case POLYLINE:
-				IJ.showStatus("Straight, *segmented* or freehand lines, or arrows"+hint);
+				IJMessage.showStatus("Straight, *segmented* or freehand lines, or arrows"+hint);
 				return;
 			case FREELINE:
-				IJ.showStatus("Straight, segmented or *freehand* lines, or arrows"+hint);
+				IJMessage.showStatus("Straight, segmented or *freehand* lines, or arrows"+hint);
 				return;
 			case POINT:
 				if (multiPointMode)
-					IJ.showStatus("*Multi-point* or point"+hint2);
+					IJMessage.showStatus("*Multi-point* or point"+hint2);
 				else
-					IJ.showStatus("*Point* or multi-point"+hint2);
+					IJMessage.showStatus("*Point* or multi-point"+hint2);
 				return;
 			case WAND:
-				IJ.showStatus("Wand (tracing) tool");
+				IJMessage.showStatus("Wand (tracing) tool");
 				return;
 			case TEXT:
-				IJ.showStatus("Text tool (double-click to configure)");
+				IJMessage.showStatus("Text tool (double-click to configure)");
 				return;
 			case MAGNIFIER:
-				IJ.showStatus("Magnifying glass (or \"+\" and \"-\" keys; alt or long click for menu)");
+				IJMessage.showStatus("Magnifying glass (or \"+\" and \"-\" keys; alt or long click for menu)");
 				return;
 			case HAND:
-				IJ.showStatus("Scrolling tool (or press space bar and drag)");
+				IJMessage.showStatus("Scrolling tool (or press space bar and drag)");
 				return;
 			case DROPPER:
 				String fg = foregroundColor.getRed() + "," + foregroundColor.getGreen() + "," + foregroundColor.getBlue();
 				String bg = backgroundColor.getRed() + "," + backgroundColor.getGreen() + "," + backgroundColor.getBlue();
-				IJ.showStatus("Color picker " +  fg + "/"+ bg + " (alt or long click for menu)");
+				IJMessage.showStatus("Color picker " +  fg + "/"+ bg + " (alt or long click for menu)");
 				return;
 			case ANGLE:
-				IJ.showStatus("Angle tool");
+				IJMessage.showStatus("Angle tool");
 				return;
 			default:
-				IJ.showStatus("ImageJ "+IJ.getVersion()+" / Java "+System.getProperty("java.version")+(IJ.is64Bit()?" (64-bit)":" (32-bit)"));
+				IJMessage.showStatus("ImageJ "+IJ.getVersion()+" / Java "+System.getProperty("java.version")+(IJ.is64Bit()?" (64-bit)":" (32-bit)"));
 				return;
 		}
 	}
@@ -718,11 +718,11 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 		this.x = x;
 		this.y = y;
 	}
-	
+
 	private void dot(int x, int y) {
 		g.fillRect(xOffset+x*scale, yOffset+y*scale, 1*scale, 1*scale);
 	}
-	
+
 	private void polyline(int... values) {
 		Polygon p = new Polygon();
 		int n = values.length/2;
@@ -816,7 +816,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 			ok = false;
 		return ok;
 	}
-	
+
 	/** Returns the name of the current tool. */
 	public static String getToolName() {
 		String name = instance.getName(current);
@@ -854,15 +854,15 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 			case DROPPER: return "dropper";
 			default: return null;
 		}
-		
+
 	}
-	
+
 	public void setTool(int tool) {
 		if (tool==UNUSED)  //  "Unused" (blank) tool replaced with gap in 1.48h
 			tool = CUSTOM1;
 		else if (legacyMode && tool>=CUSTOM1)
 			tool++;
-		if (IJ.debugMode) IJ.log("Toolbar.setTool: "+tool);
+		if (IJDebugMode.debugMode) IJMessage.log("Toolbar.setTool: "+tool);
 		if ((tool==current&&!(tool==RECTANGLE||tool==OVAL||tool==POINT)) || tool<0 || tool>=getNumTools()-1)
 			return;
 		if (tool>=CUSTOM1&&tool<=getNumTools()-2) {
@@ -874,7 +874,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 		if (isLine(tool)) lineType = tool;
 		setTool2(tool);
 	}
-		
+
 	private void setTool2(int tool) {
 		if (!isValidTool(tool)) return;
 		String previousName = getToolName();
@@ -910,7 +910,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 			repaint();
 		}
 	}
-	
+
 	boolean isValidTool(int tool) {
 		if (tool<0 || tool>=getNumTools())
 			return false;
@@ -937,7 +937,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 			drawButton(this.getGraphics(), DROPPER);
 		}
 	}
-	
+
 	public static Color getForegroundColor() {
 		return foregroundColor;
 	}
@@ -955,7 +955,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 			if (instance.icons[i]!=null && instance.icons[i].contains("C123"))
 				repaintTool(i);  // some of this tool's icon is drawn in the foreground color
 		}
-		if (!IJ.isMacro()) setRoiColor(c);
+		if (!IJMacro.isMacro()) setRoiColor(c);
 	}
 
 	public static Color getBackgroundColor() {
@@ -970,11 +970,11 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 			IJ.notifyEventListeners(IJEventListener.BACKGROUND_COLOR_CHANGED);
 		}
 	}
-	
+
 	public static double getForegroundValue() {
 		return foregroundValue;
 	}
-	
+
 	/** Sets the foreground color to grayscale, where value
 		is between 0 (black) and 255 (white). */
 	public static void setForegroundValue(double value) {
@@ -1000,7 +1000,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 		}
 		backgroundValue = value;
 	}
-	
+
 	private static void setRoiColor(Color c) {
 		ImagePlus imp = WindowManager.getCurrentImage();
 		if (imp==null) return;
@@ -1025,7 +1025,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 		if (brushSize<1) brushSize = 1;
 		Prefs.set(BRUSH_SIZE, brushSize);
 	}
-		
+
 	/** Returns the rounded rectangle arc size, or 0 if the rounded rectangle tool is not enabled. */
 	public static int getRoundRectArcSize() {
 		if (rectType==ROUNDED_RECT_ROI)
@@ -1068,12 +1068,12 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 	public static int getButtonSize() {
 		return buttonWidth;
 	}
-	
+
 	public static void repaintTool(int tool) {
 		Toolbar tb = getInstance();
 		if (tb!=null) {
 			Graphics g = tb.getGraphics();
-			if (IJ.debugMode) IJ.log("Toolbar.repaintTool: "+tool+" "+g);
+			if (IJDebugMode.debugMode) IJMessage.log("Toolbar.repaintTool: "+tool+" "+g);
 			if (g==null) return;
 			if (dscale>1.0)
 				tb.setStrokeWidth((Graphics2D)g);
@@ -1082,7 +1082,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 			if (g!=null) g.dispose();
 		}
 	}
-	
+
 	// Returns the toolbar position index of the specified tool
     int toolIndex(int tool) {
     	switch (tool) {
@@ -1126,7 +1126,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 			default: return index + 3;
 		}
     }
-    
+
 	private boolean inGap(int x) {
 		return x>=(buttonWidth*12) && x<(buttonWidth*12+gapSize);
  	}
@@ -1148,7 +1148,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 					runMacroTool(newTool);
 				}
 				return;
-			} else {	
+			} else {
 				name = name.endsWith(" ")?name:name+" ";
 				tools[newTool].runMacroTool(name+"Selected");
 			}
@@ -1157,52 +1157,52 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 			setTool2(newTool);
 		int x = e.getX();
 		int y = e.getY();
-		if (current==RECTANGLE && isRightClick) {	
-			rectItem.setState(rectType==RECT_ROI);	
-			roundRectItem.setState(rectType==ROUNDED_RECT_ROI);	
-			rotatedRectItem.setState(rectType==ROTATED_RECT_ROI);	
-			if (IJ.isMacOSX()) IJ.wait(10);	
-			rectPopup.show(e.getComponent(),x,y);	
-			mouseDownTime = 0L;	
-		}	
-		if (current==OVAL && isRightClick) {	
-			ovalItem.setState(ovalType==OVAL_ROI);	
-			ellipseItem.setState(ovalType==ELLIPSE_ROI);	
-			brushItem.setState(ovalType==BRUSH_ROI);	
-			if (IJ.isMacOSX()) IJ.wait(10);	
-			ovalPopup.show(e.getComponent(),x,y);	
-			mouseDownTime = 0L;	
-		}	
-		if (current==POINT && isRightClick) {	
-			pointItem.setState(!multiPointMode);	
-			multiPointItem.setState(multiPointMode);	
-			if (IJ.isMacOSX()) IJ.wait(10);	
-			pointPopup.show(e.getComponent(),x,y);	
-			mouseDownTime = 0L;	
-		}	
-		if (isLine(current) && isRightClick) {	
-			straightLineItem.setState(lineType==LINE&&!arrowMode);	
-			polyLineItem.setState(lineType==POLYLINE);	
-			freeLineItem.setState(lineType==FREELINE);	
-			arrowItem.setState(lineType==LINE&&arrowMode);	
-			if (IJ.isMacOSX()) IJ.wait(10);	
-			linePopup.show(e.getComponent(),x,y);	
-			mouseDownTime = 0L;	
+		if (current==RECTANGLE && isRightClick) {
+			rectItem.setState(rectType==RECT_ROI);
+			roundRectItem.setState(rectType==ROUNDED_RECT_ROI);
+			rotatedRectItem.setState(rectType==ROTATED_RECT_ROI);
+			if (IJ.isMacOSX()) IJ.wait(10);
+			rectPopup.show(e.getComponent(),x,y);
+			mouseDownTime = 0L;
 		}
-		if (current==MAGNIFIER && isRightClick) {	
-			zoomPopup.show(e.getComponent(),x,y);	
-			mouseDownTime = 0L;	
-		}				
-		if (current==DROPPER && isRightClick) {	
-			pickerPopup.show(e.getComponent(),x,y);	
-			mouseDownTime = 0L;	
-		}	
-		if (isMacroTool(current) && isRightClick) {	
-			String name = names[current].endsWith(" ")?names[current]:names[current]+" ";	
-			tools[current].runMacroTool(name+"Options");	
-		}	
-		if (isPlugInTool(current) && isRightClick) {	
-			tools[current].showPopupMenu(e, this);	
+		if (current==OVAL && isRightClick) {
+			ovalItem.setState(ovalType==OVAL_ROI);
+			ellipseItem.setState(ovalType==ELLIPSE_ROI);
+			brushItem.setState(ovalType==BRUSH_ROI);
+			if (IJ.isMacOSX()) IJ.wait(10);
+			ovalPopup.show(e.getComponent(),x,y);
+			mouseDownTime = 0L;
+		}
+		if (current==POINT && isRightClick) {
+			pointItem.setState(!multiPointMode);
+			multiPointItem.setState(multiPointMode);
+			if (IJ.isMacOSX()) IJ.wait(10);
+			pointPopup.show(e.getComponent(),x,y);
+			mouseDownTime = 0L;
+		}
+		if (isLine(current) && isRightClick) {
+			straightLineItem.setState(lineType==LINE&&!arrowMode);
+			polyLineItem.setState(lineType==POLYLINE);
+			freeLineItem.setState(lineType==FREELINE);
+			arrowItem.setState(lineType==LINE&&arrowMode);
+			if (IJ.isMacOSX()) IJ.wait(10);
+			linePopup.show(e.getComponent(),x,y);
+			mouseDownTime = 0L;
+		}
+		if (current==MAGNIFIER && isRightClick) {
+			zoomPopup.show(e.getComponent(),x,y);
+			mouseDownTime = 0L;
+		}
+		if (current==DROPPER && isRightClick) {
+			pickerPopup.show(e.getComponent(),x,y);
+			mouseDownTime = 0L;
+		}
+		if (isMacroTool(current) && isRightClick) {
+			String name = names[current].endsWith(" ")?names[current]:names[current]+" ";
+			tools[current].runMacroTool(name+"Options");
+		}
+		if (isPlugInTool(current) && isRightClick) {
+			tools[current].showPopupMenu(e, this);
 		}
 	}
 
@@ -1262,7 +1262,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 					if (current==LINE && arrowMode) {
 						IJ.doCommand("Arrow Tool...");
 					} else
-						IJ.runPlugIn("ij.plugin.frame.LineWidthAdjuster", "");
+						IJPlugin.runPlugIn(("ij.plugin.frame.LineWidthAdjuster", "");
 					break;
 				case ANGLE:
 					showAngleDialog();
@@ -1274,7 +1274,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 					IJ.doCommand("Wand Tool...");
 					break;
 				case TEXT:
-					IJ.run("Fonts...");
+					IJMacro.run("Fonts...");
 					break;
 				case DROPPER:
 					IJ.doCommand("Color Picker...");
@@ -1286,7 +1286,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 
 		if (!isRightClick && longClickDelay>0 && !disablePopup) {
 			if (pressTimer==null)
-				pressTimer = new Timer();			
+				pressTimer = new Timer();
 			pressTimer.schedule(new TimerTask() {
 				public void run() {
 					if (pressTimer != null) {
@@ -1297,16 +1297,16 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 				}
 			}, longClickDelay);
 		}
-		
+
 	}
-	
+
 	public void mouseReleased(MouseEvent e) {
 		if (pressTimer!=null) {
 			pressTimer.cancel();
 			pressTimer = null;
 		}
 	}
-	
+
 	void showSwitchPopupMenu(MouseEvent e) {
 		String path = IJ.getDir("macros")+"toolsets/";
 		if (path==null)
@@ -1430,15 +1430,15 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 	boolean isLine(int tool) {
 		return tool==LINE || tool==POLYLINE || tool==FREELINE;
 	}
-	
+
 	public void restorePreviousTool() {
 		setTool2(mpPrevious);
 	}
-	
+
 	boolean isMacroTool(int tool) {
 		return tool>=CUSTOM1 && tool<getNumTools() && names[tool]!=null && (tools[tool] instanceof MacroToolRunner);
 	}
-	
+
 	boolean isPlugInTool(int tool) {
 		return tool>=CUSTOM1 && tool<getNumTools() && tools[tool]!=null;
 	}
@@ -1447,7 +1447,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 	public void mouseClicked(MouseEvent e) {}
 	public void mouseEntered(MouseEvent e) {}
 	public void  mouseDragged(MouseEvent e) {}
-	
+
 	public void itemStateChanged(ItemEvent e) {
 		CheckboxMenuItem item = (CheckboxMenuItem)e.getSource();
 		String previousName = getToolName();
@@ -1512,7 +1512,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 				if (cmd.equals("Tool")) // built in tool
 					installBuiltinTool(label);
 				else  // plugin or macro tool in ImageJ/plugins/Tools
-					IJ.run(label);
+					IJPlugin.runlabel);
 				return;
 			}
 			String path;
@@ -1522,7 +1522,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 				removeTools();
 				installStartupMacros();
 			} else if (label.equals("Help...")) {
-				IJ.showMessage("Tool Switcher and Loader",
+				IJMessage.showMessage("Tool Switcher and Loader",
 					"Use this drop down menu to switch to alternative\n"+
 					"macro toolsets or to load additional plugin tools.\n"+
 					"The toolsets listed in the menu are located\n"+
@@ -1571,7 +1571,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
             }
 		}
 	}
-	
+
 	private void removeTools() {
 		removeMacroTools();
 		setTool(RECTANGLE);
@@ -1587,7 +1587,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 			IJ.getInstance().pack();
 		}
 	}
-	
+
 	private void resetPrefs() {
 		for (int i=0; i<7; i++) {
 			String key = TOOL_KEY+(i/10)%10+i%10;
@@ -1595,7 +1595,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 				Prefs.set(key, "");
 		}
 	}
-	
+
 	public static void restoreTools() {
 		Toolbar tb = Toolbar.getInstance();
 		if (tb!=null) {
@@ -1618,7 +1618,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 			f = new File(path);
 		}
 		if (!f.exists()) {
-			IJ.error("StartupMacros not found in\n \n"+IJ.getDir("macros"));
+			IJMessage.error("StartupMacros not found in\n \n"+IJ.getDir("macros"));
 			return;
 		}
 		if (IJ.shiftKeyDown()) {
@@ -1637,37 +1637,37 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 		MenuItem item = (MenuItem)e.getSource();
 		String cmd = e.getActionCommand();
 		PopupMenu popup = (PopupMenu)item.getParent();
-		
+
 		if (zoomPopup==popup) {
 			if ("Zoom In".equals(cmd))
-				IJ.runPlugIn("ij.plugin.Zoom", "in");
+				IJPlugin.runPlugIn(("ij.plugin.Zoom", "in");
 			else if ("Zoom Out".equals(cmd))
-				IJ.runPlugIn("ij.plugin.Zoom", "out");
+				IJPlugin.runPlugIn(("ij.plugin.Zoom", "out");
 			else if ("Reset Zoom".equals(cmd))
-				IJ.runPlugIn("ij.plugin.Zoom", "orig");
+				IJPlugin.runPlugIn(("ij.plugin.Zoom", "orig");
 			else if ("View 100%".equals(cmd))
-				IJ.runPlugIn("ij.plugin.Zoom", "100%");
+				IJPlugin.runPlugIn(("ij.plugin.Zoom", "100%");
 			else if ("Zoom To Selection".equals(cmd))
-				IJ.runPlugIn("ij.plugin.Zoom", "to");
+				IJPlugin.runPlugIn(("ij.plugin.Zoom", "to");
 			else if ("Scale to Fit".equals(cmd))
-				IJ.runPlugIn("ij.plugin.Zoom", "scale");
+				IJPlugin.runPlugIn(("ij.plugin.Zoom", "scale");
 			else if ("Set...".equals(cmd))
-				IJ.runPlugIn("ij.plugin.Zoom", "set");
+				IJPlugin.runPlugIn(("ij.plugin.Zoom", "set");
 			else if ("Maximize".equals(cmd))
-				IJ.runPlugIn("ij.plugin.Zoom", "max");
+				IJPlugin.runPlugIn(("ij.plugin.Zoom", "max");
 			disableRecording = true;
 			setTool(previousTool);
-			disableRecording = false;			
+			disableRecording = false;
 			return;
 		}
-		
+
 		if (pickerPopup==popup) {
 			if ("White/Black".equals(cmd)) {
 				setAndRecordForgroundColor(Color.white);
-				setAndRecordBackgroundColor(Color.black);				
+				setAndRecordBackgroundColor(Color.black);
 			} else if ("Black/White".equals(cmd)) {
 				setAndRecordForgroundColor(Color.black);
-				setAndRecordBackgroundColor(Color.white);				
+				setAndRecordBackgroundColor(Color.white);
 			} else if ("Red".equals(cmd))
 				setAndRecordForgroundColor(Color.red);
 			else if ("Green".equals(cmd))
@@ -1685,17 +1685,17 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 			else if ("Background...".equals(cmd))
 				setAndRecordBackgroundColor(new ColorChooser("Select Background Color", backgroundColor, false).getColor());
 			else if ("Colors...".equals(cmd)) {
-				IJ.run("Colors...", "");
+				IJMacro.run("Colors...", "");
 				Recorder.setForegroundColor(getForegroundColor());
 				Recorder.setBackgroundColor(getBackgroundColor());
 			} else
-				IJ.run("Color Picker...", "");
+				IJMacro.run("Color Picker...", "");
 			if (!"Color Picker".equals(cmd))
-				ColorPicker.update();	
-			setTool(previousTool);			
+				ColorPicker.update();
+			setTool(previousTool);
 			return;
 		}
-		
+
 		int tool = -1;
 		for (int i=CUSTOM1; i<getNumTools(); i++) {
 			if (popup==menus[i]) {
@@ -1707,14 +1707,14 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 		if (tools[tool]!=null)
 			tools[tool].runMenuTool(names[tool], cmd);
     }
-    
+
     private void setAndRecordForgroundColor(Color color) {
 		if (color!=null) {
 			setForegroundColor(color);
 			Recorder.setForegroundColor(color);
 		}
     }
-    
+
     private void setAndRecordBackgroundColor(Color color) {
 		if (color!=null) {
 			setBackgroundColor(color);
@@ -1729,17 +1729,17 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 	public Dimension getMinimumSize(){
 		return ps;
 	}
-	
+
 	public void mouseMoved(MouseEvent e) {
 		int x = e.getX();
 		if (inGap(x))
-			IJ.showStatus("");
+			IJMessage.showStatus("");
 		else
 			showMessage(toolID(x));
 	}
 
 	/** Adds a tool to the toolbar. The 'toolTip' string is displayed in the status bar
-		 when the mouse is over the tool icon. The 'toolTip' string may include icon 
+		 when the mouse is over the tool icon. The 'toolTip' string may include icon
 		(http://imagej.nih.gov/ij/developer/macro/macros.html#tools).
 		Returns the tool ID, or -1 if all tool slots are in use. */
 	public int addTool(String toolTip) {
@@ -1750,7 +1750,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 			if (names[i]==null || toolTip.startsWith(names[i])) {
 				tool = i;
 				break;
-			}			
+			}
 		}
 		if (tool==CUSTOM1)
 			legacyMode = toolTip.startsWith("Select and Transform Tool"); //TrakEM2
@@ -1787,10 +1787,10 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
         	setTool(RECTANGLE);
         if (names[tool].endsWith(" Menu Tool"))
             installMenu(tool);
-        if (IJ.debugMode) IJ.log("Toolbar.addTool: "+tool+" "+toolTip);
+        if (IJDebugMode.debugMode) IJMessage.log("Toolbar.addTool: "+tool+" "+toolTip);
 		return tool;
 	}
-    
+
     void installMenu(int tool) {
         Program pgm = macroInstaller.getProgram();
         Hashtable h = pgm.getMenus();
@@ -1824,7 +1824,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
         }
         if (tool==current) setTool(RECTANGLE);
     }
-    
+
 	/** Used by the MacroInstaller class to install a set of macro tools. */
 	public void addMacroTool(String name, MacroInstaller macroInstaller, int id) {
 		if (id==0) {
@@ -1839,7 +1839,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 			if (!ok) {
 				Hashtable commands = Menus.getCommands();
 				if (commands!=null && commands.get(name)!=null)
-					IJ.run(name);
+					IJPlugin.runname);
 			}
 			doNotSavePrefs = false;
 			return;
@@ -1850,7 +1850,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 		if (tool!=-1)
 			tools[tool] = new MacroToolRunner(macroInstaller);
 	}
-	
+
 	private void resetTools() {
 		for (int i=CUSTOM1; i<getNumTools()-1; i++) {
 			names[i] = null;
@@ -1860,7 +1860,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 				menus[i].removeAll();
 		}
 	}
-	
+
 	/** Used by the MacroInstaller class to add a macro tool to the toolbar. */
 	public void addMacroTool(String name, MacroInstaller macroInstaller) {
 		String custom1Name = names[CUSTOM1];
@@ -1883,7 +1883,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 				setPrefs(tool);
 		}
 	}
-	
+
 	private void setPrefs(int id) {
 		if (doNotSavePrefs)
 			return;
@@ -1901,7 +1901,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 		String key = TOOL_KEY + (index/10)%10 + index%10;
 		Prefs.set(key, prefsName);
 	}
-	
+
 	private boolean isBuiltInTool(String name) {
 		for (int i=0; i<builtInTools2.length; i++) {
 			if (name.equals(builtInTools2[i]))
@@ -1935,7 +1935,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 			instance.tools[id] = tool;
 			if (instance.menus[id]!=null)
 				instance.menus[id].removeAll();
-			instance.repaintTool(id);	
+			instance.repaintTool(id);
 			if (!instance.installingStartupTool)
 				instance.setTool(id);
 			else
@@ -1959,7 +1959,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 		if (id<getNumTools() && tools[id]!=null)
 			tools[id].runMacroTool(names[id]);
 	}
-	
+
 	void showBrushDialog() {
 		GenericDialog gd = new GenericDialog("Selection Brush");
 		gd.addCheckbox("Enable selection brush", ovalType==BRUSH_ROI);
@@ -1985,12 +1985,12 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 		if (!gd.wasCanceled())
 			Prefs.reflexAngle = gd.getNextBoolean();
 	}
-	
+
 	public void installStartupTools() {
-		if (IJ.debugMode) IJ.log("Toolbar.installStartupTools");
+		if (IJDebugMode.debugMode) IJMessage.log("Toolbar.installStartupTools");
 		for (int i=0; i<=6; i++) {
 			String name = Prefs.get(TOOL_KEY + (i/10)%10 + i%10, "");
-			if (IJ.debugMode) IJ.log("  "+i+" "+name);
+			if (IJDebugMode.debugMode) IJMessage.log("  "+i+" "+name);
 			if (name.equals("")) continue;
 			installingStartupTool = true;
 			boolean ok = installBuiltinTool(name);
@@ -2001,13 +2001,13 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 						name = name.substring(0, name.length()-5);
 					Hashtable commands = Menus.getCommands();
 					if (commands!=null && commands.get(name)!=null)
-						IJ.run(name);
+						IJPlugin.runname);
 				}
 			}
 			installingStartupTool = false;
 		}
 	}
-	
+
 	// install tool from ImageJ/macros/toolsets
 	private boolean installToolsetTool(String name) {
 		String path = IJ.getDir("macros")+"toolsets"+File.separator+name+".ijm";
@@ -2021,9 +2021,9 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 		new MacroInstaller().installSingleTool(text);
 		return true;
 	}
-	
+
 	private boolean installBuiltinTool(String label) {
-		if (IJ.debugMode) IJ.log("Toolbar.installBuiltinTool: "+label);
+		if (IJDebugMode.debugMode) IJMessage.log("Toolbar.installBuiltinTool: "+label);
 		boolean ok = true;
 		PlugInTool tool = null;
 		if (label.startsWith("Arrow")) {
@@ -2070,28 +2070,28 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 			ok = false;
 		return ok;
 	}
-	
+
 	private void showSource(String name) {
 		if (IJ.shiftKeyDown()) {
-			IJ.runPlugIn("ij.plugin.BrowserLauncher", IJ.URL+"/source/ij/plugin/tool/"+name+"Tool.java");
+			IJPlugin.runPlugIn(("ij.plugin.BrowserLauncher", IJ.URL+"/source/ij/plugin/tool/"+name+"Tool.java");
 			IJ.setKeyUp(KeyEvent.VK_SHIFT);
 		}
 	}
-	
+
 	private void installMacroFromJar(String path) {
 		if (IJ.shiftKeyDown())
 			showCode(path, (new MacroInstaller()).openFromIJJar(path));
 		else
 			(new MacroInstaller()).installFromIJJar(path);
 	}
-	
+
 	public static void showCode(String title, String code) {
 		Editor ed = new Editor();
 		ed.setSize(550, 450);
 		ed.create(title, code);
 		IJ.setKeyUp(KeyEvent.VK_SHIFT);
 	}
-	
+
 	private boolean isMacroSet(int id) {
 		if (tools[id]==null)
 			return false;
@@ -2100,23 +2100,23 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 		boolean rtn = ((MacroToolRunner)tools[id]).getMacroCount()>2;
 		return rtn;
 	}
-	
+
 	public static boolean installStartupMacrosTools() {
 		String customTool0 = Prefs.get(Toolbar.TOOL_KEY+"00", "");
 		return customTool0.equals("") || Character.isDigit(customTool0.charAt(0));
 	}
-	
+
 	public int getNumTools() {
 		return NUM_TOOLS + nExtraTools;
 	}
-	
+
 	/** Sets the tool menu long click delay in milliseconds
 	 * (default is 600). Set to 0 to disable long click triggering.
 	*/
 	 public static void setLongClickDelay(int delay) {
 		longClickDelay = delay;
 	}
-	
+
 	/** Sets the icon of the specified macro or plugin tool.<br>
 	 * See: Help&gt;Examples&gt;Tool&gt;Animated Icon Tool;
 	*/

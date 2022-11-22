@@ -28,7 +28,7 @@ public class StackCombiner implements PlugIn {
 		int[] dim2 = imp2.getDimensions();
 		if (imp1.isHyperStack() || imp2.isHyperStack()) {
 			if (dim1[2]!=dim2[2] || dim1[3]!=dim2[3] || dim1[4]!=dim2[4]) {
-				IJ.error("StackCombiner", "Hyperstacks must have identical CZT dimensions");	
+				IJMessage.error("StackCombiner", "Hyperstacks must have identical CZT dimensions");
 				return;
 			}
 		}
@@ -50,7 +50,7 @@ public class StackCombiner implements PlugIn {
 		imp3.setTitle("Combined Stacks");
 		imp3.show();
 	}
-	
+
 	public ImageStack combineHorizontally(ImageStack stack1, ImageStack stack2) {
 		int d1 = stack1.getSize();
 		int d2 = stack2.getSize();
@@ -85,7 +85,7 @@ public class StackCombiner implements PlugIn {
 		}
 		return stack3;
 	}
-	
+
 	public ImageStack combineVertically(ImageStack stack1, ImageStack stack2) {
 		int d1 = stack1.getSize();
 		int d2 = stack2.getSize();
@@ -149,9 +149,9 @@ public class StackCombiner implements PlugIn {
 		return true;
 	}
 
-	
+
 	void error() {
-		IJ.error("StackCombiner", "This command requires two stacks\n"
+		IJMessage.error("StackCombiner", "This command requires two stacks\n"
 			+"that are the same data type.");
 	}
 

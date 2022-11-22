@@ -18,7 +18,7 @@ import ij.process.ColorProcessor;
 import ij.text.TextWindow;
 
 /**
-This class contains the ImageJ preferences, which are 
+This class contains the ImageJ preferences, which are
 loaded from the "IJ_Props.txt" and "IJ_Prefs.txt" files.
 @see ij.ImageJ
 */
@@ -39,18 +39,18 @@ public class Prefs {
     public static final String GUI_SCALE = "gui.scale";
     public static final String THREADS = "threads";
 	public static final String KEY_PREFIX = ".";
- 
+
 	private static final int USE_POINTER=1<<0, ANTIALIASING=1<<1, INTERPOLATE=1<<2, ONE_HUNDRED_PERCENT=1<<3,
-		BLACK_BACKGROUND=1<<4, JFILE_CHOOSER=1<<5, UNUSED=1<<6, BLACK_CANVAS=1<<7, WEIGHTED=1<<8, 
+		BLACK_BACKGROUND=1<<4, JFILE_CHOOSER=1<<5, UNUSED=1<<6, BLACK_CANVAS=1<<7, WEIGHTED=1<<8,
 		AUTO_MEASURE=1<<9, REQUIRE_CONTROL=1<<10, USE_INVERTING_LUT=1<<11, ANTIALIASED_TOOLS=1<<12,
 		INTEL_BYTE_ORDER=1<<13, DOUBLE_BUFFER=1<<14, NO_POINT_LABELS=1<<15, NO_BORDER=1<<16,
 		SHOW_ALL_SLICE_ONLY=1<<17, COPY_HEADERS=1<<18, NO_ROW_NUMBERS=1<<19,
 		MOVE_TO_MISC=1<<20, ADD_TO_MANAGER=1<<21, RUN_SOCKET_LISTENER=1<<22,
 		MULTI_POINT_MODE=1<<23, ROTATE_YZ=1<<24, FLIP_XZ=1<<25,
 		DONT_SAVE_HEADERS=1<<26, DONT_SAVE_ROW_NUMBERS=1<<27, NO_CLICK_TO_GC=1<<28,
-		AVOID_RESLICE_INTERPOLATION=1<<29, KEEP_UNDO_BUFFERS=1<<30; 
+		AVOID_RESLICE_INTERPOLATION=1<<29, KEEP_UNDO_BUFFERS=1<<30;
     public static final String OPTIONS = "prefs.options";
-    
+
 	public static final String vistaHint = "";  // no longer used
 
 	private static final int USE_SYSTEM_PROXIES=1<<0, USE_FILE_CHOOSER=1<<1,
@@ -60,7 +60,7 @@ public class Prefs {
 		CANCEL_BUTTON_ON_RIGHT=1<<10, IGNORE_RESCALE_SLOPE=1<<11,
 		NON_BLOCKING_DIALOGS=1<<12, FIXED_DICOM_SCALINGg=1<<13;
 	public static final String OPTIONS2 = "prefs.options2";
-    
+
 	/** file.separator system property */
 	public static String separator = System.getProperty("file.separator");
 	/** Use pointer cursor instead of cross */
@@ -121,7 +121,7 @@ public class Prefs {
 	public static boolean openDicomsAsFloat;
 	/** Ignore Rescale Slope when opening DICOMs */
 	public static boolean ignoreRescaleSlope;
-	/** Assume DICOM volumes use identical RescaleSlope and RescaleIntercept across all slices */	
+	/** Assume DICOM volumes use identical RescaleSlope and RescaleIntercept across all slices */
 	public static boolean fixedDicomScaling;
 	/** Plot rectangular selectons vertically */
 	public static boolean verticalProfile;
@@ -186,12 +186,12 @@ public class Prefs {
 	public static boolean dialogCancelButtonOnRight;
 	/** Support TRANSFORM Undo in macros */
 	public static boolean supportMacroUndo;
-	/** Use NonBlockingGenericDialogs in filters */	
+	/** Use NonBlockingGenericDialogs in filters */
 	public static boolean nonBlockingFilterDialogs;
 	/** Turn live display on plots automatically */
 	public static boolean autoLivePlots;
 
-	//Save location of moved image windows */	
+	//Save location of moved image windows */
 	//public static boolean saveImageLocation = true;
 
 	static boolean commandLineMacro;
@@ -210,7 +210,7 @@ public class Prefs {
 	private static String preferencesPath; // location of custom IJ_Prefs.txt
 
 	/** Saves the value of the string <code>text</code> in the preferences
-	 * file using the keyword <code>key</code>. The string can be 
+	 * file using the keyword <code>key</code>. The string can be
 	 * retrieved using the appropriate <code>get()</code> method.
 	 * @see #get(String,String)
 	*/
@@ -224,7 +224,7 @@ public class Prefs {
 	}
 
 	/** Saves the value of the integer <code>value</code> in the preferences
-	 * file using the keyword <code>key</code>. The value can be 
+	 * file using the keyword <code>key</code>. The value can be
 	 * retrieved using the appropriate <code>get()</code> method.
 	 * @see #get(String,double)
 	*/
@@ -233,7 +233,7 @@ public class Prefs {
 	}
 
 	/** Saves the value of the double <code>value</code> in the preferences
-	 * file using the keyword <code>key</code>. The value can be 
+	 * file using the keyword <code>key</code>. The value can be
 	 * retrieved using the appropriate <code>get()</code> method.
 	 * @see #get(String,double)
 	*/
@@ -242,7 +242,7 @@ public class Prefs {
 	}
 
 	/** Saves the value of the boolean <code>value</code> in the preferences
-	 * file using the keyword <code>key</code>. The value can be 
+	 * file using the keyword <code>key</code>. The value can be
 	 * retrieved using the appropriate <code>get()</code> method.
 	 * @see #get(String,boolean)
 	*/
@@ -286,7 +286,7 @@ public class Prefs {
 		else
 			return value.equals("true");
 	}
-	
+
 	/** Finds and loads the configuration file ("IJ_Props.txt")
 	 * and the preferences file ("IJ_Prefs.txt").
 	 * @return	an error message if "IJ_Props.txt" not found.
@@ -305,7 +305,7 @@ public class Prefs {
 			if (f==null) {
 				// Look in ij.jar if not found in ImageJ folder
 				f = ij.getClass().getResourceAsStream("/"+PROPS_NAME);
-			}			
+			}
 			if (applet!=null)
 				return loadAppletProps(f, applet);
 			if (f==null)
@@ -362,7 +362,7 @@ public class Prefs {
 		imagesURL = url;
 	}
 
-	/** Obsolete, replaced by getImageJDir(), which, unlike this method, 
+	/** Obsolete, replaced by getImageJDir(), which, unlike this method,
 		returns a path that ends with File.separator. */
 	public static String getHomeDir() {
 		return ImageJDir;
@@ -381,7 +381,7 @@ public class Prefs {
 		} else
 			return path;
 	}
-	
+
 	public static String getPluginsDirProperty() {
 		if (pluginsDirProperty==null) {
 			String ijDir = System.getProperty("plugins.dir");
@@ -397,7 +397,7 @@ public class Prefs {
 		return pluginsDirProperty.length()>0?pluginsDirProperty:null;
 	}
 
-	/** Returns the path to the directory where the 
+	/** Returns the path to the directory where the
 		preferences file (IJPrefs.txt) is saved. */
 	public static String getPrefsDir() {
 		// look in current directory
@@ -427,7 +427,7 @@ public class Prefs {
 					dir += File.separator+".imagej";
 				prefsDir = dir;
 			}
-		}		
+		}
 		return prefsDir;
 	}
 
@@ -518,7 +518,7 @@ public class Prefs {
 			if (resetPreferences) {
 				File f = new File(path);
 				if (!f.exists())
-					IJ.error("Edit>Options>Reset", "Unable to reset preferences. File not found at\n"+path);
+					IJMessage.error("Edit>Options>Reset", "Unable to reset preferences. File not found at\n"+path);
 				boolean rtn = f.delete();
 				resetPreferences = false;
 			} else
@@ -571,7 +571,7 @@ public class Prefs {
 		noClickToGC = (options&NO_CLICK_TO_GC)!=0;
 		avoidResliceInterpolation = (options&AVOID_RESLICE_INTERPOLATION)!=0;
 		keepUndoBuffers = (options&KEEP_UNDO_BUFFERS)!=0;
-		
+
 		defaultOptions = (!IJ.isMacOSX()?USE_FILE_CHOOSER:0);
 		int options2 = getInt(OPTIONS2, defaultOptions);
 		useSystemProxies = (options2&USE_SYSTEM_PROXIES)!=0;
@@ -594,7 +594,7 @@ public class Prefs {
 		int options = (usePointerCursor?USE_POINTER:0) + (antialiasedText?ANTIALIASING:0)
 			+ (interpolateScaledImages?INTERPOLATE:0) + (open100Percent?ONE_HUNDRED_PERCENT:0)
 			+ (blackBackground?BLACK_BACKGROUND:0) + (useJFileChooser?JFILE_CHOOSER:0)
-			+ (blackCanvas?BLACK_CANVAS:0) + (weightedColor?WEIGHTED:0) 
+			+ (blackCanvas?BLACK_CANVAS:0) + (weightedColor?WEIGHTED:0)
 			+ (requireControlKey?REQUIRE_CONTROL:0)
 			+ (useInvertingLut?USE_INVERTING_LUT:0)
 			+ (intelByteOrder?INTEL_BYTE_ORDER:0) + (doubleBuffer?DOUBLE_BUFFER:0)
@@ -645,7 +645,7 @@ public class Prefs {
 		Point p = new Point((int)xloc, (int)yloc);
 		Rectangle bounds = GUI.getScreenBounds(p); // get bounds of screen that contains p
 		if (bounds!=null && p.x+100<=bounds.x+bounds.width && p.y+ 40<=bounds.y+bounds.height) {
-			if (locKeys.get(key)==null) { // first time for this key? 
+			if (locKeys.get(key)==null) { // first time for this key?
 				locKeys.setProperty(key, "");
 				Rectangle primaryScreen = GUI.getMaxWindowBounds();
 				ImageJ ij = IJ.getInstance();
@@ -675,7 +675,7 @@ public class Prefs {
 		prefs.store(bos, "ImageJ "+ImageJ.VERSION+" Preferences");
 		bos.close();
 	}
-	
+
 	/** Returns the number of threads used by PlugInFilters to process images and stacks. */
 	public static int getThreads() {
 		if (threads==0) {
@@ -686,13 +686,13 @@ public class Prefs {
 		}
 		return threads;
 	}
-	
+
 	/** Sets the number of threads (1-32) used by PlugInFilters to process stacks. */
 	public static void setThreads(int n) {
 		if (n<1) n = 1;
 		threads = n;
 	}
-	
+
 	/** Sets the transparent index (0-255), or set to -1 to disable transparency. */
 	public static void setTransparentIndex(int index) {
 		if (index<-1 || index>255) index = -1;
@@ -703,15 +703,15 @@ public class Prefs {
 	public static int getTransparentIndex() {
 		return transparentIndex;
 	}
-	
+
 	public static Properties getControlPanelProperties() {
 		return ijPrefs;
 	}
-	
+
 	public static String defaultResultsExtension() {
 		return get("options.ext", ".csv");
 	}
-		
+
 	/** Sets the GenericDialog and Command Finder text scale (0.5 to 3.0). */
 	public static void setGuiScale(double scale) {
 		if (scale>=0.5 && scale<=3.0) {
@@ -762,7 +762,7 @@ public class Prefs {
 		if (s!=null) {
 			try {
 				return Integer.decode(s).intValue();
-			} catch (NumberFormatException e) {IJ.log(""+e);}
+			} catch (NumberFormatException e) {IJMessage.log(""+e);}
 		}
 		return defaultValue;
 	}
@@ -801,7 +801,7 @@ public class Prefs {
 			return defaultColor;
 		return new Color((i >> 16) & 0xFF, (i >> 8) & 0xFF, i & 0xFF);
 	}
-	
+
 	public static boolean commandLineMacro() {
 		return commandLineMacro;
 	}

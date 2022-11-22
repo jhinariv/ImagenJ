@@ -14,17 +14,17 @@ public class Straightener implements PlugIn {
 		Roi roi = imp.getRoi();
 		boolean rotatedRectangle = roi!=null && (roi instanceof RotatedRectRoi);
 		if (roi==null || !(roi.isLine()||rotatedRectangle)) {
-			IJ.error("Straightener", "Line, or rotated rectangle, selection required");
+			IJMessage.error("Straightener", "Line, or rotated rectangle, selection required");
 			return;
 		}
 		if (rotatedRectangle) {
-			IJ.run(imp, "Duplicate...", " ");
+			IJPlugin.runimp, "Duplicate...", " ");
 			return;
 		}
 		if (!imp.lock()) return;
 		int width = (int)Math.round(roi.getStrokeWidth());
 		int originalWidth = width;
-		boolean isMacro = IJ.macroRunning() && Macro.getOptions()!=null;
+		boolean isMacro = IJMacro.macroRunning() && Macro.getOptions()!=null;
 		int stackSize = imp.getStackSize();
 		if (stackSize==1) processStack = false;
 		String newTitle = WindowManager.getUniqueName(imp.getTitle());
@@ -46,7 +46,7 @@ public class Straightener implements PlugIn {
 		roi = (Roi)imp.getRoi().clone();
 		int type = roi.getType();
 		if (type==Roi.FREELINE)
-			IJ.run(imp, "Fit Spline", "");
+			IJPlugin.runimp, "Fit Spline", "");
 		ImageProcessor ip2 = null;
 		ImagePlus imp2 = null;
 		if (processStack) {
@@ -124,7 +124,7 @@ public class Straightener implements PlugIn {
 		ImageProcessor ip = imp.getProcessor();
 		ImageProcessor ip2 = new FloatProcessor(n, width);
 		//ImageProcessor distances = null;
-		//if (IJ.debugMode)  distances = new FloatProcessor(n, 1);
+		//if (IJDebugMode.debugMode)  distances = new FloatProcessor(n, 1);
 		float[] pixels = (float[])ip2.getPixels();
 		double x1, y1;
 		// the following will be taken as the previous point; extrapolate back one pixel
@@ -147,7 +147,7 @@ public class Straightener implements PlugIn {
             double length = (float)Math.sqrt(dx*dx+dy*dy);
             dx /= length;
             dy /= length;
-			//IJ.log(i+"  "+x2+"  "+dy+"  "+(dy*width/2f)+"   "+y2+"  "+dx+"   "+(dx*width/2f));
+			//IJMessage.log(i+"  "+x2+"  "+dy+"  "+(dy*width/2f)+"   "+y2+"  "+dx+"   "+(dx*width/2f));
 			double x = x2-dy*(width-1)/2.0;
 			double y = y2-dx*(width-1)/2.0;
 			int j = 0;

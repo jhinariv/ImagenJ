@@ -44,7 +44,7 @@ public abstract class ImageProcessor implements Cloneable {
 
 	/** Modified isodata method used in Image/Adjust/Threshold tool */
 	public static final int ISODATA2 = 1;
-	
+
 	/** Composite image projection modes. */
 	public static final int UPDATE_RED=1, UPDATE_GREEN=2, UPDATE_BLUE=3, SET_FIRST_CHANNEL=4,
 		SUM_PROJECTION=5, MAX_PROJECTION=6, MIN_PROJECTION=7, INVERT_PROJECTION=8;
@@ -274,7 +274,7 @@ public abstract class ImageProcessor implements Cloneable {
     	for (int i=0; i<mapSize; i++) {
 			r2 = rLUT[i]&0xff; g2 = gLUT[i]&0xff; b2 = bLUT[i]&0xff;
     		distance = (r2-r1)*(r2-r1)+(g2-g1)*(g2-g1)+(b2-b1)*(b2-b1);
-			//ij.IJ.log("  "+i+" "+minIndex+" "+distance+"   "+(rLUT[i]&255)+" "+(gLUT[i]&255)+" "+(bLUT[i]&255));
+			//ij.IJMessage.log("  "+i+" "+minIndex+" "+distance+"   "+(rLUT[i]&255)+" "+(gLUT[i]&255)+" "+(bLUT[i]&255));
     		if (distance<minDistance) {
     			minDistance = distance;
     			minIndex = i;
@@ -423,7 +423,7 @@ public abstract class ImageProcessor implements Cloneable {
 
 	/** Sets the default fill/draw value. */
 	public abstract void setValue(double value);
-	
+
 	/** Returns the default fill/draw value. */
 	public abstract double getForegroundValue();
 
@@ -437,7 +437,7 @@ public abstract class ImageProcessor implements Cloneable {
 
 	/** Returns the background fill value. */
 	public abstract double getBackgroundValue();
-	
+
 	/** Sets the global (Color Picker) foreground color
 	 * as the fill/draw color.
 	 * @see ij.gui.Toolbar#setForegroundColor(Color)
@@ -494,7 +494,7 @@ public abstract class ImageProcessor implements Cloneable {
 		can be RED_LUT, BLACK_AND_WHITE_LUT, OVER_UNDER_LUT or NO_LUT_UPDATE.
 		Thresholding of RGB images is not supported. */
 	public void setThreshold(double minThreshold, double maxThreshold, int lutUpdate) {
-		//ij.IJ.log("setThreshold: "+" "+minThreshold+" "+maxThreshold+" "+lutUpdate);
+		//ij.IJMessage.log("setThreshold: "+" "+minThreshold+" "+maxThreshold+" "+lutUpdate);
 		if (this instanceof ColorProcessor)
 			return;
 		this.minThreshold = minThreshold;
@@ -564,7 +564,7 @@ public abstract class ImageProcessor implements Cloneable {
 		}
 		cm = new IndexColorModel(8, 256, rLUT2, gLUT2, bLUT2);
 	}
-	
+
 	/** Automatically sets the lower and upper threshold levels, where 'method'
 	 * must be "Default", "Huang", "Intermodes", "IsoData", "IJ_IsoData", "Li",
 	 * "MaxEntropy", "Mean", "MinError", "Minimum", "Moments", "Otsu",
@@ -779,7 +779,7 @@ public abstract class ImageProcessor implements Cloneable {
 		@see ImageProcessor#resetBinaryThreshold
 	*/
 	public void setBinaryThreshold() {
-		//ij.IJ.log("setMaskThreshold1");
+		//ij.IJMessage.log("setMaskThreshold1");
 		if (!(this instanceof ByteProcessor)) return;
 		double t1=255.0, t2=255.0;
 		boolean invertedLut = isInvertedLut();
@@ -787,7 +787,7 @@ public abstract class ImageProcessor implements Cloneable {
 			t1 = 0.0;
 			t2 = 0.0;
 		}
-		//ij.IJ.log("setMaskThreshold2 "+t1+" "+t2);
+		//ij.IJMessage.log("setMaskThreshold2 "+t1+" "+t2);
 		setThreshold(t1, t2, ImageProcessor.NO_LUT_UPDATE);
 	}
 
@@ -1516,7 +1516,7 @@ public abstract class ImageProcessor implements Cloneable {
 		Java2.setAntialiasedText(fmGraphics, antialiasedText);
 		fontMetrics = fmGraphics.getFontMetrics(font);
 	}
-	
+
 	/** Sets the size of the font used by drawString(). */
 	public void setFontSize(int size) {
 		setFont(font.deriveFont(font.getStyle(), size));
@@ -1931,7 +1931,7 @@ public abstract class ImageProcessor implements Cloneable {
 	public void putPixel(int x, int y, int[] iArray) {
 		putPixel(x, y, iArray[0]);
 	}
-	
+
 	/*
 	public int[] getRGBValue(int index, int[] rgb) {
 		if (rgb==null) rgb = new int[3];
@@ -1951,11 +1951,11 @@ public abstract class ImageProcessor implements Cloneable {
 		if (value<0.0) value = 0.0;
 		int v = (int)(value*scale+0.5);
 		if (v>255) v = 255;
-		rgb[0]=rLUT1[v]; rgb[1]=gLUT1[v]; rgb[2]=bLUT1[v];		
+		rgb[0]=rLUT1[v]; rgb[1]=gLUT1[v]; rgb[2]=bLUT1[v];
 		return rgb;
 	}
 	*/
-	
+
 	/** Uses the current interpolation method (bilinear or bicubic)
 		to find the pixel value at real coordinates (x,y). */
 	public abstract double getInterpolatedPixel(double x, double y);
@@ -2311,7 +2311,7 @@ public abstract class ImageProcessor implements Cloneable {
 			int x2 = x1+1;
 			if (x2==width1) x2=width1-1;
 			fraction = x*scale - x1;
-			//ij.IJ.log(x+" "+x1+" "+x2+" "+fraction+" "+width1+" "+width2);
+			//ij.IJMessage.log(x+" "+x1+" "+x2+" "+fraction+" "+width1+" "+width2);
 			data2[x] = (float)((1.0-fraction)*data1[x1] + fraction*data1[x2]);
 		}
 		for (int y=0; y<height2; y++)
@@ -2728,7 +2728,7 @@ public abstract class ImageProcessor implements Cloneable {
 						rgbPixels[i] = (rgbPixels[i]&0xffffff00) | blueValue;
 				}
 				break;
-			case MIN_PROJECTION: 
+			case MIN_PROJECTION:
 				int pixel;
 				for (int i=0; i<size; i++) {
 					pixel = rgbPixels[i];
@@ -2776,7 +2776,7 @@ public abstract class ImageProcessor implements Cloneable {
 	public static void setOverColor(int red, int green, int blue) {
 		overRed=red; overGreen=green; overBlue=blue;
 	}
-	
+
 	/** Set the lower Over/Under thresholding color. */
 	public static void setUnderColor(int red, int green, int blue) {
 		underRed=red; underGreen=green; underBlue=blue;
@@ -2912,5 +2912,5 @@ public abstract class ImageProcessor implements Cloneable {
 		b[255] = (byte)0;
 		return new IndexColorModel(8, 256, r, g, b);
 	}
-	
+
 }

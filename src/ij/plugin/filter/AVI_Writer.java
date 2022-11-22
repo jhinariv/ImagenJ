@@ -24,7 +24,7 @@ composite images by Michael Schmid.
 2015-09-28: Writes AVI 2.0 if the file size would be above approx. 0.9 GB
 
 * The AVI format written looks like this:
-* RIFF AVI            RIFF HEADER, AVI CHUNK					
+* RIFF AVI            RIFF HEADER, AVI CHUNK
 *   | LIST hdrl       MAIN AVI HEADER
 *   | | avih          AVI HEADER
 *   | | LIST strl     STREAM LIST(s) (One per stream)
@@ -100,16 +100,16 @@ public class AVI_Writer implements PlugInFilter {
         String fileDir = sd.getDirectory();
         FileInfo fi = imp.getOriginalFileInfo();
         if (fi!=null && imp.getStack().isVirtual() && fileDir.equals(fi.directory) && fileName.equals(fi.fileName)) {
-            IJ.error("AVI Writer", "Virtual stacks cannot be saved in place.");
+            IJMessage.error("AVI Writer", "Virtual stacks cannot be saved in place.");
             return;
         }
         try {
             writeImage(imp, fileDir + fileName, COMPRESSION_TYPES[compressionIndex], jpegQuality);
-            IJ.showStatus("");
+            IJMessage.showStatus("");
         } catch (IOException e) {
-            IJ.error("AVI Writer", "An error occured writing the file.\n \n" + e);
+            IJMessage.error("AVI Writer", "An error occured writing the file.\n \n" + e);
         }
-        IJ.showStatus("");
+        IJMessage.showStatus("");
     }
 
     private boolean showDialog(ImagePlus imp) {
@@ -215,7 +215,7 @@ public class AVI_Writer implements PlugInFilter {
         writeInt(0);            // dwInitialFrames -Initial frame for interleaved files.
                                 // Noninterleaved files should specify 0.
         writeInt(1);            // dwStreams - number of streams in the file - here 1 video and zero audio.
-        writeInt(0);      // dwSuggestedBufferSize 
+        writeInt(0);      // dwSuggestedBufferSize
          writeInt(xDim);         // dwWidth - image width in pixels
         writeInt(yDim);         // dwHeight - image height in pixels
         writeInt(0);            // dwReserved[4]
@@ -227,7 +227,7 @@ public class AVI_Writer implements PlugInFilter {
         writeString("LIST");    // List of stream headers
         chunkSizeHere();        // size of LIST (nesting level 2)
         writeString("strl");    // LIST chunk type: stream list
-        writeString("strh");    // stream header 
+        writeString("strh");    // stream header
         writeInt(56);           // Write the length of the strh sub-CHUNK
         writeString("vids");    // fccType - type of data stream - here 'vids' for video stream
         writeString("DIB ");    // 'DIB ' for Microsoft Device Independent Bitmap.
@@ -276,7 +276,7 @@ public class AVI_Writer implements PlugInFilter {
         if (writeLUT)           // write color lookup table
             writeLUT(imp.getProcessor());
         chunkEndWriteSize();    //'strf' chunk finished (nesting level 3)
-        
+
         writeString("strn");    // Use 'strn' to provide a zero terminated text string describing the stream
         writeInt(16);           // length of the strn sub-CHUNK (must be even)
         writeString("ImageJ AVI     \0"); //must be 16 bytes as given above (including the terminating 0 byte)
@@ -318,7 +318,7 @@ public class AVI_Writer implements PlugInFilter {
                 writeString("RIFF");
                 chunkSizeHere();        // size of chunk (nesting level 0)
                 writeString("AVIX");    // RIFF type
-                //IJ.log("AVIX starts at iFrame="+iFrame);
+                //IJMessage.log("AVIX starts at iFrame="+iFrame);
             }
             writeString("LIST");        // this LIST chunk contains the AVI-2 style index and the actual data
             chunkSizeHere();            // size of LIST (nesting level 1)
@@ -331,7 +331,7 @@ public class AVI_Writer implements PlugInFilter {
             while (iFrame<zDim) {
                 if (iFrame %10==0) {
                     IJ.showProgress(iFrame, zDim);
-                    IJ.showStatus(iFrame+"/"+zDim);
+                    IJMessage.showStatus(iFrame+"/"+zDim);
                 }
                 ImageProcessor ip = null;      // get the image to write ...
                 if (isComposite || isHyperstack || isOverlay) {
@@ -364,7 +364,7 @@ public class AVI_Writer implements PlugInFilter {
                 dataChunkLength[iFrame] = (int)(raFile.getFilePointer() - chunkPointer - 8); //size excludes '00db' and size fields
                 chunkEndWriteSize();            // '00db' or '00dc' chunk finished (nesting level 2)
                 //if (IJ.escapePressed()) {
-                //    IJ.showStatus("Save as Avi INTERRUPTED");
+                //    IJMessage.showStatus("Save as Avi INTERRUPTED");
                 //    break;
                 //}
                 iFrame++;
@@ -391,7 +391,7 @@ public class AVI_Writer implements PlugInFilter {
                     writeInt(dataChunkOffset[z]+8); //note: AVI--2 index points to chunk data, not chunk header
                     writeInt(dataChunkLength[z]);   //length without chunk header
                 }
-                //IJ.log("write ix00: frames "+firstFrameInChunk+"-"+(iFrame-1)+" offset "+Long.toHexString(dataChunkOffset[firstFrameInChunk])+"-"+Long.toHexString(dataChunkOffset[iFrame-1]));
+                //IJMessage.log("write ix00: frames "+firstFrameInChunk+"-"+(iFrame-1)+" offset "+Long.toHexString(dataChunkOffset[firstFrameInChunk])+"-"+Long.toHexString(dataChunkOffset[iFrame-1]));
                 //enter this ix00 index to index of indices:
                 writeMainIndxEntry(ix00pointer, (int)(raFile.getFilePointer()-ix00pointer), nFramesInChunk);
 
@@ -429,7 +429,7 @@ public class AVI_Writer implements PlugInFilter {
             writeString("JUNK");        // overwrite 'indx'
             chunkSizeHere();            // size of 'JUNK' for padding goes here
             raFile.seek(endHeadPointer);// end of the padded range
-            chunkEndWriteSize();        // 'JUNK' finished              
+            chunkEndWriteSize();        // 'JUNK' finished
         }
 
         raFile.close();
@@ -447,7 +447,7 @@ public class AVI_Writer implements PlugInFilter {
         writeInt(0);    //for now, write 0 to reserve space for "size" item
         stackPointer++;
     }
-    
+
     /** At the end of a chunk, calculate its size and write it to the
      *  position remembered previously. Also pads to 2-byte boundaries.
      */
@@ -457,7 +457,7 @@ public class AVI_Writer implements PlugInFilter {
         raFile.seek(sizePointers[stackPointer]);
         writeInt((int)(position - (sizePointers[stackPointer]+4)));
         raFile.seek(((position+1)/2)*2);    //pad to 2-byte boundary
-        //IJ.log("chunk at 0x"+Long.toHexString(sizePointers[stackPointer]-4)+"-0x"+Long.toHexString(position));
+        //IJMessage.log("chunk at 0x"+Long.toHexString(sizePointers[stackPointer]-4)+"-0x"+Long.toHexString(position));
     }
 
     /** Enter a local index 'ix00' to 'indx', the index of indices */
@@ -484,7 +484,7 @@ public class AVI_Writer implements PlugInFilter {
         raFile.seek(savePosition);
     }
 
-    /** Write Grayscale (or indexed color) data. Lines are  
+    /** Write Grayscale (or indexed color) data. Lines are
      *  padded to a length that is a multiple of 4 bytes. */
     private void writeByteFrame(ImageProcessor ip) throws IOException {
         ip = ip.convertToByte(true);
@@ -528,7 +528,7 @@ public class AVI_Writer implements PlugInFilter {
 
     /** Write a frame as jpeg- or png-compressed image */
 	private void writeCompressedFrame(ImageProcessor ip) throws IOException {
-		//IJ.log("BufferdImage Type="+bufferedImage.getType()); // 1=RGB, 13=indexed
+		//IJMessage.log("BufferdImage Type="+bufferedImage.getType()); // 1=RGB, 13=indexed
 		if (biCompression==JPEG_COMPRESSION) {
 			BufferedImage bi = getBufferedImage(ip);
 			ImageIO.write(bi, "jpeg", raOutputStream);
@@ -583,7 +583,7 @@ public class AVI_Writer implements PlugInFilter {
             raFile.write((int)(v & 0xFFL));
             v = v>>>8;
         }
-        //IJ.log("long: 0x"+Long.toHexString(v)+"="+v);
+        //IJMessage.log("long: 0x"+Long.toHexString(v)+"="+v);
     }
 
     /** Write 4-byte int with Intel (little-endian) byte order
@@ -593,7 +593,7 @@ public class AVI_Writer implements PlugInFilter {
         raFile.write((v >>>  8) & 0xFF);
         raFile.write((v >>> 16) & 0xFF);
         raFile.write((v >>> 24) & 0xFF);
-        //IJ.log("int: 0x"+Integer.toHexString(v)+"="+v);
+        //IJMessage.log("int: 0x"+Integer.toHexString(v)+"="+v);
     }
 
     /** Write 2-byte short with Intel (little-endian) byte order
@@ -615,15 +615,15 @@ public class AVI_Writer implements PlugInFilter {
             this.raFile = raFile;
         }
         public void write (int b) throws IOException {
-            //IJ.log("stream: byte");
+            //IJMessage.log("stream: byte");
             raFile.writeByte(b); //just for completeness, usually not used by image encoders
         }
         public void write (byte[] b) throws IOException {
-            //IJ.log("stream: array len="+b.length);
+            //IJMessage.log("stream: array len="+b.length);
             raFile.write(b);
         }
         public void write (byte[] b, int off, int len) throws IOException {
-            //IJ.log("stream: array="+b.length+" off="+off+" len="+len);
+            //IJMessage.log("stream: array="+b.length+" off="+off+" len="+len);
             raFile.write(b, off, len);
         }
     }

@@ -36,8 +36,8 @@ public class Channels extends PlugInDialog implements PlugIn, ItemListener, Acti
 	+"<li> <u>Red, Green, Blue, Cyan, Magenta, Yellow, Grays</u> - Updates the current channel's LUT so that it uses the selected color.<br>"
 	+"</ul>"
 	+"<br>"
-	+"The <i>\"Channels & Colors\"</i> chapter of Pete Bankhead's \"<i>Introduction to Bioimage Analysis</i>\" (https://bioimagebook.github.io) is a good introduction to multichannel images and LUTs.<br>"	
-	+"<br>"	
+	+"The <i>\"Channels & Colors\"</i> chapter of Pete Bankhead's \"<i>Introduction to Bioimage Analysis</i>\" (https://bioimagebook.github.io) is a good introduction to multichannel images and LUTs.<br>"
+	+"<br>"
 	+"The macro at http://wsr.imagej.net/macros/CompositeProjection.ijm uses the \"Invert LUTs\", \"RGB Stack\", \"Z Project\" and \"Invert\" commands to reproduce the four composite display modes.<br>"
 	+"</font>";
 
@@ -128,7 +128,7 @@ public class Channels extends PlugInDialog implements PlugIn, ItemListener, Acti
 			setLocation(location);
 		show();
 	}
-	
+
 	public void update() {
 		CompositeImage ci = getImage();
 		if (ci==null || checkbox==null)
@@ -146,10 +146,10 @@ public class Channels extends PlugInDialog implements PlugIn, ItemListener, Acti
 		for (int i=0; i<checkbox.length; i++)
 			checkbox[i].setState(active[i]);
 		int index = 0;
-		
+
 		String cmode = ci.getProp("CompositeProjection");
 		int cindex = COMP;
-		if (cmode!=null) {			
+		if (cmode!=null) {
 			if (cmode.contains("Max")||cmode.contains("max")) cindex=MAX;
 			if (cmode.contains("Min")||cmode.contains("min")) cindex=MIN;
 			if (cmode.contains("Invert")||cmode.contains("invert")) cindex=INVERT;
@@ -161,12 +161,12 @@ public class Channels extends PlugInDialog implements PlugIn, ItemListener, Acti
 		}
 		choice.select(index);
 	}
-	
+
 	public static void updateChannels() {
 		if (instance!=null)
 			instance.update();
 	}
-	
+
 	void addPopupItem(String s) {
 		MenuItem mi=new MenuItem(s);
 		mi.addActionListener(this);
@@ -195,9 +195,9 @@ public class Channels extends PlugInDialog implements PlugIn, ItemListener, Acti
 				if (gd.wasCanceled())
 					return;
 				else
-					IJ.doCommand("Make Composite");					
+					IJ.doCommand("Make Composite");
 			} else {
-				IJ.error("Channels", "A composite image is required (e.g., "+moreLabel+" Open HeLa Cells),\nor create one using "+moreLabel+" Make Composite.");
+				IJMessage.error("Channels", "A composite image is required (e.g., "+moreLabel+" Open HeLa Cells),\nor create one using "+moreLabel+" Make Composite.");
 				return;
 			}
 		}
@@ -219,10 +219,10 @@ public class Channels extends PlugInDialog implements PlugIn, ItemListener, Acti
 			}
 			if (cstr!=null && !(cstr.equals("Sum")&&ci.getProp("CompositeProjection")==null))
 				ci.setProp("CompositeProjection", cstr);
-			//IJ.log(cmode+" "+cstr+" "+imp.isInvertedLut());
+			//IJMessage.log(cmode+" "+cstr+" "+imp.isInvertedLut());
 			if (cmode==IJ.COMPOSITE && (("Min".equals(cstr)||"Invert".equals(cstr)) && !imp.isInvertedLut())
 			|| ("Max".equals(cstr)||"Sum".equals(cstr)) && imp.isInvertedLut())
-				IJ.runMacroFile("ij.jar:InvertAllLuts", null);	
+				IJ.runMacroFile("ij.jar:InvertAllLuts", null);
 			ci.setMode(cmode);
 			ci.updateAndDraw();
 			if (Recorder.record) {
@@ -277,7 +277,7 @@ public class Channels extends PlugInDialog implements PlugIn, ItemListener, Acti
 			}
 		}
 	}
-	
+
 	public void actionPerformed(ActionEvent e) {
 		Object source = e.getSource();
 		if (source==helpButton) {
@@ -294,16 +294,16 @@ public class Channels extends PlugInDialog implements PlugIn, ItemListener, Acti
 		else
 			IJ.doCommand(command);
 	}
-	
+
 	/** Obsolete; always returns null. */
 	public static Frame getInstance() {
 		return null;
 	}
-		
+
 	public void close() {
 		super.close();
 		instance = null;
 		location = getLocation();
 	}
-	
+
 }

@@ -77,7 +77,7 @@ public class PlotContentsDialog implements DialogListener {
 		creatingPlot = true;
 		dialogType = ADD_FROM_TABLE;
 		if (rt == null || !isValid(rt)) {
-			IJ.error("Cant Create Plot","No (results) table or no data in "+title);
+			IJMessage.error("Cant Create Plot","No (results) table or no data in "+title);
 			dialogType = ERROR;
 		}
 		plot = new Plot("Plot of "+title, "x", "y");
@@ -122,7 +122,7 @@ public class PlotContentsDialog implements DialogListener {
 		plot.savePlotObjects();
 		String[] designations = plot.getPlotObjectDesignations();
 		if (dialogType == STYLE && designations.length==0) {
-			IJ.error("Empty Plot");
+			IJMessage.error("Empty Plot");
 			return;
 		} else if (dialogType == ADD_FROM_PLOT) {
 			prepareAddFromPlot();
@@ -156,7 +156,7 @@ public class PlotContentsDialog implements DialogListener {
 		} else if (dialogType == ADD_FIT) {
 			String[] dataSources = plot.getDataObjectDesignations();
 			if (dataSources.length == 0) {
-				IJ.error("No Data For Fitting");
+				IJMessage.error("No Data For Fitting");
 				return;
 			}
 			gd.addChoice("Fit Data Set:", dataSources, dataSources[0]);
@@ -243,7 +243,7 @@ public class PlotContentsDialog implements DialogListener {
 		}
 		if (dialogType == ADD_FIT) {
 			lastFitFunction = fitFunctionChoice.getSelectedItem();
-			IJ.log(curveFitterStatusString);
+			IJMessage.log(curveFitterStatusString);
 		}
 		if (Recorder.record && !Recorder.scriptMode()) {
 			if (dialogType == ADD_FROM_PLOT) {
@@ -583,7 +583,7 @@ public class PlotContentsDialog implements DialogListener {
 		String statusString = "Fit: "+Minimizer.STATUS_STRING[cf.getStatus()];
 		if (cf.getStatus() == Minimizer.SUCCESS)
 			statusString += ", sum residuals ^2 = "+(float)(cf.getSumResidualsSqr());
-		IJ.showStatus(statusString);
+		IJMessage.showStatus(statusString);
 		curveFitterStatusString = "Fit for "+plot.getTitle()+": "+fitDataChoice.getSelectedItem()+cf.getResultString(); //will be shown in Log when done
 
 		double[] plotMinMax = plot.getLimits();

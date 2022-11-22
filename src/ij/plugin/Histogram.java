@@ -18,7 +18,7 @@ public class Histogram implements PlugIn, TextListener {
 	private static double staticXMin, staticXMax;
 	private static String staticYMax = "Auto";
 	private static boolean staticStackHistogram;
-	private static int imageID;	
+	private static int imageID;
 	private int nBins = 256;
 	private boolean useImageMinAndMax = true;
 	private double xMin, xMax;
@@ -31,7 +31,7 @@ public class Histogram implements PlugIn, TextListener {
  	public void run(String arg) {
  		ImagePlus imp = IJ.getImage();
  		int bitDepth = imp.getBitDepth();
- 		if (bitDepth==32 || IJ.altKeyDown() || (IJ.isMacro()&&Macro.getOptions()!=null)) {
+ 		if (bitDepth==32 || IJ.altKeyDown() || (IJMacro.isMacro()&&Macro.getOptions()!=null)) {
 			IJ.setKeyUp(KeyEvent.VK_ALT);
  			if (!showDialog(imp))
  				return;
@@ -79,9 +79,9 @@ public class Histogram implements PlugIn, TextListener {
 			plot.draw(imp, nBins, xMin, xMax, iyMax);
 		plot.show();
 	}
-	
+
 	boolean showDialog(ImagePlus imp) {
-		if (!IJ.isMacro()) {
+		if (!IJMacro.isMacro()) {
 			nBins = HistogramWindow.nBins;
 			useImageMinAndMax = staticUseImageMinAndMax;
 			xMin=staticXMin; xMax=staticXMax;
@@ -131,14 +131,14 @@ public class Histogram implements PlugIn, TextListener {
 		checkbox = (Checkbox)(gd.getCheckboxes().elementAt(0));
 		gd.showDialog();
 		if (gd.wasCanceled())
-			return false;			
+			return false;
 		nBins = (int)gd.getNextNumber();
 		useImageMinAndMax = gd.getNextBoolean();
 		xMin = gd.getNextNumber();
 		xMax = gd.getNextNumber();
 		yMax = gd.getNextString();
 		stackHistogram = (stackSize>1)?gd.getNextBoolean():false;
-		if (!IJ.isMacro()) {
+		if (!IJMacro.isMacro()) {
 			if (nBins>=2 && nBins<=1000)
 				HistogramWindow.nBins = nBins;
 			staticUseImageMinAndMax = useImageMinAndMax;
@@ -156,7 +156,7 @@ public class Histogram implements PlugIn, TextListener {
 		if (rangeChanged)
 			checkbox.setState(false);
 	}
-	
+
 	int setupDialog(ImagePlus imp, int flags) {
 		int stackSize = imp.getStackSize();
 		if (stackSize>1) {

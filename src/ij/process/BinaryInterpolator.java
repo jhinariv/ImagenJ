@@ -10,7 +10,7 @@ import ij.plugin.filter.ThresholdToSelection;
  * labeled (i.e. contain white regions), and some are not. The unlabaled
  * regions are interpolated by weighting the signed integer distance
  * transformed labeled slices.
- * 
+ *
  * from:
  * http://fiji.sc/cgi-bin/gitweb.cgi?p=fiji.git;a=blob_plain;f=src-plugins/VIB-lib/vib/BinaryInterpolator.java;h=f6a610659ad624d13f94639bc5c0149712071f9f;hb=refs/heads/master
  */
@@ -31,23 +31,23 @@ public class BinaryInterpolator {
 			}
 		}
 		if (firstIndex == -1) {
-			IJ.error("There must be at least one selection in order to interpolate.");
+			IJMessage.error("There must be at least one selection in order to interpolate.");
 			return;
 		}
 
 		for(int i = firstIndex; i <= lastIndex; i++) {
 			ByteProcessor bp = new ByteProcessor(w, h);
 			if(rois[i] != null) {
-				bp.copyBits(rois[i].getMask(), 
-							rois[i].getBounds().x, 
-							rois[i].getBounds().y, 
+				bp.copyBits(rois[i].getMask(),
+							rois[i].getBounds().x,
+							rois[i].getBounds().y,
 							ij.process.Blitter.ADD);
 			}
 			stack.addSlice("", bp);
 		}
 		run(stack);
 		ImagePlus roiImage = new ImagePlus("bla", stack);
-		
+
 		ThresholdToSelection ts = new ThresholdToSelection();
 		ts.setup("", roiImage);
 		for(int i = firstIndex; i <= lastIndex; i++) {
@@ -60,14 +60,14 @@ public class BinaryInterpolator {
 		}
 	}
 
-	public void run(ImageStack stack) {	
+	public void run(ImageStack stack) {
 		int sliceCount = stack.size();
 		if (sliceCount < 3) {
-			IJ.error("Too few slices to interpolate!");
+			IJMessage.error("Too few slices to interpolate!");
 			return;
 		}
 
-		IJ.showStatus("getting signed integer distance transform");
+		IJMessage.showStatus("getting signed integer distance transform");
 		w = stack.getWidth();
 		h = stack.getHeight();
 		idt = new int[sliceCount][];
@@ -83,11 +83,11 @@ public class BinaryInterpolator {
 		 }
 
 		if (first == last || last < 0) {
-			IJ.error("Not enough to interpolate");
+			IJMessage.error("Not enough to interpolate");
 			return;
 		}
 
-		IJ.showStatus("calculating weights");
+		IJMessage.showStatus("calculating weights");
 		int current = 0, next = first;
 		for (int z = first; z < last; z++) {
 			if (z == next) {

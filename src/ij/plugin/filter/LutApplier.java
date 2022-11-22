@@ -23,18 +23,18 @@ public class LutApplier implements PlugInFilter {
 	public void run(ImageProcessor ip) {
 		apply(imp, ip);
 	}
-	
+
 	void apply(ImagePlus imp, ImageProcessor ip) {
         if (ip.getMinThreshold()!=ImageProcessor.NO_THRESHOLD) {
             imp.unlock();
-			IJ.runPlugIn("ij.plugin.Thresholder", "skip");
+			IJPlugin.runPlugIn(("ij.plugin.Thresholder", "skip");
             return;
         }
 		min = (int)imp.getDisplayRangeMin();
 		max = (int)imp.getDisplayRangeMax();
 		int depth = imp.getBitDepth();
-		if (!IJ.isMacro() && (depth==8||depth==24) && min==0 && max==255) {
-				IJ.error("Apply LUT", "The display range must first be updated\n"
+		if (!IJMacro.isMacro() && (depth==8||depth==24) && min==0 && max==255) {
+				IJMessage.error("Apply LUT", "The display range must first be updated\n"
                 +"using Image>Adjust>Brightness/Contrast\n"
                 +"or threshold levels defined using\n"
                 +"Image>Adjust>Threshold.");
@@ -101,7 +101,7 @@ public class LutApplier implements PlugInFilter {
 			imp.setDisplayRange(0,range-1);
 		resetContrastAdjuster();
 	}
-	
+
 	private void resetContrastAdjuster() {
 		ContrastAdjuster.update();
 	}
@@ -109,7 +109,7 @@ public class LutApplier implements PlugInFilter {
 	void applyRGBStack(ImagePlus imp) {
 		int current = imp.getCurrentSlice();
 		int n = imp.getStackSize();
-		if (!IJ.showMessageWithCancel("Update Entire Stack?",
+		if (!IJMessage.showMessageWithCancel("Update Entire Stack?",
 		"Apply brightness and contrast settings\n"+
 		"to all "+n+" slices in the stack?\n \n"+
 		"NOTE: There is no Undo for this operation.")) {
@@ -126,5 +126,5 @@ public class LutApplier implements PlugInFilter {
 		}
 		imp.setSlice(current);
 	}
-	
+
 }

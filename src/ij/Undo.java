@@ -24,7 +24,7 @@ public class Undo {
 	public static final int OVERLAY_ADDITION = 7;
 	public static final int ROI = 8;
 	public static final int MACRO = 9;
-	
+
 	private static int whatToUndo = NOTHING;
 	private static int imageID;
 	private static ImageProcessor ipCopy = null;
@@ -34,14 +34,14 @@ public class Undo {
 	private static double displayRangeMin, displayRangeMax;
 	private static LUT lutCopy;
 	private static Overlay overlayCopy;
-	
+
 	public static void setup(int what, ImagePlus imp) {
 		if (imp==null) {
 			whatToUndo = NOTHING;
 			reset();
 			return;
 		}
-		if (IJ.debugMode) IJ.log("Undo.setup: "+what+" "+imp);
+		if (IJDebugMode.debugMode) IJMessage.log("Undo.setup: "+what+" "+imp);
 		if (what==FILTER && whatToUndo==COMPOUND_FILTER)
 				return;
 		if (what==COMPOUND_FILTER_DONE) {
@@ -54,12 +54,12 @@ public class Undo {
 		if (what==TYPE_CONVERSION) {
 			ipCopy = imp.getProcessor();
 			calCopy = (Calibration)imp.getCalibration().clone();
-		} else if (what==TRANSFORM) {	
-			if ((!IJ.macroRunning()||Prefs.supportMacroUndo) && (imp.getStackSize()==1||imp.getDisplayMode()==IJ.COMPOSITE) && imp.getSizeInBytes()<209715200)
+		} else if (what==TRANSFORM) {
+			if ((!IJMacro.macroRunning()||Prefs.supportMacroUndo) && (imp.getStackSize()==1||imp.getDisplayMode()==IJ.COMPOSITE) && imp.getSizeInBytes()<209715200)
 				impCopy = imp.duplicate();
 			else
 				reset();
-		} else if (what==MACRO) {	
+		} else if (what==MACRO) {
 			ipCopy = imp.getProcessor().duplicate();
 			calCopy = (Calibration)imp.getCalibration().clone();
 			impCopy = null;
@@ -87,7 +87,7 @@ public class Undo {
 			//lutCopy = (LUT)ip.getLut().clone();
 		}
 	}
-	
+
 	public static void saveOverlay(ImagePlus imp) {
 		Overlay overlay = imp!=null?imp.getOverlay():null;
 		if (overlay!=null)
@@ -95,9 +95,9 @@ public class Undo {
 		else
 			overlayCopy = null;
 	}
-		
+
 	public static void reset() {
-		//if (IJ.debugMode) IJ.log("Undo.reset: "+ whatToUndo+" "+impCopy);
+		//if (IJDebugMode.debugMode) IJMessage.log("Undo.reset: "+ whatToUndo+" "+impCopy);
 		if (whatToUndo==COMPOUND_FILTER || whatToUndo==OVERLAY_ADDITION)
 			return;
 		whatToUndo = NOTHING;
@@ -108,13 +108,13 @@ public class Undo {
 		roiCopy = null;
 		lutCopy = null;
 		overlayCopy = null;
-	}	
+	}
 
 	public static void undo() {
 		ImagePlus imp = WindowManager.getCurrentImage();
-		if (IJ.debugMode) IJ.log("Undo.undo: "+ whatToUndo+" "+imp+"  "+impCopy);
+		if (IJDebugMode.debugMode) IJMessage.log("Undo.undo: "+ whatToUndo+" "+imp+"  "+impCopy);
 		if (imp==null || imageID!=imp.getID()) {
-			if (imp!=null && !IJ.macroRunning()) { // does image still have an undo buffer?
+			if (imp!=null && !IJMacro.macroRunning()) { // does image still have an undo buffer?
 				ImageProcessor ip2 = imp.getProcessor();
 				ip2.swapPixelArrays();
 				imp.updateAndDraw();
@@ -127,7 +127,7 @@ public class Undo {
 				undoOverlay(imp);
 				ImageProcessor ip = imp.getProcessor();
 				if (ip!=null) {
-					if (!IJ.macroRunning()) {
+					if (!IJMacro.macroRunning()) {
 						ip.swapPixelArrays();
 						imp.updateAndDraw();
 						return; // don't reset
@@ -174,7 +174,7 @@ public class Undo {
 				break;
 			case OVERLAY_ADDITION:
 				Overlay overlay = imp.getOverlay();
-				if (overlay==null) 
+				if (overlay==null)
 					{IJ.beep(); return;}
 				int size = overlay.size();
 				if (size>0) {
@@ -188,7 +188,7 @@ public class Undo {
     	}
     	reset();
 	}
-	
+
 	private static void undoOverlay(ImagePlus imp) {
 		if (overlayCopy!=null) {
 			Overlay overlay = imp.getOverlay();
@@ -201,7 +201,7 @@ public class Undo {
 
 	static boolean swapImages(ImagePlus imp1, ImagePlus imp2) {
 		if (imp1.getWidth()!=imp2.getWidth() || imp1.getHeight()!=imp2.getHeight()
-		|| imp1.getBitDepth()!=imp2.getBitDepth() || IJ.macroRunning())
+		|| imp1.getBitDepth()!=imp2.getBitDepth() || IJMacro.macroRunning())
 			return false;
 		ImageProcessor ip1 = imp1.getProcessor();
 		ImageProcessor ip2 = imp2.getProcessor();

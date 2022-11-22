@@ -14,7 +14,7 @@ public class GifWriter implements PlugIn {
 	static int transparentIndex = Prefs.getTransparentIndex();
 	private boolean showErrors = true;
 	private String error;
-		
+
 	/** Saves the specified image in GIF format or as an animated GIF if the image is a stack. */
 	public static String save(ImagePlus imp, String path) {
 		if (imp==null)
@@ -38,11 +38,11 @@ public class GifWriter implements PlugIn {
 		}
 		run(imp, path);
 	}
-	   
+
 	private void run(ImagePlus imp, String path) {
 		ImageStack stack = imp.getStack();
 		Overlay overlay = imp.getOverlay();
-		int nSlices = stack.size();				
+		int nSlices = stack.size();
 		if (nSlices==1) { // save using ImageIO
 			if (overlay!=null && !imp.tempOverlay())
 				imp = imp.flatten();
@@ -57,12 +57,12 @@ public class GifWriter implements PlugIn {
 					msg = "An error occured writing the file.\n \n" + msg;
 					if (msg.contains("NullPointerException"))
 						msg = "Incorrect file path: \""+path+"\"";
-					IJ.error("GIF Writer", msg);
+					IJMessage.error("GIF Writer", msg);
 					showErrors = false;
 				}
 			}
 			return;
-		}		
+		}
 		AnimatedGifEncoder2 ge = new AnimatedGifEncoder2();
 		if (!ge.setoptions())
 			return;
@@ -78,7 +78,7 @@ public class GifWriter implements PlugIn {
 		ge.start(path);
 		ImagePlus tmp = new ImagePlus();
 		for (int i=1; i<=nSlices; i++) {
-			IJ.showStatus("writing: "+i+"/"+nSlices);
+			IJMessage.showStatus("writing: "+i+"/"+nSlices);
 			IJ.showProgress((double)i/nSlices);
 			tmp.setProcessor(null, stack.getProcessor(i));
 			if (overlay!=null) {
@@ -90,41 +90,41 @@ public class GifWriter implements PlugIn {
 					if (imp.getBitDepth()==8)
 						new ImageConverter(tmp).convertRGBtoIndexedColor(256);
 				}
-			}			
+			}
 			try {
 				ge.addFrame(tmp);
 			} catch(Exception e)  {
 				error = ""+e;
 				if (showErrors) {
-					IJ.error("Save as Gif: "+e);
+					IJMessage.error("Save as Gif: "+e);
 					showErrors = false;
 				}
 			}
-		}	
+		}
 		ge.finish();
-		IJ.showStatus("");
+		IJMessage.showStatus("");
 		IJ.showProgress(1.0);
 	}
-	
+
 	private void writeImage(ImagePlus imp, String path, int transparentIndex) throws Exception {
 		if (transparentIndex>=0 && transparentIndex<=255)
 			writeImageWithTransparency(imp, path, transparentIndex);
 		else
 			ImageIO.write(imp.getBufferedImage(), "gif", new File(path));
 	}
-	
+
 	private void writeImageWithTransparency(ImagePlus imp, String path, int transparentIndex) throws Exception {
 		int width = imp.getWidth();
 		int	 height = imp.getHeight();
 		ImageProcessor ip = imp.getProcessor();
 		IndexColorModel cm = (IndexColorModel)ip.getColorModel();
 		int size = cm.getMapSize();
-		//IJ.log("write: "+size+" "+transparentIndex);
+		//IJMessage.log("write: "+size+" "+transparentIndex);
 		byte[] reds = new byte[256];
 		byte[] greens = new byte[256];
-		byte[] blues = new byte[256];	
-		cm.getReds(reds); 
-		cm.getGreens(greens); 
+		byte[] blues = new byte[256];
+		cm.getReds(reds);
+		cm.getGreens(greens);
 		cm.getBlues(blues);
 		cm = new IndexColorModel(8, size, reds, greens, blues, transparentIndex);
 		WritableRaster wr = cm.createCompatibleWritableRaster(width, height);
@@ -161,32 +161,32 @@ public class GifWriter implements PlugIn {
  *
  *
  * 1) Load stack with 8 bit or RGB images it is possible to use the animated gif reader but because the color
- *	 table is lost it is best to also load a separate copy of the first image in the series this will allow 
+ *	 table is lost it is best to also load a separate copy of the first image in the series this will allow
  *	 extraction of the original image color look up table (see 1below)
  * 2)Check the option list to bring up the option list.
- * 3)Experiment with the option list. I usually use a global color table to save space, set to do not dispose if 
+ * 3)Experiment with the option list. I usually use a global color table to save space, set to do not dispose if
  *		each consecutive image is overlayed on the previous image.
  * 4)Color table can be imported from another image or extracted from 8bit stack images or loaded as the
- *	  first 256	 RGB triplets from a RGB images, the last mode takes either a imported image or current 
+ *	  first 256	 RGB triplets from a RGB images, the last mode takes either a imported image or current
  *	  stack and creates the color table from scratch.
- *	
  *
- *	  To do list 
  *
- *	   1) Modify existing Animated Gif reader plug in to import in 8 bit mode (currently only works in 
+ *	  To do list
+ *
+ *	   1) Modify existing Animated Gif reader plug in to import in 8 bit mode (currently only works in
  *		   RGB	mode.  Right now the best way to alter an animated gif is to save the first image separately
- *		   and then read the single gif and use the plugin animated reader to read the animated gif to the 
+ *		   and then read the single gif and use the plugin animated reader to read the animated gif to the
  *		   stack. Let this plugin encode the stack using the single gif's color table.
  *		2) Add support for background colors easy but I have no use for them
- *		3) RGB to 8 bit converter is a linear search. Needs to be replaced with sorted list and fast search. But 
+ *		3) RGB to 8 bit converter is a linear search. Needs to be replaced with sorted list and fast search. But
  *			this update could cause problems with some types of gifs. Easy fix get a faster computer.
  *		4) Try updating NN color converter seems to be heavily weighted towards quantity of pixels.
  *		  example:
- *			 if there is 90% of the image covered in shades of one color or grey the 10% of other colors tend 
+ *			 if there is 90% of the image covered in shades of one color or grey the 10% of other colors tend
  *			 to be poorly represented it  over fits the shades and under fits the others. Works well if the
  *			distribution  is balanced.
  *		 5) Add support for all sizes of Color Look Up tables.
- *		 6) Re-code to be cleaner. This is my second Java program and I started with some code with too 
+ *		 6) Re-code to be cleaner. This is my second Java program and I started with some code with too
  *			 many  global variables and I added more switches so its a bit hard to follow.
  *
  * Credits for the base conversion codes
@@ -235,8 +235,8 @@ class AnimatedGifEncoder2 {
 	protected byte[] gct = null;		//Global color table
 	protected boolean gctused = false; // Set to true to use Global color table
 	protected boolean autotransparent = false; // Set True if transparency index coming from image 8 bit only
-	protected boolean GCTextracted = false; // Set if global color table extracted from rgb image 
-	protected boolean GCTloadedExternal = false; // Set if global color table loaded directly from external image 
+	protected boolean GCTextracted = false; // Set if global color table extracted from rgb image
+	protected boolean GCTloadedExternal = false; // Set if global color table loaded directly from external image
 	protected int	   GCTred =	 0;	  //Transparent Color
 	protected	  int  GCTgrn = 0;	  // green
 	protected	  int	GCTbl  =  0;   // blue
@@ -244,7 +244,7 @@ class AnimatedGifEncoder2 {
 	protected boolean GCTsetTransparent = false; //If true then Color table transparency index is set
 	protected boolean GCToverideIndex = false; //If true Transparent index is set to index with closest colors
 	protected boolean GCToverideColor = false; //if true Color at Transparent index is set to GCTred, GCTgrn GCTbl
-   
+
    /**
 	* Adds next GIF frame.	The frame is not written immediately, but is
 	* actually deferred until the next frame is received so that timing
@@ -266,7 +266,7 @@ class AnimatedGifEncoder2 {
 			}
 			if(gctused)
 			  writeLSDgct();				 // logical screen descriptior
-			  if (GCTloadedExternal){	 //Using external image as color table 
+			  if (GCTloadedExternal){	 //Using external image as color table
 				colorTab = gct;
 				TransparentIndex(colorTab); //check transparency color
 				writePalette();		// write global color table
@@ -280,18 +280,18 @@ class AnimatedGifEncoder2 {
 			 }
 			firstFrame = false;
 		 }
-	  
+
 		int type = image.getType();
-		// If  indexed byte image then format does not need changing	  
+		// If  indexed byte image then format does not need changing
 		int k;
 		if ((type == 0) ||( type == 3)) //8 bit images
 			Process8bitCLT(image);
-		else if (type==4)	{ //4 for RGB		   
+		else if (type==4)	{ //4 for RGB
 			packrgb(image);
-			OverRideQuality(image.getWidth()*image.getHeight());							
+			OverRideQuality(image.getWidth()*image.getHeight());
 			if (gctused && (gct == null))	 { //quality should not	depend on image size
 				analyzePixels();	// build global color table & map pixels
-				colorTab = gct; 
+				colorTab = gct;
 				TransparentIndex(colorTab); //check transparency color
 				writePalette();		// write global color table
 				if (repeat >= 0)
@@ -309,14 +309,14 @@ class AnimatedGifEncoder2 {
 
 	  return ok;
    }
-   
- /* 
+
+ /*
 	Handles transparency color Index
 	Assumes colors and index are already checked for validity
- */	 
+ */
    void	  TransparentIndex(byte[] colorTab){
 	 if(autotransparent|| !GCTsetTransparent) return;
-	 if(colorTab==null)throw new IllegalArgumentException("Color Table not loaded."); 
+	 if(colorTab==null)throw new IllegalArgumentException("Color Table not loaded.");
 	 int len = colorTab.length;
 	 setTransparent(true); //Sets color tranparency flag
 	 if (!(GCToverideColor||GCToverideIndex)){
@@ -324,12 +324,12 @@ class AnimatedGifEncoder2 {
 			return;
 		 }
 		 if(GCToverideIndex)
-		 	GCTcindex= findClosest(colorTab, GCTred, GCTgrn, GCTbl); 
+		 	GCTcindex= findClosest(colorTab, GCTred, GCTgrn, GCTbl);
 		//finds index in color Table
-		 transIndex = GCTcindex;	
+		 transIndex = GCTcindex;
 		 int pindex = 3*GCTcindex;
 		 if (pindex>(len-3))
-			throw new IllegalArgumentException("Index ("+transIndex+") too large for Color Lookup table."); 
+			throw new IllegalArgumentException("Index ("+transIndex+") too large for Color Lookup table.");
 		  colorTab[pindex++]  = (byte)GCTred; //Set Color Table[transparent index] with specified color
 		  colorTab[pindex++]  = (byte)GCTgrn;
 		  colorTab[pindex] = (byte)GCTbl;
@@ -353,12 +353,12 @@ public boolean setoptions() {
 	if (!(autotransparent||GCTsetTransparent||GCToverideIndex||GCToverideColor)) setTrans=0;
 	if (GCTsetTransparent&& !(GCToverideIndex||GCToverideColor)) setTrans = 2;
 	if (GCTsetTransparent&& GCToverideIndex && !GCToverideColor) setTrans = 4;
-	if (GCTsetTransparent&& !GCToverideIndex && GCToverideColor) setTrans = 3;		
+	if (GCTsetTransparent&& !GCToverideIndex && GCToverideColor) setTrans = 3;
 	int red = GCTred;
 	int grn = GCTgrn;
 	int bl = GCTbl;
-	int cindex =GCTcindex;	
-	setRepeat(0);				
+	int cindex =GCTcindex;
+	setRepeat(0);
 	autotransparent=false;			//no transparent index
 	GCTsetTransparent=false;
 	GCToverideIndex=false;
@@ -370,20 +370,20 @@ public boolean setoptions() {
 						break;
 				  case 2:	if(cindex>-1) {
 								GCTsetTransparent=true;	 //set specified  index as transparent color
-								GCTcindex=cindex;	
+								GCTcindex=cindex;
 							} else
-								IJ.error("Incorrect color index must have value between 0 and 255");
+								IJMessage.error("Incorrect color index must have value between 0 and 255");
 						break;
 				   case 3:		if((cindex>-1)&&(red>-1)) {	//Set transparent index with specified color
 								GCTsetTransparent=true;
 									GCToverideColor=true;
-									GCTcindex=cindex;	
+									GCTcindex=cindex;
 									GCTred=red;
 									GCTgrn=grn;
 									GCTbl=bl;
-								} else	 
-										IJ.error("Incorrect colors or color index, they must have values between 0 and 255.");
-								break;	
+								} else
+										IJMessage.error("Incorrect colors or color index, they must have values between 0 and 255.");
+								break;
 					case 4:		if(red>-1){
 									GCTsetTransparent=true;		//Set transparent index to
 						GCToverideIndex=true;	//index which is closest to the specified color
@@ -391,23 +391,23 @@ public boolean setoptions() {
 									GCTgrn=grn;
 									GCTbl=bl;
 								 } else
-								 	IJ.error("Incorrect colors, they must have values between 0 and 255.");
-								break;		
-					default:	break;			
+								 	IJMessage.error("Incorrect colors, they must have values between 0 and 255.");
+								break;
+					default:	break;
 	}
-	
+
 	gctused = false; // Set to true to use Global color table
-	GCTextracted = false; // Set if global color table extracted from rgb image 
-	GCTloadedExternal = false; // Set if global color table loaded directly from external image 	
+	GCTextracted = false; // Set if global color table extracted from rgb image
+	GCTloadedExternal = false; // Set if global color table loaded directly from external image
 	return true;
   }
-  
+
 /********************************************************
 *	 Gets Color lookup Table from  8 bit image plus pointer to image
 */
-void Process8bitCLT(ImagePlus image) {  
+void Process8bitCLT(ImagePlus image) {
 		colorDepth = 8;
-		setTransparent(false);		  
+		setTransparent(false);
 		ByteProcessor pg = new ByteProcessor(image.getImage());
 		ColorModel cm = pg.getColorModel();
 		if (cm instanceof IndexColorModel)
@@ -422,7 +422,7 @@ void Process8bitCLT(ImagePlus image) {
 		}
 		int mapSize = m.getMapSize();
 		int k;
-		if (gctused && (gct == null))	{	
+		if (gctused && (gct == null))	{
 			gct = new byte[mapSize*3];	  //Global color table needs to be intialized
 			for (int i = 0; i < mapSize; i++) {
 				k=i*3;
@@ -430,7 +430,7 @@ void Process8bitCLT(ImagePlus image) {
 				colorTab[k+1] = (byte)m.getGreen(i);
 				colorTab[k+2] = (byte)m.getBlue(i);
 			}
-			try { 
+			try {
 				if (! GCTloadedExternal)  {
 						colorTab = gct;
 						writePalette();		// write global color table
@@ -452,7 +452,7 @@ void Process8bitCLT(ImagePlus image) {
 				colorTab[k+2] = (byte)m.getBlue(i);
 			}
 		}
-	}	   
+	}
 
    /**
 	* Flushes any pending data and closes output file.
@@ -471,10 +471,10 @@ void Process8bitCLT(ImagePlus image) {
 	  } catch (IOException e) { ok = false; }
 
 	  // reset for subsequent use
-	  GCTextracted = false; // Set if global color table extracted from rgb image 
-	  GCTloadedExternal = false; // Set if global color table loaded directly from external image 
+	  GCTextracted = false; // Set if global color table extracted from rgb image
+	  GCTloadedExternal = false; // Set if global color table loaded directly from external image
 	  transIndex = 0;
-	  transparent = false;	  
+	  transparent = false;
 	  gct = null;		//Global color table
 	  out = null;
 	  image = null;
@@ -497,7 +497,7 @@ void Process8bitCLT(ImagePlus image) {
 			throw new IllegalArgumentException("Color Table Image must be 8 bit");
    gctused = true;
    GCTloadedExternal = true;
-   gct = null; 
+   gct = null;
    Process8bitCLT(image);
    }
 /*
@@ -511,12 +511,12 @@ void Process8bitCLT(ImagePlus image) {
 	  gctused = true;
 	  GCTextracted = true;
 	  GCTloadedExternal =true;
-	  gct = null; 
+	  gct = null;
 	  OverRideQuality(image.getWidth()*image.getHeight());
-	  analyzePixels();		// build color table 
+	  analyzePixels();		// build color table
 	  pixels = null;
 	}
-	
+
 void packrgb(ImagePlus image){
 	int len = image.getWidth()*image.getHeight();
 	ImageProcessor imp = image.getProcessor();
@@ -535,7 +535,7 @@ void packrgb(ImagePlus image){
 	* Function to use the first up to 255 elements of a RGB ImagePlus to construct
 	*	 a global color table
 	* This function has to be called before addFrame
-	*/	  
+	*/
 public void loadGCTrgb(ImagePlus image){
 	if((image == null)||(4!=image.getType()))
 		throw new IllegalArgumentException("Color Table Image must be RGB");
@@ -554,15 +554,15 @@ public void loadGCTrgb(ImagePlus image){
 		gctused = true;
 		GCTloadedExternal = true;
 }
-	
+
    /*
 	* If gct = true then a global color table is use
 	*
 	*/
    public void setGCT(boolean flag){
 		gctused = flag;
-   }	  
-   
+   }
+
    /**
 	* Sets the delay time between each frame, or changes it
 	* for subsequent frames (applies to last frame added).
@@ -615,14 +615,14 @@ public void loadGCTrgb(ImagePlus image){
 	  sample = quality;
    }
 /**
- *	Set True for Global Color Table use 
+ *	Set True for Global Color Table use
  *	This saves space in the output file but colors may not be so goodif the stack uses
  *		True color images
  */
    public void GlobalColorTableused(boolean gtu){
 		gctused = gtu;
-   }	
-   
+   }
+
    /**
 	* Sets the number of times the set of GIF frames
 	* should be played.	 Default is 1; 0 means play
@@ -707,7 +707,7 @@ public void loadGCTrgb(ImagePlus image){
    }
 /**
 	Sets Net sample size depending on image size
-	
+
 **/
    public void OverRideQuality(int npixs){
 		if(npixs>100000) sample = 10;
@@ -722,7 +722,7 @@ public void loadGCTrgb(ImagePlus image){
 	  int len = pixels.length;
 	  int nPix = len / 3;
 	  indexedPixels = new byte[nPix];
-	  if (gctused && (gct == null)) {	  
+	  if (gctused && (gct == null)) {
 		NeuQuant nq = new NeuQuant(pixels, len, sample);	// initialize quantizer
 		colorTab = nq.process();							// create reduced palette
 		gct = new byte[colorTab.length];
@@ -734,13 +734,13 @@ public void loadGCTrgb(ImagePlus image){
 		 gct[i] = colorTab[i];
 		 gct[i+1]  = colorTab[i+1];
 		 gct[i+2]  =colorTab[i+2];
-		}	
+		}
 		if(GCTextracted){
 			indexedPixels= null;
 			return;
-		}		
-	  }				
-	  if (!gctused){					
+		}
+	  }
+	  if (!gctused){
 		NeuQuant nq = new NeuQuant(pixels, len, sample);	// initialize quantizer
 		colorTab = nq.process();							// create reduced palette
 		// convert map from BGR to RGB
@@ -760,7 +760,7 @@ public void loadGCTrgb(ImagePlus image){
 		}
 	  if(gctused){
 	  // find closest match for all pixels This routine is not optimized real slow linear search.
-		colorTab = gct;	  
+		colorTab = gct;
 		int k = 0;
 		int minpos;
 		for (int j = 0; j < nPix; j++){
@@ -788,7 +788,7 @@ public void loadGCTrgb(ImagePlus image){
 		lctSize = 7;
    } //end if
 }
-   
+
 
 
    /**
@@ -827,7 +827,7 @@ public void loadGCTrgb(ImagePlus image){
 		 disp = 0;			   // dispose = no action
 	  } else {
 		 transp = 1;
-		 disp = 2;			   // force clear if using transparent color  
+		 disp = 2;			   // force clear if using transparent color
 	  }
 	  if (dispose >= 0)
 		 disp = dispose & 7;   // user override
@@ -863,7 +863,7 @@ public void loadGCTrgb(ImagePlus image){
 				0 |			   // 3 sorted - 0=no
 				0 |			   // 4-5 reserved
 				lctSize);		 // size of local color table
-		
+
    }
 
    /**
@@ -882,7 +882,7 @@ public void loadGCTrgb(ImagePlus image){
 	  out.write(0);			  // background color index
 	  out.write(0);			  // pixel aspect ratio - assume 1:1
    }
-   
+
  /**
 	* Writes Logical Screen Descriptor without global color table
 	*/
@@ -929,8 +929,8 @@ public void loadGCTrgb(ImagePlus image){
 	* Encodes and writes pixel data
 	*/
    protected void writePixels() throws IOException {
-	  LZWEncoder2 encoder =
-		 new LZWEncoder2(width, height, indexedPixels, colorDepth);
+	  LZWEncoder encoder =
+		 new LZWEncoder(width, height, indexedPixels, colorDepth);
 	  encoder.encode(out);
    }
 
@@ -950,328 +950,6 @@ public void loadGCTrgb(ImagePlus image){
 		 out.write((byte) s.charAt(i));
    }
 }
-
-//==============================================================================
-//	Adapted from Jef Poskanzer's Java port by way of J. M. G. Elliott.
-//	K Weiner 12/00
-class LZWEncoder2 {
-
-  private static final int EOF = -1;
-
-  private int	  imgW, imgH;
-  private byte[]  pixAry;
-  private int	  initCodeSize;
-  private int	  remaining;
-  private int	  curPixel;
-
-
-  // GIFCOMPR.C		  - GIF Image compression routines
-  //
-  // Lempel-Ziv compression based on 'compress'.  GIF modifications by
-  // David Rowley (mgardi@watdcsu.waterloo.edu)
-
-  // General DEFINEs
-
-  static final int BITS = 12;
-
-  static final int HSIZE = 5003;	   // 80% occupancy
-
-  // GIF Image compression - modified 'compress'
-  //
-  // Based on: compress.c - File compression ala IEEE Computer, June 1984.
-  //
-  // By Authors:  Spencer W. Thomas		 (decvax!harpo!utah-cs!utah-gr!thomas)
-  //			  Jim McKie				 (decvax!mcvax!jim)
-  //			  Steve Davies			 (decvax!vax135!petsd!peora!srd)
-  //			  Ken Turkowski			 (decvax!decwrl!turtlevax!ken)
-  //			  James A. Woods		 (decvax!ihnp4!ames!jaw)
-  //			  Joe Orost				 (decvax!vax135!petsd!joe)
-
-  int n_bits;						  // number of bits/code
-  int maxbits = BITS;				  // user settable max # bits/code
-  int maxcode;						  // maximum code, given n_bits
-  int maxmaxcode = 1 << BITS; // should NEVER generate this code
-
-  int[] htab = new int[HSIZE];
-  int[] codetab = new int[HSIZE];
-
-  int hsize = HSIZE;				  // for dynamic table sizing
-
-  int free_ent = 0;					  // first unused entry
-
-  // block compression parameters -- after all codes are used up,
-  // and compression rate changes, start over.
-  boolean clear_flg = false;
-
-  // Algorithm:	 use open addressing double hashing (no chaining) on the
-  // prefix code / next character combination.	We do a variant of Knuth's
-  // algorithm D (vol. 3, sec. 6.4) along with G. Knott's relatively-prime
-  // secondary probe.  Here, the modular division first probe is gives way
-  // to a faster exclusive-or manipulation.	 Also do block compression with
-  // an adaptive reset, whereby the code table is cleared when the compression
-  // ratio decreases, but after the table fills.  The variable-length output
-  // codes are re-sized at this point, and a special CLEAR code is generated
-  // for the decompressor.	Late addition:	construct the table according to
-  // file size for noticeable speed improvement on small files.	 Please direct
-  // questions about this implementation to ames!jaw.
-
-  int g_init_bits;
-
-  int ClearCode;
-  int EOFCode;
-
-  // output
-  //
-  // Output the given code.
-  // Inputs:
-  //	  code:	  A n_bits-bit integer.	 If == -1, then EOF.  This assumes
-  //			  that n_bits =< wordsize - 1.
-  // Outputs:
-  //	  Outputs code to the file.
-  // Assumptions:
-  //	  Chars are 8 bits long.
-  // Algorithm:
-  //	  Maintain a BITS character long buffer (so that 8 codes will
-  // fit in it exactly).  Use the VAX insv instruction to insert each
-  // code in turn.	When the buffer fills up empty it and start over.
-
-  int cur_accum = 0;
-  int cur_bits = 0;
-
-  int masks[] = { 0x0000, 0x0001, 0x0003, 0x0007, 0x000F,
-			  0x001F, 0x003F, 0x007F, 0x00FF,
-			  0x01FF, 0x03FF, 0x07FF, 0x0FFF,
-			  0x1FFF, 0x3FFF, 0x7FFF, 0xFFFF };
-
-  // Number of characters so far in this 'packet'
-  int a_count;
-
-  // Define the storage for the packet accumulator
-  byte[] accum = new byte[256];
-
-
-  //----------------------------------------------------------------------------
-  LZWEncoder2(int width, int height, byte[] pixels, int color_depth)
-  {
-   imgW = width;
-   imgH = height;
-   pixAry = pixels;
-   initCodeSize = Math.max(2, color_depth);
-  }
-
-
-  // Add a character to the end of the current packet, and if it is 254
-  // characters, flush the packet to disk.
-  void char_out( byte c, OutputStream outs ) throws IOException
-	 {
-	 accum[a_count++] = c;
-	 if ( a_count >= 254 )
-		flush_char( outs );
-	 }
-
-
-  // Clear out the hash table
-
-  // table clear for block compress
-  void cl_block( OutputStream outs ) throws IOException
-	 {
-	 cl_hash( hsize );
-	 free_ent = ClearCode + 2;
-	 clear_flg = true;
-
-	 output( ClearCode, outs );
-	 }
-
-
-  // reset code table
-  void cl_hash( int hsize )
-	 {
-	 for ( int i = 0; i < hsize; ++i )
-		htab[i] = -1;
-	 }
-
-
-  void compress( int init_bits, OutputStream outs ) throws IOException
-	 {
-	 int fcode;
-	 int i /* = 0 */;
-	 int c;
-	 int ent;
-	 int disp;
-	 int hsize_reg;
-	 int hshift;
-
-	 // Set up the globals:	 g_init_bits - initial number of bits
-	 g_init_bits = init_bits;
-
-	 // Set up the necessary values
-	 clear_flg = false;
-	 n_bits = g_init_bits;
-	 maxcode = MAXCODE( n_bits );
-
-	 ClearCode = 1 << ( init_bits - 1 );
-	 EOFCode = ClearCode + 1;
-	 free_ent = ClearCode + 2;
-
-	 a_count = 0;  // clear packet
-
-	 ent = nextPixel();
-
-	 hshift = 0;
-	 for ( fcode = hsize; fcode < 65536; fcode *= 2 )
-		++hshift;
-	 hshift = 8 - hshift;		  // set hash code range bound
-
-	 hsize_reg = hsize;
-	 cl_hash( hsize_reg );		  // clear hash table
-
-	 output( ClearCode, outs );
-
-	 outer_loop:
-	 while ( (c = nextPixel()) != EOF )
-		{
-		fcode = ( c << maxbits ) + ent;
-		i = ( c << hshift ) ^ ent;	 // xor hashing
-
-		if ( htab[i] == fcode )
-		   {
-		   ent = codetab[i];
-		   continue;
-		   }
-		else if ( htab[i] >= 0 )	 // non-empty slot
-		   {
-		   disp = hsize_reg - i;  // secondary hash (after G. Knott)
-		   if ( i == 0 )
-			  disp = 1;
-		   do
-			  {
-			  if ( (i -= disp) < 0 )
-				 i += hsize_reg;
-
-			  if ( htab[i] == fcode )
-				 {
-				 ent = codetab[i];
-				 continue outer_loop;
-				 }
-			  }
-		   while ( htab[i] >= 0 );
-		   }
-		output( ent, outs );
-		ent = c;
-		if ( free_ent < maxmaxcode )
-		   {
-		   codetab[i] = free_ent++;	 // code -> hashtable
-		   htab[i] = fcode;
-		   }
-		else
-		   cl_block( outs );
-		}
-	 // Put out the final code.
-	 output( ent, outs );
-	 output( EOFCode, outs );
-	 }
-
-
-  //----------------------------------------------------------------------------
-  void encode(OutputStream os) throws IOException
-  {
-   os.write(initCodeSize);		   // write "initial code size" byte
-
-   remaining = imgW * imgH;		   // reset navigation variables
-   curPixel = 0;
-
-   compress(initCodeSize + 1, os); // compress and write the pixel data
-
-   os.write(0);					   // write block terminator
-  }
-
-
-  // Flush the packet to disk, and reset the accumulator
-  void flush_char( OutputStream outs ) throws IOException
-	 {
-	 if ( a_count > 0 )
-		{
-		outs.write( a_count );
-		outs.write( accum, 0, a_count );
-		a_count = 0;
-		}
-	 }
-
-
-  final int MAXCODE( int n_bits )
-	 {
-	 return ( 1 << n_bits ) - 1;
-	 }
-
-
-  //----------------------------------------------------------------------------
-  // Return the next pixel from the image
-  //----------------------------------------------------------------------------
-  private int nextPixel()
-  {
-   if (remaining == 0)
-	 return EOF;
-
-   --remaining;
-
-   byte pix = pixAry[curPixel++];
-
-   return pix & 0xff;
-  }
-
-
-  void output( int code, OutputStream outs ) throws IOException
-	 {
-	 cur_accum &= masks[cur_bits];
-
-	 if ( cur_bits > 0 )
-		cur_accum |= ( code << cur_bits );
-	 else
-		cur_accum = code;
-
-	 cur_bits += n_bits;
-
-	 while ( cur_bits >= 8 )
-		{
-		char_out( (byte) ( cur_accum & 0xff ), outs );
-		cur_accum >>= 8;
-		cur_bits -= 8;
-		}
-
-	 // If the next entry is going to be too big for the code size,
-	 // then increase it, if possible.
-	if ( free_ent > maxcode || clear_flg )
-		{
-		if ( clear_flg )
-		   {
-		   maxcode = MAXCODE(n_bits = g_init_bits);
-		   clear_flg = false;
-		   }
-		else
-		   {
-		   ++n_bits;
-		   if ( n_bits == maxbits )
-			  maxcode = maxmaxcode;
-		   else
-			  maxcode = MAXCODE(n_bits);
-		   }
-		}
-
-	 if ( code == EOFCode )
-		{
-		// At EOF, write the rest of the buffer.
-		while ( cur_bits > 0 )
-		   {
-		   char_out( (byte) ( cur_accum & 0xff ), outs );
-		   cur_accum >>= 8;
-		   cur_bits -= 8;
-		   }
-
-		flush_char( outs );
-		}
-	 }
-}
-
 
 /* NeuQuant Neural-Net Quantization Algorithm
  * ------------------------------------------

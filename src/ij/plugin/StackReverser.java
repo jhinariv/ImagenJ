@@ -6,20 +6,20 @@ import ij.measure.Calibration;
 /** This plugin implements the Image/Transform/Flip Z and
 	Image/Stacks/Tools/Reverse commands. */
 public class StackReverser implements PlugIn {
-	
+
 	public void run(String arg) {
 		ImagePlus imp = IJ.getImage();
 		if (imp.getStackSize()==1) {
-			IJ.error("Flip Z", "This command requires a stack");
+			IJMessage.error("Flip Z", "This command requires a stack");
 			return;
 		}
 		if (imp.isHyperStack()) {
-			IJ.error("Flip Z", "This command does not currently work with hyperstacks.");
+			IJMessage.error("Flip Z", "This command does not currently work with hyperstacks.");
 			return;
 		}
 		flipStack(imp);
 	}
-	
+
 	public void flipStack(ImagePlus imp) {
 		ImageStack stack = imp.getStack();
 		int n = stack.size();

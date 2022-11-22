@@ -30,7 +30,7 @@ public class TextWindow extends Frame implements ActionListener, FocusListener, 
 	int fontSize = (int)Prefs.get(FONT_SIZE, 5);
 	MenuBar mb;
 	private static Font font;
- 
+
 	/**
 	* Opens a new single-column text window.
 	* @param title	the title of the window
@@ -114,7 +114,7 @@ public class TextWindow extends Frame implements ActionListener, FocusListener, 
 			setLocation(loc);
 		} else {
 			setSize(width, height);
-			if (!IJ.debugMode)
+			if (!IJDebugMode.debugMode)
 				GUI.centerOnImageJScreen(this);
 		}
 		show();
@@ -141,7 +141,7 @@ public class TextWindow extends Frame implements ActionListener, FocusListener, 
 		} else
 			dispose();
 	}
-	
+
 	void addMenuBar() {
 		mb = new MenuBar();
 		if (Menus.getFontSize()!=0)
@@ -199,14 +199,14 @@ public class TextWindow extends Frame implements ActionListener, FocusListener, 
 	public void append(String text) {
 		textPanel.append(text);
 	}
-	
+
 	void setFont() {
 		if (font!=null)
        		textPanel.setFont(font, antialiased.getState());
        	else
        		textPanel.setFont(new Font("SanSerif", Font.PLAIN, sizes[fontSize]), antialiased.getState());
 	}
-	
+
 	boolean openFile(String path) {
 		OpenDialog od = new OpenDialog("Open Text File...", path);
 		String directory = od.getDirectory();
@@ -214,28 +214,28 @@ public class TextWindow extends Frame implements ActionListener, FocusListener, 
 		if (name==null)
 			return false;
 		path = directory + name;
-		
-		IJ.showStatus("Opening: " + path);
+
+		IJMessage.showStatus("Opening: " + path);
 		try {
 			BufferedReader r = new BufferedReader(new FileReader(directory + name));
 			load(r);
 			r.close();
 		}
 		catch (Exception e) {
-			IJ.error(e.getMessage());
+			IJMessage.error(e.getMessage());
 			return true;
 		}
 		textPanel.setTitle(name);
 		setTitle(name);
-		IJ.showStatus("");
+		IJMessage.showStatus("");
 		return true;
 	}
-	
+
 	/** Returns a reference to this TextWindow's TextPanel. */
 	public TextPanel getTextPanel() {
 		return textPanel;
 	}
-	
+
 	/** Returns the ResultsTable associated with this TextWindow, or null. */
 	public ResultsTable getResultsTable() {
 		return textPanel!=null?textPanel.getResultsTable():null;
@@ -268,7 +268,7 @@ public class TextWindow extends Frame implements ActionListener, FocusListener, 
 		super.processWindowEvent(e);
 		int id = e.getID();
 		if (id==WindowEvent.WINDOW_CLOSING)
-			close();	
+			close();
 		else if (id==WindowEvent.WINDOW_ACTIVATED && !"Log".equals(getTitle()))
 			WindowManager.setWindow(this);
 	}
@@ -280,7 +280,7 @@ public class TextWindow extends Frame implements ActionListener, FocusListener, 
 	public void close() {
 		close(true);
 	}
-	
+
 	/** Closes this TextWindow. Display a "save changes" dialog
 		if this is the "Results" window and 'showDialog' is true. */
 	public void close(boolean showDialog) {
@@ -298,7 +298,7 @@ public class TextWindow extends Frame implements ActionListener, FocusListener, 
 			Prefs.set(LOG_WIDTH_KEY, d.width);
 			Prefs.set(LOG_HEIGHT_KEY, d.height);
 			IJ.setDebugMode(false);
-			IJ.log("\\Closed");
+			IJMessage.log("\\Closed");
 			IJ.notifyEventListeners(IJEventListener.LOG_WINDOW_CLOSED);
 		} else if (getTitle().equals("Debug")) {
 			Prefs.saveLocation(DEBUG_LOC_KEY, getLocation());
@@ -310,16 +310,16 @@ public class TextWindow extends Frame implements ActionListener, FocusListener, 
 		WindowManager.removeWindow(this);
 		textPanel.flush();
 	}
-	
+
 	public void rename(String title) {
 		textPanel.rename(title);
 	}
-	
+
 	boolean saveContents() {
 		int lineCount = textPanel.getLineCount();
 		if (!textPanel.unsavedLines) lineCount = 0;
 		ImageJ ij = IJ.getInstance();
-		boolean macro = IJ.macroRunning() || Interpreter.isBatchMode();
+		boolean macro = IJMacro.macroRunning() || Interpreter.isBatchMode();
 		boolean isResults = getTitle().contains("Results");
 		if (lineCount>0 && !macro && ij!=null && !ij.quitting() && isResults) {
 			YesNoCancelDialog d = new YesNoCancelDialog(this, getTitle(), "Save "+lineCount+" measurements?");
@@ -333,7 +333,7 @@ public class TextWindow extends Frame implements ActionListener, FocusListener, 
 		textPanel.rt.reset();
 		return true;
 	}
-	
+
 	void changeFontSize(boolean larger) {
         int in = fontSize;
         if (larger) {
@@ -345,11 +345,11 @@ public class TextWindow extends Frame implements ActionListener, FocusListener, 
             if (fontSize<0)
                 fontSize = 0;
         }
-        IJ.showStatus(sizes[fontSize]+" point");
+        IJMessage.showStatus(sizes[fontSize]+" point");
         font = null;
         setFont();
     }
-    
+
     public static void setFont(String name, int style, int size) {
     	font = new Font(name,style,size);
     }
@@ -357,9 +357,9 @@ public class TextWindow extends Frame implements ActionListener, FocusListener, 
 	void saveSettings() {
 		Prefs.set(FONT_SIZE, fontSize);
 		Prefs.set(FONT_ANTI, antialiased.getState());
-		IJ.showStatus("Font settings saved (size="+sizes[fontSize]+", antialiased="+antialiased.getState()+")");
+		IJMessage.showStatus("Font settings saved (size="+sizes[fontSize]+", antialiased="+antialiased.getState()+")");
 	}
-	
+
 	public void focusGained(FocusEvent e) {
 	}
 

@@ -54,7 +54,7 @@ public class Hotkeys implements PlugIn {
 					command = command2 + "...";
 					if (cmds.get(command)==null) {
 						command = command2;
-						IJ.error("Command not found:\n \n   "+ "\""+command+"\"");
+						IJMessage.error("Command not found:\n \n   "+ "\""+command+"\"");
 						return;
 					}
 				}
@@ -71,24 +71,24 @@ public class Hotkeys implements PlugIn {
 		int err = Menus.installPlugin(plugin,Menus.SHORTCUTS_MENU,"*"+command,shortcut,IJ.getInstance());
 		switch (err) {
 			case Menus.COMMAND_IN_USE:
-				IJ.showMessage(TITLE, "The command \"" + command + "\" is already installed.");
+				IJMessage.showMessage(TITLE, "The command \"" + command + "\" is already installed.");
 				break;
 			case Menus.INVALID_SHORTCUT:
-				IJ.showMessage(TITLE, "The shortcut must be a single character or F1-F24.");
+				IJMessage.showMessage(TITLE, "The shortcut must be a single character or F1-F24.");
 				break;
 			case Menus.SHORTCUT_IN_USE:
-				IJ.showMessage("The \""+shortcut+"\" shortcut is in use.");
+				IJMessage.showMessage("The \""+shortcut+"\" shortcut is in use.");
 				break;
 			default:
 				shortcut = "";
 				break;
 		}
 	}
-	
+
 	void removeHotkey() {
 		String[] shortcuts = getShortcuts();
 		if (shortcuts==null) {
-			IJ.showMessage("Remove...", "No shortcuts found.");
+			IJMessage.showMessage("Remove...", "No shortcuts found.");
 			return;
 		}
 		GenericDialog gd = new GenericDialog("Remove");
@@ -104,7 +104,7 @@ public class Hotkeys implements PlugIn {
 		if (shortcuts.length>1)
 			removeAll = gd.getNextBoolean();
 		if (removeAll) {
-			boolean ok = IJ.showMessageWithCancel("Remove", "Remove all "+shortcuts.length+" shortcuts?");
+			boolean ok = IJMessage.showMessageWithCancel("Remove", "Remove all "+shortcuts.length+" shortcuts?");
 			if (!ok)
 				return;
 			command = "";
@@ -119,11 +119,11 @@ public class Hotkeys implements PlugIn {
 				count++;
 		}
 		if (count==0)
-			IJ.showStatus("No shortcuts removed");
+			IJMessage.showStatus("No shortcuts removed");
 		else
-			IJ.showStatus(count+" shortcut"+(count>1?"s":"")+" removed; ImageJ restart required");
+			IJMessage.showStatus(count+" shortcut"+(count>1?"s":"")+" removed; ImageJ restart required");
 	}
-	
+
 	private void listCommands() {
 		String[] commands = getAllCommands();
 		Hashtable classes = Menus.getCommands();
@@ -150,7 +150,7 @@ public class Hotkeys implements PlugIn {
 		Arrays.sort(list, String.CASE_INSENSITIVE_ORDER);
 		return list;
 	}
-	
+
 	String[] getAvailableShortcuts() {
 		Vector v = new Vector();
 		String[] existingShortcuts = (new CommandLister()).getShortcuts();
@@ -194,5 +194,5 @@ public class Hotkeys implements PlugIn {
 		Arrays.sort(list, String.CASE_INSENSITIVE_ORDER);
 		return list;
 	}
-	
+
 }

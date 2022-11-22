@@ -235,7 +235,7 @@ public class PlotDialog implements DialogListener {
 				bottomUp = getFlag(lFlags, Plot.LEGEND_BOTTOM_UP);
 			}
 			gd.addMessage("Enter Labels for the datasets, one per line.\n");
-				
+
 			Font smallFont = IJ.font10;
 			gd.setInsets(0, 20, 0);			//top, left, bottom
 			String msg = "Prepend index plus dual underscore (e.g. '1__MyLabel' )\nto control legend order and to hide non-indexed labels";
@@ -263,7 +263,7 @@ public class PlotDialog implements DialogListener {
 				}
 			}
 			if (nPlots == 0) {
-				IJ.error("No plot to use as template");
+				IJMessage.error("No plot to use as template");
 				return false;
 			}
 			String[] plotImpTitles = new String[nPlots];

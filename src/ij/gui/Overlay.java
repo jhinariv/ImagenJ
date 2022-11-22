@@ -21,12 +21,12 @@ public class Overlay implements Iterable<Roi> {
     private boolean isCalibrationBar;
     private boolean selectable = true;
     private boolean draggable = true;
-    
+
     /** Constructs an empty Overlay. */
     public Overlay() {
     	list = new Vector<Roi>();
     }
-    
+
     /** Constructs an Overlay and adds the specified ROI. */
     public Overlay(Roi roi) {
     	list = new Vector<Roi>();
@@ -39,7 +39,7 @@ public class Overlay implements Iterable<Roi> {
     	if (roi!=null)
     		list.add(roi);
     }
-        
+
     /** Adds an ROI to this Overlay using the specified name. */
 	public void add(Roi roi, String name) {
 		roi.setName(name);
@@ -65,7 +65,7 @@ public class Overlay implements Iterable<Roi> {
     	if (index>=0)
     		list.remove(index);
     }
-    
+
     /** Removes the specified ROI from this Overlay. */
     public void remove(Roi roi) {
     	list.remove(roi);
@@ -93,14 +93,14 @@ public class Overlay implements Iterable<Roi> {
     		return null;
     	}
     }
-    
+
     /** Returns the ROI with the specified name or null if not found. */
     public Roi get(String name) {
     	int index = getIndex(name);
     	if (index==-1)
     		return null;
     	else
-    		return get(index);   		
+    		return get(index);
     }
 
     /** Returns the index of the ROI with the specified name, or -1 if not found. */
@@ -113,7 +113,7 @@ public class Overlay implements Iterable<Roi> {
 		}
 		return -1;
     }
-    
+
     /** Returns the index of the last ROI that contains the point (x,y)
     	or null if no ROI contains the point. */
     public int indexAt(int x, int y) {
@@ -124,7 +124,7 @@ public class Overlay implements Iterable<Roi> {
 		}
 		return -1;
     }
-    
+
 	private boolean contains(Roi roi, int x, int y) {
 		if (roi==null) return false;
 		if (roi instanceof Line)
@@ -132,7 +132,7 @@ public class Overlay implements Iterable<Roi> {
 		else
 			return roi.contains(x,y);
 	}
-	
+
     /** Returns 'true' if this Overlay contains the specified ROI. */
     public boolean contains(Roi roi) {
     	return list.contains(roi);
@@ -142,13 +142,13 @@ public class Overlay implements Iterable<Roi> {
     public int size() {
     	return list.size();
     }
-    
+
     /** Returns on array containing the ROIs in this Overlay. */
     public Roi[] toArray() {
     	Roi[] array = new Roi[list.size()];
     	return (Roi[])list.toArray(array);
     }
-    
+
     /** Returns on array containing the ROIs with the specified indexes. */
     public Roi[] toArray(int[] indexes) {
 		ArrayList rois = new ArrayList();
@@ -207,7 +207,7 @@ public class Overlay implements Iterable<Roi> {
 			}
 		}
 	}
-	
+
 	/** Measures the ROIs in this overlay on the specified image
 	* and returns the results as a ResultsTable.
 	*/
@@ -225,7 +225,7 @@ public class Overlay implements Iterable<Roi> {
 	}
 
 	/*
-	* Duplicate the elements of this overlay which  
+	* Duplicate the elements of this overlay which
 	* intersect with the rectangle 'bounds'.
 	* Author: Wilhelm Burger
 	* Author: Marcel Boeglin
@@ -249,7 +249,7 @@ public class Overlay implements Iterable<Roi> {
 		return overlay2;
 	}
 
-	/** Removes ROIs having positions outside of the  
+	/** Removes ROIs having positions outside of the
 	* interval defined by firstSlice and lastSlice.
 	* Marcel Boeglin, September 2013
 	*/
@@ -318,7 +318,7 @@ public class Overlay implements Iterable<Roi> {
 		return new Rectangle(xmin, ymin, xmax-xmin, ymax-ymin);
 	}
 	*/
-	
+
 	/* Returns the Roi that results from XORing all the ROIs
 	 * in this overlay that have an index in the array ‘indexes’.
 	*/
@@ -339,7 +339,7 @@ public class Overlay implements Iterable<Roi> {
 		overlay2.setDraggable(draggable);
 		return overlay2;
 	}
-	
+
 	/** Returns a clone of this Overlay. */
 	public Overlay duplicate() {
 		Roi[] rois = toArray();
@@ -348,7 +348,7 @@ public class Overlay implements Iterable<Roi> {
 			overlay2.add((Roi)rois[i].clone());
 		return overlay2;
 	}
-	
+
 	/** Returns a scaled version of this Overlay. */
 	public Overlay scale(double xscale, double yscale) {
 		Overlay overlay2 = create();
@@ -364,7 +364,7 @@ public class Overlay implements Iterable<Roi> {
 
  	/** Returns a rotated version of this Overlay. */
 	public Overlay rotate(double angle, double xcenter, double ycenter) {
-		//IJ.log("rotate: "+angle+" "+xcenter+" "+ycenter);
+		//IJMessage.log("rotate: "+angle+" "+xcenter+" "+ycenter);
 		Overlay overlay2 = create();
 		for (int i=0; i<size(); i++) {
 			Roi roi = get(i);
@@ -380,18 +380,18 @@ public class Overlay implements Iterable<Roi> {
    public void drawLabels(boolean b) {
     	label = b;
     }
-    
+
     public boolean getDrawLabels() {
     	return label;
     }
-    
+
     public void drawNames(boolean b) {
     	drawNames = b;
 		Roi[] rois = toArray();
 		for (int i=0; i<rois.length; i++)
 			rois[i].setIgnoreClipRect(drawNames);
     }
-    
+
     public boolean getDrawNames() {
     	return drawNames;
     }
@@ -399,7 +399,7 @@ public class Overlay implements Iterable<Roi> {
     public void drawBackgrounds(boolean b) {
     	drawBackgrounds = b;
     }
-    
+
     public boolean getDrawBackgrounds() {
     	return drawBackgrounds;
     }
@@ -407,7 +407,7 @@ public class Overlay implements Iterable<Roi> {
     public void setLabelColor(Color c) {
     	labelColor = c;
     }
-    
+
     public Color getLabelColor() {
     	return labelColor;
     }
@@ -415,7 +415,7 @@ public class Overlay implements Iterable<Roi> {
     public void setLabelFont(Font font) {
     	setLabelFont(font, false);
     }
-    
+
     public void setLabelFont(Font font, boolean scalable) {
     	labelFont = font;
     	scalableLabels = scalable;
@@ -445,11 +445,11 @@ public class Overlay implements Iterable<Roi> {
     public void setIsCalibrationBar(boolean b) {
     	this.isCalibrationBar = b;
     }
-    
+
     public boolean isCalibrationBar() {
     	return isCalibrationBar;
     }
-    
+
     /** Fills all the ROIs in this overlay with 'foreground' after clearing the
     	the image to 'background' if it is not null. */
     public void fill(ImagePlus imp, Color foreground, Color background) {
@@ -469,26 +469,26 @@ public class Overlay implements Iterable<Roi> {
     }
 
     void setVector(Vector<Roi> v) {list = v;}
-        
+
     Vector<Roi> getVector() {return list;}
-    
-    /** Set 'false' to prevent ROIs in this overlay from being activated 
-		by clicking on their labels or by a long clicking. */ 
+
+    /** Set 'false' to prevent ROIs in this overlay from being activated
+		by clicking on their labels or by a long clicking. */
     public void selectable(boolean selectable) {
     	this.selectable = selectable;
     }
-    
+
     /** Returns 'true' if ROIs in this overlay can be activated
-		by clicking on their labels or by a long press. */ 
+		by clicking on their labels or by a long press. */
 	public boolean isSelectable() {
 		return selectable;
 	}
-	
-    /** Set 'false' to prevent ROIs in this overlay from being dragged by their labels. */ 
+
+    /** Set 'false' to prevent ROIs in this overlay from being dragged by their labels. */
     public void setDraggable(boolean draggable) {
     	this.draggable = draggable;
     }
-    
+
     /** Returns 'true' if ROIs in this overlay can be dragged by their labels. */
 	public boolean isDraggable() {
 		return draggable;
@@ -497,11 +497,11 @@ public class Overlay implements Iterable<Roi> {
  	public boolean scalableLabels() {
 		return scalableLabels;
 	}
-	
+
 	public String toString() {
     	return "Overlay[size="+size()+" "+(scalableLabels?"scale":"")+" "+Colors.colorToString(getLabelColor())+"]";
     }
-    
+
     /** Updates overlays created by the particle analyzer
     	after rows are deleted from the Results table. */
     public static void updateTableOverlay(ImagePlus imp, int first, int last, int tableSize) {
@@ -523,8 +523,8 @@ public class Overlay implements Iterable<Roi> {
 		if (!"1".equals(name1) || !(""+tableSize).equals(name2))
 			return;
 		int count = last-first+1;
-		if (overlay.size()==count && !IJ.isMacro()) {
-			if (count==1 || IJ.showMessageWithCancel("ImageJ", "Delete "+overlay.size()+" element overlay?  "))
+		if (overlay.size()==count && !IJMacro.isMacro()) {
+			if (count==1 || IJMessage.showMessageWithCancel("ImageJ", "Delete "+overlay.size()+" element overlay?  "))
 				imp.setOverlay(null);
 			return;
 		}
@@ -534,7 +534,7 @@ public class Overlay implements Iterable<Roi> {
 			overlay.get(i).setName(""+(i+1));
 		imp.draw();
 	}
-	
+
 	public static Overlay createStackOverlay(Roi[] rois) {
 		Overlay overlay = new Overlay();
 		for (int i=0; i<rois.length; i++) {
@@ -545,7 +545,7 @@ public class Overlay implements Iterable<Roi> {
 		}
 		return overlay;
 	}
-	
+
 	@Override
 	public Iterator<Roi> iterator() {
 		final Overlay overlay = this;
@@ -553,12 +553,12 @@ public class Overlay implements Iterable<Roi> {
 		Iterator<Roi> it = new Iterator<Roi>() {
 			private int index = -1;
 
-			/** Returns 'true' if next element exists. */ 
+			/** Returns 'true' if next element exists. */
 			@Override
 			public boolean hasNext() {
-				if (index+1<overlay.size()) 
+				if (index+1<overlay.size())
 					return true;
-				else 
+				else
 					return false;
 			}
 
@@ -569,14 +569,14 @@ public class Overlay implements Iterable<Roi> {
 					return overlay.get(++index);
 				else
 					return null;
-			} 
+			}
 
 			@Override
-			public void remove() { 
-				throw new UnsupportedOperationException(); 
+			public void remove() {
+				throw new UnsupportedOperationException();
 			}
 		};
 		return it;
 	}
-    
+
 }

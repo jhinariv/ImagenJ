@@ -15,7 +15,7 @@ public class FFTCustomFilter implements  PlugInFilter, Measurements {
 	private ImagePlus imp;
 	private static int filterIndex = 1;
 	private int slice;
-	private int stackSize;	
+	private int stackSize;
 	private ImageProcessor filter;
 	private static boolean processStack;
 	private boolean padded;
@@ -26,7 +26,7 @@ public class FFTCustomFilter implements  PlugInFilter, Measurements {
 	public int setup(String arg, ImagePlus imp) {
  		this.imp = imp;
  		if (imp==null) {
- 			IJ.noImage();
+ 			IJMacro.noImage();
  			return DONE;
  		}
  		this.stackSize = imp.getStackSize();
@@ -34,7 +34,7 @@ public class FFTCustomFilter implements  PlugInFilter, Measurements {
 		if (filter==null)
 			return DONE;
 		if (imp.getProperty("FHT")!=null) {
-			IJ.error("FFT Custom Filter", "Spatial domain (non-FFT) image required");
+			IJMessage.error("FFT Custom Filter", "Spatial domain (non-FFT) image required");
 			return DONE;
 		} else
 			return processStack?DOES_ALL+DOES_STACKS:DOES_ALL;
@@ -46,7 +46,7 @@ public class FFTCustomFilter implements  PlugInFilter, Measurements {
 		if (slice==1)
 			filter = resizeFilter(filter, fht.getWidth());
 		((FHT)fht).transform();
-		customFilter(fht);		
+		customFilter(fht);
 		doInverseTransform(fht, ip);
 		if (slice==1)
 			ip.resetMinAndMax();
@@ -58,7 +58,7 @@ public class FFTCustomFilter implements  PlugInFilter, Measurements {
 		if (Recorder.record && slice==1)
 			Recorder.recordCall("FFT.filter(imp,filter); //see Help/Examples/JavaScript/FFT Filter");
 	}
-	
+
 	void doInverseTransform(FHT fht, ImageProcessor ip) {
 		showStatus("Inverse transform");
 		fht.inverseTransform();
@@ -75,7 +75,7 @@ public class FFTCustomFilter implements  PlugInFilter, Measurements {
 			case 24:
 				showStatus("Setting brightness");
 				fht.rgb.setBrightness((FloatProcessor)ip2);
-				ip2 = fht.rgb; 
+				ip2 = fht.rgb;
 				fht.rgb = null;
 				break;
 			case 32: break;
@@ -89,7 +89,7 @@ public class FFTCustomFilter implements  PlugInFilter, Measurements {
 		int height = ip.getHeight();
 		int maxN = Math.max(width, height);
 		int size = 2;
-		while (size<1.5*maxN) size *= 2;		
+		while (size<1.5*maxN) size *= 2;
 		rect.x = (int)Math.round((size-width)/2.0);
 		rect.y = (int)Math.round((size-height)/2.0);
 		rect.width = width;
@@ -107,14 +107,14 @@ public class FFTCustomFilter implements  PlugInFilter, Measurements {
 		fht.originalBitDepth = imp.getBitDepth();
 		return fht;
 	}
-	
+
 	void showStatus(String msg) {
 		if (stackSize>1)
-			IJ.showStatus("FFT: " + slice+"/"+stackSize);
+			IJMessage.showStatus("FFT: " + slice+"/"+stackSize);
 		else
-			IJ.showStatus(msg);
+			IJMessage.showStatus(msg);
 	}
-		
+
 	void customFilter(FHT fht) {
 		int size = fht.getWidth();
 		showStatus("Filtering");
@@ -129,11 +129,11 @@ public class FFTCustomFilter implements  PlugInFilter, Measurements {
 		}
 		fht.swapQuadrants(filter);
 	}
-	
+
 	ImageProcessor getFilter() {
 		int[] wList = WindowManager.getIDList();
 		if (wList==null || wList.length<2) {
-			IJ.error("FFT", "A filter (as an open image) is required.");
+			IJMessage.error("FFT", "A filter (as an open image) is required.");
 			return null;
 		}
 		String[] titles = new String[wList.length];
@@ -156,19 +156,19 @@ public class FFTCustomFilter implements  PlugInFilter, Measurements {
 			processStack = gd.getNextBoolean();
 		ImagePlus filterImp = WindowManager.getImage(wList[filterIndex]);
 		if (filterImp==imp) {
-			IJ.error("FFT", "The filter cannot be the same as the image being filtered.");
+			IJMessage.error("FFT", "The filter cannot be the same as the image being filtered.");
 			return null;
-		}		
+		}
 		if (filterImp.getStackSize()>1) {
-			IJ.error("FFT", "The filter cannot be a stack.");
+			IJMessage.error("FFT", "The filter cannot be a stack.");
 			return null;
-		}		
+		}
 		ImageProcessor filter = filterImp.getProcessor();
-		if (filter!=null && filter.getBitDepth()!=32)		
-			filter =  filter.convertToByte(true);		
+		if (filter!=null && filter.getBitDepth()!=32)
+			filter =  filter.convertToByte(true);
 		return filter;
 	}
-	
+
 	ImageProcessor resizeFilter(ImageProcessor ip, int maxN) {
 		int width = ip.getWidth();
 		int height = ip.getHeight();
@@ -177,6 +177,6 @@ public class FFTCustomFilter implements  PlugInFilter, Measurements {
 		showStatus("Scaling filter to "+ maxN + "x" + maxN);
 		return ip.resize(maxN, maxN);
 	}
-		
+
 }
 

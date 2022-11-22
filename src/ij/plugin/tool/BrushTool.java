@@ -11,16 +11,16 @@ import java.util.Vector;
 // 2012-07-22 shift to confine horizontally or vertically, ctrl-shift to resize, ctrl to pick
 
 /** This class implements the Paintbrush Tool, which allows the user to draw on
-	 an image, or on an Overlay if "Paint on overlay" is enabled. */	
+	 an image, or on an Overlay if "Paint on overlay" is enabled. */
 public class BrushTool extends PlugInTool implements Runnable {
-	
+
 	private final static int UNCONSTRAINED=0, HORIZONTAL=1, VERTICAL=2, RESIZING=3, RESIZED=4, IDLE=5; //mode flags
 	private static String BRUSH_WIDTH_KEY = "brush.width";
 	private static String PENCIL_WIDTH_KEY = "pencil.width";
 	private static String CIRCLE_NAME = "brush-tool-overlay";
 	private static final String LOC_KEY = "brush.loc";
 	private static final String OVERLAY_KEY = "brush.overlay";
-	
+
 	private String widthKey;
 	private int width;
 	private ImageProcessor ip;
@@ -91,7 +91,7 @@ public class BrushTool extends PlugInTool implements Runnable {
 				imp.updateAndDraw();
 		}
 	}
-	
+
 	private void checkForOverlay(ImagePlus imp) {
 		overlayImage = getOverlayImage(imp);
 		if (overlayImage==null && paintOnOverlay) {
@@ -183,7 +183,7 @@ public class BrushTool extends PlugInTool implements Runnable {
 		Scrollbar sb = (Scrollbar)sliders.elementAt(0);
 		sb.setValue(width);
 	}
-			
+
 	private void setColor(Color c) {
 		if (gd==null)
 			return;
@@ -211,9 +211,9 @@ public class BrushTool extends PlugInTool implements Runnable {
 			overlay.add(circle);
 			imp.setOverlay(overlay);
 		}
-		IJ.showStatus((isPencil?"Pencil":"Brush")+" width: "+ width);
+		IJMessage.showStatus((isPencil?"Pencil":"Brush")+" width: "+ width);
 	}
-	
+
 	public void showOptionsDialog() {
 		Thread thread = new Thread(this, "Brush Options");
 		thread.setPriority(Thread.NORM_PRIORITY);
@@ -249,7 +249,7 @@ public class BrushTool extends PlugInTool implements Runnable {
 			options = this;
 			showDialog();
 		}
-		
+
 		public void showDialog() {
 			Color color = Toolbar.getForegroundColor();
 			String colorName = Colors.colorToString2(color);
@@ -274,7 +274,7 @@ public class BrushTool extends PlugInTool implements Runnable {
 		public boolean dialogItemChanged(GenericDialog gd, AWTEvent e) {
 			if (e!=null && e.toString().contains("Undo")) {
 				ImagePlus imp = WindowManager.getCurrentImage();
-				if (imp!=null) IJ.run("Undo");
+				if (imp!=null) IJMacro.run("Undo");
 				return true;
 			}
 			width = (int)gd.getNextNumber();
@@ -292,7 +292,7 @@ public class BrushTool extends PlugInTool implements Runnable {
 			return true;
 		}
 	}
-	
+
 	public static void setBrushWidth(int width) {
 		if (brushInstance!=null) {
 			Color c = Toolbar.getForegroundColor();
@@ -300,10 +300,10 @@ public class BrushTool extends PlugInTool implements Runnable {
 			Toolbar.setForegroundColor(c);
 		}
 	}
-	
+
 	private String getHelp() {
 		String ctrlString = IJ.isMacintosh()? "<i>cmd</i>":"<i>ctrl</i>";
-		return	
+		return
 			 "<html>"
 			+"<font size=+1>"
 			+"<b>Key modifiers</b>"

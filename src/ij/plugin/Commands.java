@@ -10,18 +10,18 @@ import ij.plugin.Compiler;
 import java.awt.Window;
 import java.io.File;
 import java.applet.Applet;
-	
+
 /**	Runs miscellaneous File and Window menu commands. */
 public class Commands implements PlugIn {
-	
+
 	public void run(String cmd) {
 		if (cmd.equals("new")) {
 			if (IJ.altKeyDown())
-				IJ.runPlugIn("ij.plugin.HyperStackMaker", "");
+				IJPlugin.runPlugIn(("ij.plugin.HyperStackMaker", "");
 			else
 				new NewImage();
 		} else if (cmd.equals("open")) {
-			if (Prefs.useJFileChooser && !IJ.macroRunning())
+			if (Prefs.useJFileChooser && !IJMacro.macroRunning())
 				new Opener().openMultiple();
 			else
 				new Opener().open();
@@ -46,13 +46,13 @@ public class Commands implements PlugIn {
 		} else if (cmd.equals("startup"))
 			openStartupMacros();
     }
-    
+
     void revert() {
     	ImagePlus imp = WindowManager.getCurrentImage();
 		if (imp!=null)
 			imp.revert();
 		else
-			IJ.noImage();
+			IJMacro.noImage();
 	}
 
     void save() {
@@ -65,15 +65,15 @@ public class Commands implements PlugIn {
 			} else
 				new FileSaver(imp).save();
 		} else
-			IJ.noImage();
+			IJMacro.noImage();
 	}
-	
+
     void undo() {
     	ImagePlus imp = WindowManager.getCurrentImage();
 		if (imp!=null)
 			Undo.undo();
 		else
-			IJ.noImage();
+			IJMacro.noImage();
 	}
 
 	void close() {
@@ -100,7 +100,7 @@ public class Commands implements PlugIn {
 				ImagePlus imp = WindowManager.getImage(list[i]);
 				if (imp!=null && imp.changes) imagesWithChanges++;
 			}
-			if (imagesWithChanges>0 && !IJ.macroRunning()) {
+			if (imagesWithChanges>0 && !IJMacro.macroRunning()) {
 				GenericDialog gd = new GenericDialog("Close All");
 				String msg = null;
 				String pronoun = null;
@@ -114,7 +114,7 @@ public class Commands implements PlugIn {
 				gd.addMessage(msg+" with unsaved changes. "+pronoun
 					+" will\nbe closed without being saved if you click \"OK\".");
 				gd.showDialog();
-				if (gd.wasCanceled())	
+				if (gd.wasCanceled())
 					return false;
 			}
 			Prefs.closingAll = true;
@@ -132,11 +132,11 @@ public class Commands implements PlugIn {
 
 	void closeImage(ImagePlus imp) {
 		if (imp==null) {
-			IJ.noImage();
+			IJMacro.noImage();
 			return;
 		}
 		imp.close();
-		if (Recorder.record && !IJ.isMacro()) {
+		if (Recorder.record && !IJMacro.isMacro()) {
 			if (Recorder.scriptMode())
 				Recorder.recordCall("imp.close();");
 			else
@@ -144,12 +144,12 @@ public class Commands implements PlugIn {
 			Recorder.setCommand(null); // don't record run("Close")
 		}
 	}
-	
+
 	// Plugins>Macros>Open Startup Macros command
 	void openStartupMacros() {
 		Applet applet = IJ.getApplet();
 		if (applet!=null)
-			IJ.run("URL...", "url="+IJ.URL+"/applet/StartupMacros.txt");
+			IJMacro.run("URL...", "url="+IJ.URL+"/applet/StartupMacros.txt");
 		else {
 			String path = IJ.getDirectory("macros")+"StartupMacros.txt";
 			File f = new File(path);
@@ -162,12 +162,12 @@ public class Commands implements PlugIn {
 				f = new File(path);
 			}
 			if (!f.exists())
-				IJ.error("\"StartupMacros.txt\" not found in ImageJ/macros/");
+				IJMessage.error("\"StartupMacros.txt\" not found in ImageJ/macros/");
 			else
 				IJ.open(path);
 		}
 	}
-		
+
 }
 
 

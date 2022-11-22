@@ -31,7 +31,7 @@ public class ScaleDialog implements PlugInFilter {
 		Calibration calOrig = cal.copy();
 		boolean isCalibrated = cal.scaled();
 		String length = "0.00";
-		
+
 		String scale = "<no scale>";
 		int digits = 2;
 		Roi roi = imp.getRoi();
@@ -59,7 +59,7 @@ public class ScaleDialog implements PlugInFilter {
 			scale = IJ.d2s(dscale, digits)+" pixels/"+unit;
 			aspectRatio = cal.pixelHeight/cal.pixelWidth;
 		}
-		
+
 		digits = Tools.getDecimalPlaces(measured);
 		int asDigits = aspectRatio==1.0?1:3;
 		SetScaleDialog gd = new SetScaleDialog("Set Scale", scale, length);
@@ -94,7 +94,7 @@ public class ScaleDialog implements PlugInFilter {
 			cal.pixelDepth = 1.0;
 			cal.setUnit("pixel");
 		} else {
-			if (gd.scaleChanged || IJ.macroRunning()) {
+			if (gd.scaleChanged || IJMacro.macroRunning()) {
 				cal.pixelWidth = known/measured;
 				if (cal.pixelDepth==1.0)
 					cal.pixelDepth = cal.pixelWidth;
@@ -117,7 +117,7 @@ public class ScaleDialog implements PlugInFilter {
 		if (global2 && global2!=global1)
 			FileOpener.setShowConflictMessage(true);
 	}
-	
+
 	/** Creates a panel containing an "Unscale" button. */
 	Panel makeButtonPanel(SetScaleDialog gd) {
 		Panel panel = new Panel();
@@ -147,7 +147,7 @@ class SetScaleDialog extends GenericDialog {
     	initialScale += "                   ";
    		setScale(initialScale);
     }
- 	
+
  	public void textValueChanged(TextEvent e) {
 		Object source = e.getSource();
 		if (source==numberField.elementAt(0) || source==numberField.elementAt(1))
@@ -177,8 +177,8 @@ class SetScaleDialog extends GenericDialog {
  		}
  		setScale(theScale);
 	}
-	
-	public void actionPerformed(ActionEvent e) { 
+
+	public void actionPerformed(ActionEvent e) {
 		super.actionPerformed(e);
 		if (e.getSource()==unscaleButton) {
 			((TextField)numberField.elementAt(0)).setText(length);

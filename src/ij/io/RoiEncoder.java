@@ -18,7 +18,7 @@ public class RoiEncoder {
 	static final int VERSION = 228; // v1.52t (roi groups, scale stroke width)
 	private String path;
 	private OutputStream f;
-	private final int polygon=0, rect=1, oval=2, line=3, freeline=4, polyline=5, noRoi=6, freehand=7, 
+	private final int polygon=0, rect=1, oval=2, line=3, freeline=4, polyline=5, noRoi=6, freehand=7,
 		traced=8, angle=9, point=10;
 	private byte[] data;
 	private String roiName;
@@ -28,7 +28,7 @@ public class RoiEncoder {
 	private int countersSize;
 	private int[] counters;
 
-	
+
 	/** Creates an RoiEncoder using the specified path. */
 	public RoiEncoder(String path) {
 		this.path = path;
@@ -38,7 +38,7 @@ public class RoiEncoder {
 	public RoiEncoder(OutputStream f) {
 		this.f = f;
 	}
-	
+
 	/** Saves the specified ROI as a file, returning 'true' if successful. */
 	public static boolean save(Roi roi, String path) {
 		RoiEncoder re = new RoiEncoder(path);
@@ -60,7 +60,7 @@ public class RoiEncoder {
 			f.close();
 		}
 	}
-	
+
 	/** Saves the specified ROI as a byte array. */
 	public static byte[] saveAsByteArray(Roi roi) {
 		if (roi==null) return null;
@@ -70,7 +70,7 @@ public class RoiEncoder {
 			RoiEncoder encoder = new RoiEncoder(out);
 			encoder.write(roi);
 			out.close();
-			bytes = out.toByteArray(); 
+			bytes = out.toByteArray();
 		} catch (IOException e) {
 			return null;
 		}
@@ -91,7 +91,7 @@ public class RoiEncoder {
 			roiNameSize = roiName.length()*2;
 		else
 			roiNameSize = 0;
-		
+
 		roiProps = roi.getProperties();
 		if (roiProps!=null)
 			roiPropsSize = roiProps.length()*2;
@@ -111,7 +111,7 @@ public class RoiEncoder {
 			case Roi.POINT: type=point; break;
 			default: type = rect; break;
 		}
-		
+
 		if (roiType==Roi.COMPOSITE) {
 			saveShapeRoi(roi, type, f, options);
 			return;
@@ -143,14 +143,14 @@ public class RoiEncoder {
 				}
 			}
 		}
-		
+
 		countersSize = 0;
 		if (roi instanceof PointRoi) {
 			counters = ((PointRoi)roi).getCounters();
 			if (counters!=null && counters.length>=n)
 				countersSize = n*4;
 		}
-		
+
 		data = new byte[HEADER_SIZE+HEADER2_SIZE+n*4+floatSize+roiNameSize+roiPropsSize+countersSize];
 		data[0]=73; data[1]=111; data[2]=117; data[3]=116; // "Iout"
 		putShort(RoiDecoder.VERSION_OFFSET, VERSION);
@@ -158,7 +158,7 @@ public class RoiEncoder {
 		putShort(RoiDecoder.TOP, r.y);
 		putShort(RoiDecoder.LEFT, r.x);
 		putShort(RoiDecoder.BOTTOM, r.y+r.height);
-		putShort(RoiDecoder.RIGHT, r.x+r.width);	
+		putShort(RoiDecoder.RIGHT, r.x+r.width);
 		if (roi.subPixelResolution() && (type==rect||type==oval)) {
 			FloatPolygon p = null;
 			if (roi instanceof OvalRoi)
@@ -176,7 +176,7 @@ public class RoiEncoder {
 				putFloat(RoiDecoder.XD, p.xpoints[0]);
 				putFloat(RoiDecoder.YD, p.ypoints[0]);
 				putFloat(RoiDecoder.WIDTHD, p.xpoints[1]-p.xpoints[0]);
-				putFloat(RoiDecoder.HEIGHTD, p.ypoints[2]-p.ypoints[1]);	
+				putFloat(RoiDecoder.HEIGHTD, p.ypoints[2]-p.ypoints[1]);
 				options |= RoiDecoder.SUB_PIXEL_RESOLUTION;
 				putShort(RoiDecoder.OPTIONS, options);
 			}
@@ -190,21 +190,21 @@ public class RoiEncoder {
 				return;
 			}
 			ij.IJ.beep();
-			ij.IJ.log("Non-polygonal selections with more than 65k points cannot be saved.");
+			ij.IJMessage.log("Non-polygonal selections with more than 65k points cannot be saved.");
 			n = 65535;
 		}
 		if (type==point && n>65535)
 			putInt(RoiDecoder.SIZE, n);
-		else 
+		else
 			putShort(RoiDecoder.N_COORDINATES, n);
 		putInt(RoiDecoder.POSITION, roi.getPosition());
-		
+
 		if (type==rect) {
 			int arcSize = roi.getCornerDiameter();
 			if (arcSize>0)
 				putShort(RoiDecoder.ROUNDED_RECT_ARC_SIZE, arcSize);
 		}
-		
+
 		if (roi instanceof Line) {
 			Line line = (Line)roi;
 			putFloat(RoiDecoder.X1, (float)line.x1d);
@@ -225,7 +225,7 @@ public class RoiEncoder {
 					options |= RoiDecoder.SUB_PIXEL_RESOLUTION+RoiDecoder.DRAW_OFFSET;
 			}
 		}
-		
+
 		if (roi instanceof PointRoi) {
 			PointRoi point = (PointRoi)roi;
 			putByte(RoiDecoder.POINT_TYPE, point.getPointType());
@@ -251,7 +251,7 @@ public class RoiEncoder {
 			putFloat(RoiDecoder.Y2, (float)p[3]);
 			putFloat(RoiDecoder.FLOAT_PARAM, (float)p[4]);
 		}
-				
+
 		// save stroke width, stroke color and fill color (1.43i or later)
 		if (VERSION>=218) {
 			saveStrokeWidthAndColor(roi);
@@ -260,14 +260,14 @@ public class RoiEncoder {
 				putShort(RoiDecoder.OPTIONS, options);
 			}
 		}
-		
+
 		if (n==0 && roi instanceof TextRoi)
 			saveTextRoi((TextRoi)roi);
 		else if (n==0 && roi instanceof ImageRoi)
 			options = saveImageRoi((ImageRoi)roi, options);
 		else
 			putHeader2(roi, HEADER_SIZE+n*4+floatSize);
-			
+
 		if (n>0) {
 			int base1 = 64;
 			int base2 = base1+2*n;
@@ -284,7 +284,7 @@ public class RoiEncoder {
 				}
 			}
 		}
-		
+
 		saveOverlayOptions(roi, options);
 		f.write(data);
 	}
@@ -308,13 +308,13 @@ public class RoiEncoder {
 		Rectangle r = roi.getBounds();
 		data  = new byte[HEADER_SIZE+HEADER2_SIZE+shapeArray.length*4+roiNameSize+roiPropsSize];
 		data[0]=73; data[1]=111; data[2]=117; data[3]=116; // "Iout"
-		
+
 		putShort(RoiDecoder.VERSION_OFFSET, VERSION);
 		data[RoiDecoder.TYPE] = (byte)type;
 		putShort(RoiDecoder.TOP, r.y);
 		putShort(RoiDecoder.LEFT, r.x);
 		putShort(RoiDecoder.BOTTOM, r.y+r.height);
-		putShort(RoiDecoder.RIGHT, r.x+r.width);	
+		putShort(RoiDecoder.RIGHT, r.x+r.width);
 		putInt(RoiDecoder.POSITION, roi.getPosition());
 		//putShort(16, n);
 		putInt(36, shapeArray.length); // non-zero segment count indicate composite type
@@ -329,12 +329,12 @@ public class RoiEncoder {
 			base += 4;
 		}
 		int hdr2Offset = HEADER_SIZE+shapeArray.length*4;
-		//ij.IJ.log("saveShapeRoi: "+HEADER_SIZE+"  "+shapeArray.length);
+		//ij.IJMessage.log("saveShapeRoi: "+HEADER_SIZE+"  "+shapeArray.length);
 		putHeader2(roi, hdr2Offset);
 		bout.write(data,0,data.length);
 		bout.flush();
 	}
-	
+
 	void saveOverlayOptions(Roi roi, int options) {
 		Overlay proto = roi.getPrototypeOverlay();
 		if (proto.getDrawLabels())
@@ -350,7 +350,7 @@ public class RoiEncoder {
 			options |= RoiDecoder.SCALE_LABELS;
 		putShort(RoiDecoder.OPTIONS, options);
 	}
-	
+
 	void saveTextRoi(TextRoi roi) {
 		Font font = roi.getCurrentFont();
 		String fontName = font.getName();
@@ -376,11 +376,11 @@ public class RoiEncoder {
 		for (int i=0; i<textLength; i++)
 			putShort(HEADER_SIZE+16+fontNameLength*2+i*2, text.charAt(i));
 		int hdr2Offset = HEADER_SIZE+textRoiDataLength;
-		//ij.IJ.log("saveTextRoi: "+HEADER_SIZE+"  "+textRoiDataLength+"  "+fontNameLength+"  "+textLength);
+		//ij.IJMessage.log("saveTextRoi: "+HEADER_SIZE+"  "+textRoiDataLength+"  "+fontNameLength+"  "+textLength);
 		putFloat(hdr2Offset-angleLength, angle);
 		putHeader2(roi, hdr2Offset);
 	}
-	
+
 	private int saveImageRoi(ImageRoi roi, int options) {
 		byte[] bytes = roi.getSerializedImage();
 		int imageSize = bytes.length;
@@ -401,7 +401,7 @@ public class RoiEncoder {
 	}
 
 	void putHeader2(Roi roi, int hdr2Offset) {
-		//ij.IJ.log("putHeader2: "+hdr2Offset+" "+roiNameSize+"  "+roiName);
+		//ij.IJMessage.log("putHeader2: "+hdr2Offset+" "+roiNameSize+"  "+roiName);
 		putInt(RoiDecoder.HEADER2_OFFSET, hdr2Offset);
 		putInt(hdr2Offset+RoiDecoder.C_POSITION, roi.getCPosition());
 		putInt(hdr2Offset+RoiDecoder.Z_POSITION, roi.hasHyperStackPosition()?roi.getZPosition():0);
@@ -475,6 +475,6 @@ public class RoiEncoder {
 		data[base+2] = (byte)(i>>8);
 		data[base+3] = (byte)i;
 	}
-	
-	
+
+
 }

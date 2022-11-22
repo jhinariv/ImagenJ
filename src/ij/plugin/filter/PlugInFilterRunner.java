@@ -89,13 +89,13 @@ public class PlugInFilterRunner implements Runnable, DialogListener {
 		}
 		/* preparing for the run(ip) method of the PlugInFilter... */
 		int slices = imp.getStackSize();
-		//IJ.log("processedAsPreview="+processedAsPreview+"; slices="+slices+"; doesStacks="+((flags&PlugInFilter.DOES_STACKS)!=0));
+		//IJMessage.log("processedAsPreview="+processedAsPreview+"; slices="+slices+"; doesStacks="+((flags&PlugInFilter.DOES_STACKS)!=0));
 		if ((flags&PlugInFilter.PARALLELIZE_IMAGES)!=0)
 			flags &= ~PlugInFilter.PARALLELIZE_STACKS;
 		doStack = slices>1 && (flags&PlugInFilter.DOES_STACKS)!=0;
 		imp.startTiming();
 		if (doStack || processedAsPreview==0) {				// if processing during preview was not enough
-			//IJ.showStatus(command + (doStack ? " (Stack)..." : "..."));
+			//IJMessage.showStatus(command + (doStack ? " (Stack)..." : "..."));
 			ImageProcessor ip = imp.getProcessor();
 			pass = 0;
 			if (!doStack) {	   // single image
@@ -142,10 +142,10 @@ public class PlugInFilterRunner implements Runnable, DialogListener {
 					Thread bgThread = new Thread(this, command+" "+startSlice+"-"+endSlice);
 					slicesForThread.put(bgThread, new int[] {startSlice, endSlice});
 					bgThread.start();
-					//IJ.log("Stack: Thread for slices "+startSlice+"-"+endSlice+" started");
+					//IJMessage.log("Stack: Thread for slices "+startSlice+"-"+endSlice+" started");
 					startSlice = endSlice+1;
 				}
-				//IJ.log("Stack: Slices "+startSlice+"-"+slices+" by main thread");
+				//IJMessage.log("Stack: Slices "+startSlice+"-"+slices+" by main thread");
 				processStack(startSlice, slices);			// the current thread does the rest
 				if (slicesForThread != null) {
 					while (slicesForThread.size()>0) {	  // for all other threads:
@@ -161,7 +161,7 @@ public class PlugInFilterRunner implements Runnable, DialogListener {
 		if ((flags&PlugInFilter.FINAL_PROCESSING)!=0 && !IJ.escapePressed())
 			((PlugInFilter)theFilter).setup("final", imp);
 		if (IJ.escapePressed()) {
-			IJ.showStatus(command + " INTERRUPTED");
+			IJMessage.showStatus(command + " INTERRUPTED");
 			IJ.showProgress(1,1);
 		} else
 			IJ.showTime(imp, imp.getStartTime()-previewTime, command + ": ", doStack?slices:1);
@@ -253,7 +253,7 @@ public class PlugInFilterRunner implements Runnable, DialogListener {
 				if (doStack) IJ.showProgress(pass/(double)nPasses);
 				((PlugInFilter)theFilter).run(fp);
 				if (thread.isInterrupted()) return;
-				//IJ.log("slice="+getSliceNumber()+" pass="+pass+"/"+nPasses);
+				//IJMessage.log("slice="+getSliceNumber()+" pass="+pass+"/"+nPasses);
 				pass++;
 				if ((flags&PlugInFilter.NO_CHANGES)==0) {
 					ipChanged = true;
@@ -276,8 +276,8 @@ public class PlugInFilterRunner implements Runnable, DialogListener {
    }
 
 	private void processImageUsingThreads(ImageProcessor ip, FloatProcessor fp, Object snapshotPixels) {
-		if (IJ.debugMode)
-			IJ.log("using threads: "+ip.getNChannels());
+		if (IJDebugMode.debugMode)
+			IJMessage.log("using threads: "+ip.getNChannels());
 		Thread thread = Thread.currentThread();
 		boolean convertToFloat = (flags&PlugInFilter.CONVERT_TO_FLOAT)!=0 && !(ip instanceof FloatProcessor);
 		boolean doMasking = (flags&PlugInFilter.SUPPORTS_MASKING)!=0 && ip.getMask() != null;
@@ -294,7 +294,7 @@ public class PlugInFilterRunner implements Runnable, DialogListener {
 				if (doStack) IJ.showProgress(pass/(double)nPasses);
 				processChannelUsingThreads(fp);
 				if (thread.isInterrupted()) return;
-				//IJ.log("slice="+getSliceNumber()+" pass="+pass+"/"+nPasses);
+				//IJMessage.log("slice="+getSliceNumber()+" pass="+pass+"/"+nPasses);
 				if ((flags&PlugInFilter.NO_CHANGES)==0) {
 					ipChanged = true;
 					ip.setPixels(i, fp);
@@ -319,8 +319,8 @@ public class PlugInFilterRunner implements Runnable, DialogListener {
 		ImageProcessor mask = ip.getMask();
 		Rectangle roi = ip.getRoi();
 		int threads = Prefs.getThreads();
-		if (IJ.debugMode)
-			IJ.log("processing channel: "+threads);
+		if (IJDebugMode.debugMode)
+			IJMessage.log("processing channel: "+threads);
 		if (threads>roi.height) threads = roi.height;
 		if (threads>1) roisForThread = new Hashtable<Thread, ImageProcessor>(threads-1);
 		int y1 = roi.y;
@@ -330,12 +330,12 @@ public class PlugInFilterRunner implements Runnable, DialogListener {
 			Rectangle roi2 = new Rectangle(roi.x, y1, roi.width, y2-y1+1);
 			roisForThread.put(bgThread, duplicateProcessor(ip, roi2));
 			bgThread.start();
-			if (IJ.debugMode)
-				IJ.log("  starting thread: "+y1+"-"+y2);
+			if (IJDebugMode.debugMode)
+				IJMessage.log("  starting thread: "+y1+"-"+y2);
 			y1 = y2+1;
 		}
-		if (IJ.debugMode)
-			IJ.log("  main thread "+y1+"-"+(roi.y+roi.height));
+		if (IJDebugMode.debugMode)
+			IJMessage.log("  main thread "+y1+"-"+(roi.y+roi.height));
 		Rectangle roi2 = new Rectangle(roi.x, y1, roi.width, roi.y+roi.height-y1);
 		((PlugInFilter)theFilter).run(duplicateProcessor(ip, roi2)); 	// current thread does the rest
 		pass++;
@@ -379,7 +379,7 @@ public class PlugInFilterRunner implements Runnable, DialogListener {
 	private boolean checkImagePlus(ImagePlus imp, int flags, String cmd) {
 		boolean imageRequired = (flags&PlugInFilter.NO_IMAGE_REQUIRED)==0;
 		if (imageRequired && imp==null)
-			{IJ.noImage(); return false;}
+			{IJMacro.noImage(); return false;}
 		if (imageRequired) {
 			if (imp.getProcessor()==null)
 				{wrongType(flags, cmd); return false;}
@@ -407,9 +407,9 @@ public class PlugInFilterRunner implements Runnable, DialogListener {
 					break;
 			}
 			if ((flags&PlugInFilter.ROI_REQUIRED)!=0 && imp.getRoi()==null)
-			{IJ.error(cmd, "This command requires a selection"); return false;}
+			{IJMessage.error(cmd, "This command requires a selection"); return false;}
 			if ((flags&PlugInFilter.STACK_REQUIRED)!=0 && imp.getStackSize()==1)
-			{IJ.error(cmd, "This command requires a stack"); return false;}
+			{IJMessage.error(cmd, "This command requires a stack"); return false;}
 		} // if imageRequired
 		return true;
 	}
@@ -423,7 +423,7 @@ public class PlugInFilterRunner implements Runnable, DialogListener {
 		if ((flags&PlugInFilter.DOES_16)!=0) s +=  "	16-bit grayscale\n";
 		if ((flags&PlugInFilter.DOES_32)!=0) s +=  "	32-bit (float) grayscale\n";
 		if ((flags&PlugInFilter.DOES_RGB)!=0) s += "	RGB color\n";
-		IJ.error(s);
+		IJMessage.error(s);
 	}
 
 	/** Make the slice number accessible to the PlugInFilter by putting it
@@ -462,7 +462,7 @@ public class PlugInFilterRunner implements Runnable, DialogListener {
 				int[] range = (int[])slicesForThread.get(thread);
 				processStack(range[0], range[1]);
 			} else
-				IJ.error("PlugInFilterRunner internal error:\nunsolicited background thread");
+				IJMessage.error("PlugInFilterRunner internal error:\nunsolicited background thread");
 		} catch (Exception err) {
 			if (thread==previewThread) {
 				gd.previewRunning(false);
@@ -474,7 +474,7 @@ public class PlugInFilterRunner implements Runnable, DialogListener {
 			String msg = ""+err;
 			if (msg.indexOf(Macro.MACRO_CANCELED)==-1) {
 				IJ.beep();
-				IJ.log("ERROR: "+msg+"\nin "+thread.getName()+
+				IJMessage.log("ERROR: "+msg+"\nin "+thread.getName()+
 					"\nat "+(err.getStackTrace()[0])+"\nfrom "+(err.getStackTrace()[1]));
 			}
 		}
@@ -482,8 +482,8 @@ public class PlugInFilterRunner implements Runnable, DialogListener {
 
 	/** The background thread for preview */
 	private void runPreview() {
-		if (IJ.debugMode)
-			IJ.log("preview thread started; imp="+imp.getTitle());
+		if (IJDebugMode.debugMode)
+			IJMessage.log("preview thread started; imp="+imp.getTitle());
 		Thread thread = Thread.currentThread();
 		ImageProcessor ip = imp.getProcessor();
 		Roi originalRoi = imp.getRoi();
@@ -518,7 +518,7 @@ public class PlugInFilterRunner implements Runnable, DialogListener {
 					((ExtendedPlugInFilter)theFilter).setNPasses(nPasses); //this should reset pass in the filter
 				if (thread.isInterrupted())
 					break interruptable;
-				//IJ.log("process preview start now");
+				//IJMessage.log("process preview start now");
 				processOneImage(ip, fp, snapshotPixels); // P R O C E S S   (sets ipChanged)
 				IJ.showProgress(1.0);
 				if (thread.isInterrupted())
@@ -526,11 +526,11 @@ public class PlugInFilterRunner implements Runnable, DialogListener {
 				previewDataOk = true;
 				previewTime = System.currentTimeMillis() - startTime;
 				imp.updateAndDraw();
-				if (IJ.debugMode)
-					IJ.log("preview processing done");
+				if (IJDebugMode.debugMode)
+					IJMessage.log("preview processing done");
 			}
 			gd.previewRunning(false);				// optical feedback
-			IJ.showStatus("");						//delete last status messages from processing
+			IJMessage.showStatus("");						//delete last status messages from processing
 			synchronized(this) {
 				if (!bgPreviewOn)
 					break;							//thread should stop and possibly keep the data
@@ -593,7 +593,7 @@ public class PlugInFilterRunner implements Runnable, DialogListener {
 				gd.addDialogListener(this);
 				this.gd = gd;
 			}
-		} //IJ.log("setDialog done");
+		} //IJMessage.log("setDialog done");
 	}
 
 	/** The listener to any change in the dialog. It is used for preview.
@@ -617,8 +617,8 @@ public class PlugInFilterRunner implements Runnable, DialogListener {
 			if (priority < Thread.MIN_PRIORITY) priority = Thread.MIN_PRIORITY;
 			previewThread.setPriority(priority);	//preview on lower priority than dialog
 			previewThread.start();
-			if (IJ.debugMode)
-				IJ.log(command+" Preview thread was started");
+			if (IJDebugMode.debugMode)
+				IJMessage.log(command+" Preview thread was started");
 			return true;
 		}
 		if (previewThread != null) {				//thread runs already

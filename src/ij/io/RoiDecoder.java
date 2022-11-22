@@ -8,13 +8,13 @@ import java.net.*;
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
 
-/** This class decodes an ImageJ .roi file. 
+/** This class decodes an ImageJ .roi file.
 	<p>
 	Format of the original 64 byte ImageJ/NIH Image
 	.roi file header. Two byte numbers are big-endian
 	signed shorts. The JavaScript example at
 	http://wsr.imagej.net/macros/js/DecodeRoiFile.js
-	demonstrates how to use this information to 
+	demonstrates how to use this information to
 	decode a .roi file.
 	<pre>
 	0-3		"Iout"
@@ -96,7 +96,7 @@ public class RoiDecoder {
 	public static final int ELLIPSE = 3;
 	public static final int IMAGE = 4;
 	public static final int ROTATED_RECT = 5;
-	
+
 	// options
 	public static final int SPLINE_FIT = 1;
 	public static final int DOUBLE_HEADED = 2;
@@ -112,11 +112,11 @@ public class RoiDecoder {
 	public static final int SCALE_LABELS = 2048;
 	public static final int PROMPT_BEFORE_DELETING = 4096; //points
 	public static final int SCALE_STROKE_WIDTH = 8192;
-	
+
 	// types
 	private final int polygon=0, rect=1, oval=2, line=3, freeline=4, polyline=5, noRoi=6,
 		freehand=7, traced=8, angle=9, point=10;
-	
+
 	private byte[] data;
 	private String path;
 	private InputStream is;
@@ -130,7 +130,7 @@ public class RoiDecoder {
 
 	/** Constructs an RoiDecoder using a byte array. */
 	public RoiDecoder(byte[] bytes, String name) {
-		is = new ByteArrayInputStream(bytes);	
+		is = new ByteArrayInputStream(bytes);
 		this.name = name;
 		this.size = bytes.length;
 	}
@@ -189,7 +189,7 @@ public class RoiDecoder {
 		boolean scaleStrokeWidth = true;
 		if (version>=228)
 			scaleStrokeWidth = (options&SCALE_STROKE_WIDTH)!=0;
-		
+
 		boolean subPixelRect = version>=223 && subPixelResolution && (type==rect||type==oval);
 		double xd=0.0, yd=0.0, widthd=0.0, heightd=0.0;
 		if (subPixelRect) {
@@ -198,7 +198,7 @@ public class RoiDecoder {
 			widthd = getFloat(WIDTHD);
 			heightd = getFloat(HEIGHTD);
 		}
-		
+
 		if (hdr2Offset>0 && hdr2Offset+IMAGE_SIZE+4<=size) {
 			channel = getInt(hdr2Offset+C_POSITION);
 			slice = getInt(hdr2Offset+Z_POSITION);
@@ -209,11 +209,11 @@ public class RoiDecoder {
 			imageSize = getInt(hdr2Offset+IMAGE_SIZE);
 			group = getByte(hdr2Offset+GROUP);
 		}
-		
+
 		if (name!=null && name.endsWith(".roi"))
 			name = name.substring(0, name.length()-4);
 		boolean isComposite = getInt(SHAPE_ROI_SIZE)>0;
-		
+
 		Roi roi = null;
 		if (isComposite) {
 			roi = getShapeRoi();
@@ -250,12 +250,12 @@ public class RoiDecoder {
 					roi = new OvalRoi(left, top, width, height);
 				break;
 			case line:
-				double x1 = getFloat(X1);		
-				double y1 = getFloat(Y1);		
-				double x2 = getFloat(X2);		
+				double x1 = getFloat(X1);
+				double y1 = getFloat(Y1);
+				double x2 = getFloat(X2);
 				double y2 = getFloat(Y2);
 				if (subtype==ARROW) {
-					roi = new Arrow(x1, y1, x2, y2);		
+					roi = new Arrow(x1, y1, x2, y2);
 					((Arrow)roi).setDoubleHeaded((options&DOUBLE_HEADED)!=0);
 					((Arrow)roi).setOutline((options&OUTLINE)!=0);
 					int style = getByte(ARROW_STYLE);
@@ -270,9 +270,9 @@ public class RoiDecoder {
 				}
 				break;
 			case polygon: case freehand: case traced: case polyline: case freeline: case angle: case point:
-					//IJ.log("type: "+type);
-					//IJ.log("n: "+n);
-					//IJ.log("rect: "+left+","+top+" "+width+" "+height);
+					//IJMessage.log("type: "+type);
+					//IJMessage.log("n: "+n);
+					//IJMessage.log("rect: "+left+","+top+" "+width+" "+height);
 					if (n==0 || n<0) break;
 					int[] x = new int[n];
 					int[] y = new int[n];
@@ -320,9 +320,9 @@ public class RoiDecoder {
 					else if (type==freehand) {
 						roiType = Roi.FREEROI;
 						if (subtype==ELLIPSE || subtype==ROTATED_RECT) {
-							double ex1 = getFloat(X1);		
-							double ey1 = getFloat(Y1);		
-							double ex2 = getFloat(X2);		
+							double ex1 = getFloat(X1);
+							double ey1 = getFloat(Y1);
+							double ex2 = getFloat(X2);
 							double ey2 = getFloat(Y2);
 							double param = getFloat(FLOAT_PARAM);
 							if (subtype==ROTATED_RECT)
@@ -353,7 +353,7 @@ public class RoiDecoder {
 		if (roi==null)
 			return null;
 		roi.setName(getRoiName());
-		
+
 		// read stroke width, stroke color and fill color (1.43i or later)
 		if (version>=218) {
 			getStrokeWidthAndColor(roi, hdr2Offset, scaleStrokeWidth);
@@ -363,7 +363,7 @@ public class RoiDecoder {
 			if (splineFit && roi instanceof PolygonRoi)
 				((PolygonRoi)roi).fitSpline();
 		}
-		
+
 		if (version>=218 && subtype==TEXT)
 			roi = getTextRoi(roi, version);
 
@@ -381,7 +381,7 @@ public class RoiDecoder {
 			if (counters!=null && (roi instanceof PointRoi))
 				((PointRoi)roi).setCounters(counters);
 		}
-		
+
 		// set group (1.52t or later)
 		if (version>=228 && group>0)
 			roi.setGroup(group);
@@ -392,7 +392,7 @@ public class RoiDecoder {
 		decodeOverlayOptions(roi, version, options, overlayLabelColor, overlayFontSize);
 		return roi;
 	}
-	
+
 	void decodeOverlayOptions(Roi roi, int version, int options, int color, int fontSize) {
 		Overlay proto = new Overlay();
 		proto.drawLabels((options&OVERLAY_LABELS)!=0);
@@ -456,7 +456,7 @@ public class RoiDecoder {
 		roi.setName(getRoiName());
 		return roi;
 	}
-	
+
 	Roi getTextRoi(Roi roi, int version) {
 		Rectangle r = roi.getBounds();
 		int hdrSize = RoiEncoder.HEADER_SIZE;
@@ -489,7 +489,7 @@ public class RoiDecoder {
 		roi2.setAngle(angle);
 		return roi2;
 	}
-	
+
 	Roi getImageRoi(Roi roi, int opacity, int size, int options) {
 		if (size<=0)
 			return roi;
@@ -521,7 +521,7 @@ public class RoiDecoder {
 			name[i] = (char)getShort(offset+i*2);
 		return new String(name);
 	}
-	
+
 	String getRoiProps() {
 		int hdr2Offset = getInt(HEADER2_OFFSET);
 		if (hdr2Offset==0)
@@ -537,7 +537,7 @@ public class RoiDecoder {
 			props[i] = (char)getShort(offset+i*2);
 		return new String(props);
 	}
-	
+
 	int[] getPointCounters(int n) {
 		int hdr2Offset = getInt(HEADER2_OFFSET);
 		if (hdr2Offset==0)
@@ -564,13 +564,13 @@ public class RoiDecoder {
 		int n = (short)((b0<<8) + b1);
 		if (n<-5000)
 			n = (b0<<8) + b1; // assume n>32767 and unsigned
-		return n;		
+		return n;
 	}
-	
+
 	int getUnsignedShort(int base) {
 		int b0 = data[base]&255;
 		int b1 = data[base+1]&255;
-		return (b0<<8) + b1;	
+		return (b0<<8) + b1;
 	}
 
 	int getInt(int base) {
@@ -584,7 +584,7 @@ public class RoiDecoder {
 	float getFloat(int base) {
 		return Float.intBitsToFloat(getInt(base));
 	}
-	
+
 	/** Opens an ROI from a byte array. */
 	public static Roi openFromByteArray(byte[] bytes) {
 		Roi roi = null;

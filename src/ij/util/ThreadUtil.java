@@ -2,11 +2,11 @@ package ij.util;
 import java.util.concurrent.*;
 
 public class ThreadUtil {
-	
+
 	/** Start all given threads and wait on each of them until all are done.
 	 * From Stephan Preibisch's Multithreading.java class. See:
 	 * http://repo.or.cz/w/trakem2.git?a=blob;f=mpi/fruitfly/general/MultiThreading.java;hb=HEAD
-	 * @param threads 
+	 * @param threads
 	 */
 	public static void startAndJoin(Thread[] threads) {
 		for (int ithread = 0; ithread < threads.length; ++ithread) {
@@ -89,7 +89,7 @@ public class ThreadUtil {
 					public Object get(long timeout, TimeUnit unit) {return result;}
 					public boolean isCancelled() {return false;}
 					public boolean isDone() {return true;}
-				}	
+				}
 			};
 			return futures;
 		} else {
@@ -138,7 +138,7 @@ public class ThreadUtil {
 				i--;  //we still have to wait for completion of this one
 			} catch (CancellationException e) { //cancellation is allowed, e.g. during preview
 			} catch (Exception eOther) {
-				ij.IJ.log("Error in thread called by "+Thread.currentThread().getName()+":\n"+eOther);
+				ij.IJMessage.log("Error in thread called by "+Thread.currentThread().getName()+":\n"+eOther);
 			}
 		}
 		if (interrupted) {

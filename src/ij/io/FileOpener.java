@@ -14,7 +14,7 @@ import ij.plugin.frame.*;
 /**
  * Opens or reverts an image specified by a FileInfo object. Images can
  * be loaded from either a file (directory+fileName) or a URL (url+fileName).
- * Here is an example:	
+ * Here is an example:
  * <pre>
  *   public class FileInfo_Test implements PlugIn {
  *     public void run(String arg) {
@@ -25,9 +25,9 @@ import ij.plugin.frame.*;
  *       fi.fileName = "blobs.tif";
  *       fi.directory = "/Users/wayne/Desktop/";
  *       new FileOpener(fi).open();
- *     }  
- *   }	
- * </pre> 
+ *     }
+ *   }
+ * </pre>
  */
 public class FileOpener {
 
@@ -43,9 +43,9 @@ public class FileOpener {
 			width = fi.width;
 			height = fi.height;
 		}
-		if (IJ.debugMode) IJ.log("FileInfo: "+fi);
+		if (IJDebugMode.debugMode) IJMessage.log("FileInfo: "+fi);
 	}
-	
+
 	/** Opens the image and returns it has an ImagePlus object. */
 	public ImagePlus openImage() {
 		boolean wasRecording = Recorder.record;
@@ -59,7 +59,7 @@ public class FileOpener {
 	public void open() {
 		open(true);
 	}
-	
+
 	/** Obsolete, replaced by openImage() and open(). */
 	public ImagePlus open(boolean show) {
 
@@ -67,7 +67,7 @@ public class FileOpener {
 		Object pixels;
 		ProgressBar pb=null;
 	    ImageProcessor ip;
-		
+
 		ColorModel cm = createColorModel(fi);
 		if (fi.nImages>1)
 			return openStack(cm, show);
@@ -151,7 +151,7 @@ public class FileOpener {
        				}
         		}
         		if (fi.whiteIsZero) // cmyk?
-        			IJ.run(imp, "Invert", "");
+        			IJPlugin.runimp, "Invert", "");
 				break;
 		}
 		imp.setFileInfo(fi);
@@ -173,11 +173,11 @@ public class FileOpener {
 		if (show) imp.show();
 		return imp;
 	}
-	
+
 	public ImageProcessor openProcessor() {
 		Object pixels;
 		ProgressBar pb=null;
-		ImageProcessor ip = null;		
+		ImageProcessor ip = null;
 		ColorModel cm = createColorModel(fi);
 		switch (fi.fileType) {
 			case FileInfo.GRAY8:
@@ -253,7 +253,7 @@ public class FileOpener {
 			IJ.resetEscape();
 			for (int i=1; i<=fi.nImages; i++) {
 				if (!silentMode)
-					IJ.showStatus("Reading: " + i + "/" + fi.nImages);
+					IJMessage.showStatus("Reading: " + i + "/" + fi.nImages);
 				if (IJ.escapePressed()) {
 					IJ.beep();
 					IJ.showProgress(1.0);
@@ -271,7 +271,7 @@ public class FileOpener {
 			is.close();
 		}
 		catch (Exception e) {
-			IJ.log("" + e);
+			IJMessage.log("" + e);
 		}
 		catch(OutOfMemoryError e) {
 			IJ.outOfMemory(fi.fileName);
@@ -302,11 +302,11 @@ public class FileOpener {
 		if (!silentMode) IJ.showProgress(1.0);
 		return imp;
 	}
-	
+
 	private void decodeAndSetRoi(ImagePlus imp, FileInfo fi) {
 		Roi roi = RoiDecoder.openFromByteArray(fi.roi);
 		imp.setRoi(roi);
-		if ((roi instanceof PointRoi) && ((PointRoi)roi).getNCounters()>1) 
+		if ((roi instanceof PointRoi) && ((PointRoi)roi).getNCounters()>1)
 			IJ.setTool("multi-point");
 	}
 
@@ -317,7 +317,7 @@ public class FileOpener {
 		int n = stack.size();
 		for (int i=1; i<=n; i++) {
 			if (!silentMode)
-				IJ.showStatus("Calculating stack min and max: "+i+"/"+n);
+				IJMessage.showStatus("Calculating stack min and max: "+i+"/"+n);
 			ImageProcessor ip = stack.getProcessor(i);
 			ip.resetMinAndMax();
 			if (ip.getMin()<min)
@@ -328,7 +328,7 @@ public class FileOpener {
 		imp.getProcessor().setMinAndMax(min, max);
 		imp.updateAndDraw();
 	}
-	
+
 	/** Restores the original version of the specified image. */
 	public void revertToSaved(ImagePlus imp) {
 		if (fi==null)
@@ -336,7 +336,7 @@ public class FileOpener {
 		String path = fi.getFilePath();
 		if (fi.url!=null && !fi.url.equals("") && (fi.directory==null||fi.directory.equals("")))
 			path = fi.url;
-		IJ.showStatus("Loading: " + path);
+		IJMessage.showStatus("Loading: " + path);
 		ImagePlus imp2 = null;
 		if (!path.endsWith(".raw"))
 			imp2 = IJ.openImage(path);
@@ -383,10 +383,10 @@ public class FileOpener {
 			}
 		}
 	}
-	
+
 	void setCalibration(ImagePlus imp) {
 		if (fi.fileType==FileInfo.GRAY16_SIGNED) {
-			if (IJ.debugMode) IJ.log("16-bit signed");
+			if (IJDebugMode.debugMode) IJMessage.log("16-bit signed");
  			imp.getLocalCalibration().setSigned16BitCalibration();
 		}
 		Properties props = decodeDescriptionString(fi);
@@ -409,7 +409,7 @@ public class FileOpener {
 			cal.setUnit(fi.unit);
 			calibrated = true;
 		}
-		
+
 		if (fi.valueUnit!=null) {
 			if (imp.getBitDepth()==32)
 				cal.setValueUnit(fi.valueUnit);
@@ -417,28 +417,28 @@ public class FileOpener {
 				int f = fi.calibrationFunction;
 				if ((f>=Calibration.STRAIGHT_LINE && f<=Calibration.EXP_RECOVERY && fi.coefficients!=null)
 				|| f==Calibration.UNCALIBRATED_OD) {
-					boolean zeroClip = props!=null && props.getProperty("zeroclip", "false").equals("true");	
+					boolean zeroClip = props!=null && props.getProperty("zeroclip", "false").equals("true");
 					cal.setFunction(f, fi.coefficients, fi.valueUnit, zeroClip);
 					calibrated = true;
 				}
 			}
 		}
-		
+
 		if (calibrated)
 			checkForCalibrationConflict(imp, cal);
-		
+
 		if (fi.frameInterval!=0.0)
 			cal.frameInterval = fi.frameInterval;
-		
+
 		if (props==null)
 			return;
-					
+
 		cal.xOrigin = getDouble(props,"xorigin");
 		cal.yOrigin = getDouble(props,"yorigin");
 		cal.zOrigin = getDouble(props,"zorigin");
 		cal.setInvertY(getBoolean(props, "inverty"));
-		cal.info = props.getProperty("info");		
-				
+		cal.info = props.getProperty("info");
+
 		cal.fps = getDouble(props,"fps");
 		cal.loop = getBoolean(props, "loop");
 		cal.frameInterval = getDouble(props,"finterval");
@@ -458,10 +458,10 @@ public class FileOpener {
 					ip.setMinAndMax(displayMin, displayMax);
 			}
 		}
-		
+
 		if (getBoolean(props, "8bitcolor"))
 			imp.setTypeToColor256(); // set type to COLOR_256
-		
+
 		int stackSize = imp.getStackSize();
 		if (stackSize>1) {
 			int channels = (int)getDouble(props,"channels");
@@ -470,7 +470,7 @@ public class FileOpener {
 			if (channels==0) channels = 1;
 			if (slices==0) slices = 1;
 			if (frames==0) frames = 1;
-			//IJ.log("setCalibration: "+channels+"  "+slices+"  "+frames);
+			//IJMessage.log("setCalibration: "+channels+"  "+slices+"  "+frames);
 			if (channels*slices*frames==stackSize) {
 				imp.setDimensions(channels, slices, frames);
 				if (getBoolean(props, "hyperstack"))
@@ -479,10 +479,10 @@ public class FileOpener {
 		}
 	}
 
-		
+
 	void checkForCalibrationConflict(ImagePlus imp, Calibration cal) {
 		Calibration gcal = imp.getGlobalCalibration();
-		if  (gcal==null || !showConflictMessage || IJ.isMacro())
+		if  (gcal==null || !showConflictMessage || IJMacro.isMacro())
 			return;
 		if (cal.pixelWidth==gcal.pixelWidth && cal.getUnit().equals(gcal.getUnit()))
 			return;
@@ -536,7 +536,7 @@ public class FileOpener {
 		}
 		return is;
 	}
-	
+
 	static boolean validateFileInfo(File f, FileInfo fi) {
 		long offset = fi.getOffset();
 		long length = 0;
@@ -572,10 +572,10 @@ public class FileOpener {
 			+"  Bytes/pixel: " + fi.getBytesPerPixel() + "\n"
 			+(length>0?"  File length: " + length + "\n":"");
 		if (silentMode) {
-			IJ.log("Error opening "+fi.getFilePath());
-			IJ.log(msg2);
+			IJMessage.log("Error opening "+fi.getFilePath());
+			IJMessage.log(msg2);
 		} else
-			IJ.error("FileOpener", msg2);
+			IJMessage.error("FileOpener", msg2);
 	}
 
 
@@ -602,8 +602,8 @@ public class FileOpener {
 	public Properties decodeDescriptionString(FileInfo fi) {
 		if (fi.description==null || fi.description.length()<7)
 			return null;
-		if (IJ.debugMode)
-			IJ.log("Image Description: " + new String(fi.description).replace('\n',' '));
+		if (IJDebugMode.debugMode)
+			IJMessage.log("Image Description: " + new String(fi.description).replace('\n',' '));
 		if (!fi.description.startsWith("ImageJ"))
 			return null;
 		Properties props = new Properties();
@@ -629,7 +629,7 @@ public class FileOpener {
 		if (count>=2) {
 			fi.coefficients = new double[count];
 			for (int i=0; i<count; i++)
-				fi.coefficients[i] = c[i];			
+				fi.coefficients[i] = c[i];
 		}
 		fi.valueUnit = props.getProperty("vunit");
 		n = getNumber(props,"images");
@@ -653,24 +653,24 @@ public class FileOpener {
 			try {
 				return Double.valueOf(s);
 			} catch (NumberFormatException e) {}
-		}	
+		}
 		return null;
 	}
-	
+
 	private double getDouble(Properties props, String key) {
 		Double n = getNumber(props, key);
 		return n!=null?n.doubleValue():0.0;
 	}
-	
+
 	private boolean getBoolean(Properties props, String key) {
 		String s = props.getProperty(key);
 		return s!=null&&s.equals("true")?true:false;
 	}
-	
+
 	public static void setShowConflictMessage(boolean b) {
 		showConflictMessage = b;
 	}
-	
+
 	static void setSilentMode(boolean mode) {
 		silentMode = mode;
 	}

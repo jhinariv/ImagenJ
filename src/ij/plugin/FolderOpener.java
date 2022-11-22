@@ -21,7 +21,6 @@ public class FolderOpener implements PlugIn, TextListener {
 	private static String[] excludedTypes = {".txt",".lut",".roi",".pty",".hdr",".java",".ijm",".py",".js",".bsh",".xml",".rar",".h5",".doc",".xls"};
 	private static boolean staticSortFileNames = true;
 	private static boolean staticOpenAsVirtualStack;
-	private boolean convertToGrayscale;  //unused
 	private boolean sortFileNames = true;
 	private boolean sortByMetaData = true;
 	private boolean openAsVirtualStack;
@@ -42,10 +41,10 @@ public class FolderOpener implements PlugIn, TextListener {
 	private int step = 1;
 	private double scale = 100.0;
 	private boolean openAsSeparateImages;
-	private boolean runningOpen;	
+	private boolean runningOpen;
 	private TextField dirField, filterField, startField, countField, stepField;
 
-	
+
 	/** Opens the images in the specified directory as a stack. Displays
 		directory chooser and options dialogs if the argument is null. */
 	public static ImagePlus open(String path) {
@@ -86,12 +85,12 @@ public class FolderOpener implements PlugIn, TextListener {
 		fo.run(path);
 		return fo.image;
 	}
-	
+
 	private void setOptions(String options) {
 		if (options==null)
 			return;
 		openAsVirtualStack = options.contains("virtual") || options.contains("use");
-		if (options.contains("noMetaSort")) 
+		if (options.contains("noMetaSort"))
 			sortByMetaData = false;
 		bitDepth = (int)Tools.getNumberFromList(options,"bitdepth=",0);
 		filter = Macro.getValue(options, "filter", "");
@@ -183,7 +182,7 @@ public class FolderOpener implements PlugIn, TextListener {
 		}
 		if (title.endsWith(":"))
 			title = title.substring(0, title.length()-1);
-		
+
 		list = trimFileList(list);
 		if (list==null)
 			return;
@@ -195,14 +194,14 @@ public class FolderOpener implements PlugIn, TextListener {
 			return;
 		if (sortFileNames || IJ.isMacOSX())
 			list = StringSorter.sortNumerically(list);
-		if (IJ.debugMode) IJ.log("FolderOpener: "+directory+" ("+list.length+" files)");
+		if (IJDebugMode.debugMode) IJMessage.log("FolderOpener: "+directory+" ("+list.length+" files)");
 		int width=0, height=0, stackSize=1;
 		ImageStack stack = null;
 		double min = Double.MAX_VALUE;
 		double max = -Double.MAX_VALUE;
 		Calibration cal = null;
 		boolean allSameCalibration = true;
-		IJ.resetEscape();		
+		IJ.resetEscape();
 		Overlay overlay = null;
 		if (this.nFiles==0)
 			this.nFiles = list.length;
@@ -233,7 +232,7 @@ public class FolderOpener implements PlugIn, TextListener {
 				+ "   \""+directory+"\"");
 				return;
 			}
-			IJ.showStatus("");
+			IJMessage.showStatus("");
 			t0 = System.currentTimeMillis();
 			if (dicomImages && !IJ.isMacOSX() && !sortFileNames)
 				list = StringSorter.sortNumerically(list);
@@ -249,7 +248,7 @@ public class FolderOpener implements PlugIn, TextListener {
 			ImagePlus imp = null;
 			boolean firstMessage = true;
 			boolean fileInfoStack = false;
-			
+
 			// open images as stack
 			for (int i=this.start-1; i<list.length; i++) {
 				if ((counter++%this.step)!=0)
@@ -290,7 +289,7 @@ public class FolderOpener implements PlugIn, TextListener {
 							else
 								stack = new VirtualStack(width, height, cm, directory);
 						}
-					}  else if (this.scale<100.0)						
+					}  else if (this.scale<100.0)
 						stack = new ImageStack((int)(width*this.scale/100.0), (int)(height*this.scale/100.0), cm);
 					else
 						stack = new ImageStack(width, height, cm);
@@ -309,7 +308,7 @@ public class FolderOpener implements PlugIn, TextListener {
 						imp2.setProcessor(ip2);
 						imp = imp2;
 					} else {
-						IJ.log(list[i] + ": wrong size; "+width+"x"+height+" expected, "+imp.getWidth()+"x"+imp.getHeight()+" found");
+						IJMessage.log(list[i] + ": wrong size; "+width+"x"+height+" expected, "+imp.getWidth()+"x"+imp.getHeight()+" found");
 						continue;
 					}
 				}
@@ -339,8 +338,8 @@ public class FolderOpener implements PlugIn, TextListener {
 							roi.setPosition(count+1);
 						overlay.add(roi);
 					}
-				}				
-				if (openAsVirtualStack) { 
+				}
+				if (openAsVirtualStack) {
 					if (fileInfoStack)
 						openAsFileInfoStack((FileInfoVirtualStack)stack, directory+list[i]);
 					else
@@ -381,14 +380,14 @@ public class FolderOpener implements PlugIn, TextListener {
 					}
 				}
 				count++;
-				IJ.showStatus("!"+count+"/"+this.nFiles);
+				IJMessage.showStatus("!"+count+"/"+this.nFiles);
 				IJ.showProgress(count, this.nFiles);
-				if (count>=this.nFiles) 
+				if (count>=this.nFiles)
 					break;
 				if (IJ.escapePressed())
 					{IJ.beep(); break;}
 			}  // open images as stack
-			
+
 		} catch(OutOfMemoryError e) {
 			IJ.outOfMemory("FolderOpener");
 			if (stack!=null) stack.trim();
@@ -425,7 +424,7 @@ public class FolderOpener implements PlugIn, TextListener {
 				imp2.setStack(stack);
 				double voxelDepth = DicomTools.getVoxelDepth(stack);
 				if (voxelDepth>0.0) {
-					if (IJ.debugMode) IJ.log("DICOM voxel depth set to "+voxelDepth+" ("+cal.pixelDepth+")");
+					if (IJDebugMode.debugMode) IJMessage.log("DICOM voxel depth set to "+voxelDepth+" ("+cal.pixelDepth+")");
 					cal.pixelDepth = voxelDepth;
 					imp2.setCalibration(cal);
 				}
@@ -445,8 +444,8 @@ public class FolderOpener implements PlugIn, TextListener {
 			if ((arg==null||runningOpen) && !saveImage) {
 				String time = (System.currentTimeMillis()-t0)/1000.0 + " seconds";
 				if (openAsSeparateImages) {
-					if (imp2.getStackSize()>MAX_SEPARATE && !IJ.isMacro()) {
-						boolean ok = IJ.showMessageWithCancel("Import>Image Sequence",
+					if (imp2.getStackSize()>MAX_SEPARATE && !IJMacro.isMacro()) {
+						boolean ok = IJMessage.showMessageWithCancel("Import>Image Sequence",
 						"Are you sure you want to open "+imp2.getStackSize()
 						+" separate windows?\nThis may cause the system to become very slow or stall.");
 						if (!ok) return;
@@ -467,18 +466,18 @@ public class FolderOpener implements PlugIn, TextListener {
 		if (Recorder.record) {
 			String options = openAsVirtualStack&&!openAsSeparateImages?"virtual":"";
 			if (bitDepth!=defaultBitDepth)
-				options = options + " bitdepth=" + bitDepth;				
+				options = options + " bitdepth=" + bitDepth;
 			if (filter!=null && filter.length()>0) {
 				if (filter.contains(" "))
 					filter = "["+filter+"]";
 				options = options + " filter=" + filter;
 			}
 			if (start!=1)
-				options = options + " start=" + start;				
+				options = options + " start=" + start;
 			if (step!=1)
-				options = options + " step=" + step;				
+				options = options + " step=" + step;
 			if (scale!=100)
-				options = options + " scale=" + scale;				
+				options = options + " scale=" + scale;
 			if (!sortByMetaData)
 				options = options + " noMetaSort";
 			if (!Recorder.scriptMode() && openAsSeparateImages)
@@ -495,11 +494,11 @@ public class FolderOpener implements PlugIn, TextListener {
    			}
 		}
 	}
-	
+
 	private void error(String msg) {
-		IJ.error("Import>Image Sequence", msg);
+		IJMessage.error("Import>Image Sequence", msg);
 	}
-	
+
 	private void openAsSeparateImages(ImagePlus imp) {
 		VirtualStack stack = (VirtualStack)imp.getStack();
 		String dir = stack.getDirectory();
@@ -511,13 +510,13 @@ public class FolderOpener implements PlugIn, TextListener {
 				skip = imp2.getStackSize()-1;
 			} else
 				skip--;
-		}	
+		}
 	}
 
 	public static boolean useInfo(String info) {
 		return info!=null && !(info.startsWith("Software")||info.startsWith("ImageDescription"));
 	 }
-	
+
 	private void openAsFileInfoStack(FileInfoVirtualStack stack, String path) {
 		FileInfo[] info = Opener.getTiffFileInfo(path);
 		if (info==null || info.length==0)
@@ -543,7 +542,7 @@ public class FolderOpener implements PlugIn, TextListener {
 				stack.addImage(fi);
 		}
 	}
-	
+
 	boolean showDialog() {
 		String options = Macro.getOptions();
 		if  (options!=null) {  //macro
@@ -562,7 +561,7 @@ public class FolderOpener implements PlugIn, TextListener {
 		String countStr = "---";
 		if (!directorySet && options==null)
 			directory = Prefs.get(DIR_KEY, IJ.getDir("downloads")+"stack/");
-		if (directory!=null && !IJ.isMacro()) {			
+		if (directory!=null && !IJMacro.isMacro()) {
 			File f = new File(directory);
 			String[] names = f.list();
 			names = trimFileList(names);
@@ -570,7 +569,7 @@ public class FolderOpener implements PlugIn, TextListener {
 		}
 		GenericDialog gd = new GenericDialog("Import Image Sequence");
 		gd.setInsets(5, 0, 0);
-		gd.addDirectoryField("Dir:", directory);		
+		gd.addDirectoryField("Dir:", directory);
 		gd.setInsets(2, 55, 10);
 		gd.addMessage("drag and drop target", IJ.font10, Color.darkGray);
 		gd.addChoice("Type:", types, bitDepthToType(bitDepth));
@@ -580,7 +579,7 @@ public class FolderOpener implements PlugIn, TextListener {
 		gd.addNumericField("Start:", this.start, 0, 6, "");
 		gd.addStringField("Count:", countStr, 6);
 		gd.addNumericField("Step:", this.step, 0, 6, "");
-		if (!IJ.isMacro() && !GraphicsEnvironment.isHeadless()) {
+		if (!IJMacro.isMacro() && !GraphicsEnvironment.isHeadless()) {
 			Vector v = gd.getStringFields();
 			dirField = (TextField)v.elementAt(0);
 			dirField.addTextListener(this);
@@ -596,7 +595,7 @@ public class FolderOpener implements PlugIn, TextListener {
 		gd.addNumericField("Scale:", this.scale, 0, 6, "%");
 		gd.addCheckbox("Sort names numerically", sortFileNames);
 		gd.addCheckbox("Use virtual stack", openAsVirtualStack);
-		gd.addCheckbox("Open as separate images", false);		
+		gd.addCheckbox("Open as separate images", false);
 		gd.addHelp(IJ.URL+"/docs/menus/file.html#seq1");
 		gd.showDialog();
 		if (gd.wasCanceled())
@@ -607,7 +606,7 @@ public class FolderOpener implements PlugIn, TextListener {
 		bitDepth = typeToBitDepth(types[index]);
 		filter = gd.getNextString();
 		if (legacyRegex!=null)
-			filter = "("+legacyRegex+")";			
+			filter = "("+legacyRegex+")";
 		gd.setSmartRecording(true);
 		this.start = (int)gd.getNextNumber();
 		countStr = gd.getNextString();
@@ -629,14 +628,14 @@ public class FolderOpener implements PlugIn, TextListener {
 		openAsSeparateImages = gd.getNextBoolean();
 		if (openAsSeparateImages)
 			openAsVirtualStack = true;
-		if (!IJ.macroRunning()) {
+		if (!IJMacro.debugMode()) {
 			staticSortFileNames = sortFileNames;
 			if (!openAsSeparateImages)
 				staticOpenAsVirtualStack = openAsVirtualStack;
 		}
 		return true;
 	}
-	
+
 	public static String[] getFilteredList(String[] list, String filter, String title) {
 		boolean isRegex = false;
 		if (filter!=null && (filter.equals("") || filter.equals("*")))
@@ -665,9 +664,9 @@ public class FolderOpener implements PlugIn, TextListener {
 		if (filteredImages==0) {
 			if (title!=null) {
 				if (isRegex)
-					IJ.error(title, "None of the file names contain the regular expression '"+filter+"'.");
+					IJMessage.error(title, "None of the file names contain the regular expression '"+filter+"'.");
 				else
-					IJ.error(title, "None of the "+list.length+" files contain '"+filter+"' in the name.");
+					IJMessage.error(title, "None of the "+list.length+" files contain '"+filter+"' in the name.");
 			}
 			return null;
 		}
@@ -680,7 +679,7 @@ public class FolderOpener implements PlugIn, TextListener {
 		list = list2;
 		return list;
 	}
-	
+
 	public static boolean containsRegex(String name, String regex, boolean legacy) {
 		boolean contains = false;
 		try {
@@ -688,18 +687,18 @@ public class FolderOpener implements PlugIn, TextListener {
 				contains = name.matches(regex);
 			else
 				contains = name.replaceAll(regex,"").length()!=name.length();
-			IJ.showStatus("");
+			IJMessage.showStatus("");
 		} catch(Exception e) {
 			String msg = e.getMessage();
 			int index = msg.indexOf("\n");
 			if (index>0)
 				msg = msg.substring(0,index);
-			IJ.showStatus("Regex error: "+msg);
+			IJMessage.showStatus("Regex error: "+msg);
 			contains = true;
 		}
 		return contains;
 	}
-	
+
 	private int typeToBitDepth(String type) {
 		int depth = 0;
 		if (type.equals("16-bit")) depth=16;
@@ -742,7 +741,7 @@ public class FolderOpener implements PlugIn, TextListener {
 		}
 		return list;
 	}
-	
+
 	/* Returns true if 'name' ends with ".txt", ".lut", ".roi", ".pty", ".hdr", ".java", ".ijm", ".py", ".js" or ".bsh. */
 	public static boolean excludedFileType(String name) {
 		if (name==null) return true;
@@ -752,15 +751,15 @@ public class FolderOpener implements PlugIn, TextListener {
 		}
 		return false;
 	}
-			
+
 	public void openAsVirtualStack(boolean b) {
 		openAsVirtualStack = b;
 	}
-	
+
 	public void sortFileNames(boolean b) {
 		sortFileNames = b;
 	}
-	
+
 	public void sortByMetaData(boolean b) {
 		sortByMetaData = b;
 	}
@@ -778,7 +777,7 @@ public class FolderOpener implements PlugIn, TextListener {
 	public String[] sortFileList(String[] list) {
 		return StringSorter.sortNumerically(list);
 	}
-	
+
 	public void textValueChanged(TextEvent e) {
 		if (dirField==null)
 			return;

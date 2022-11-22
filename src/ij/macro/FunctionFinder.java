@@ -25,16 +25,16 @@ public class FunctionFinder implements TextListener,  WindowListener, KeyListene
 
 		this.editor = editor;
 
-		String exists = IJ.runMacro("return File.exists(getDirectory('macros')+'functions.html');");
+		String exists = IJPlugin.runMacro("return File.exists(getDirectory('macros')+'functions.html');");
 		if (exists=="0")	{
 			String installLocalMacroFunctionsFile = "functions = File.openUrlAsString('"+IJ.URL+"/developer/macro/functions.html');\n"+
 			"f = File.open(getDirectory('macros')+'functions.html');\n"+
 			"print (f, functions);\n"+
 			"File.close(f);";
-			try { IJ.runMacro(installLocalMacroFunctionsFile);
-			} catch (Throwable e) { IJ.error("Problem downloading functions.html"); return;}
+			try { IJPlugin.runMacro(installLocalMacroFunctionsFile);
+			} catch (Throwable e) { IJMessage.error("Problem downloading functions.html"); return;}
 		}
-		String f = IJ.runMacro("return File.openAsString(getDirectory('macros')+'functions.html');");
+		String f = IJPlugin.runMacro("return File.openAsString(getDirectory('macros')+'functions.html');");
 		f = f.replaceAll("&quot;", "\"");
 		String [] l = f.split("\n");
 		commands= new String [l.length];
@@ -47,7 +47,7 @@ public class FunctionFinder implements TextListener,  WindowListener, KeyListene
 			}
 		}
 		if (c==0) {
-			IJ.error("ImageJ/macros/functions.html is corrupted");
+			IJMessage.error("ImageJ/macros/functions.html is corrupted");
 			return;
 		}
 
@@ -214,7 +214,7 @@ public class FunctionFinder implements TextListener,  WindowListener, KeyListene
 					index2 = selected.length();
 				url = url + "#" + selected.substring(0, index2);
 			}
-			IJ.runPlugIn("ij.plugin.BrowserLauncher", url);
+			IJPlugin.runPlugIn(("ij.plugin.BrowserLauncher", url);
 		} else if (b==closeButton)
 		closeAndRefocus();
 	}

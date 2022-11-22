@@ -13,7 +13,7 @@ import ij.plugin.filter.Analyzer;
 import ij.text.TextWindow;
 
 /** This class is an extended ImageWindow that displays histograms. */
-public class HistogramWindow extends ImageWindow implements Measurements, ActionListener, 
+public class HistogramWindow extends ImageWindow implements Measurements, ActionListener,
 	ClipboardOwner, ImageListener, RoiListener, Runnable {
 	private static final double SCALE = HistogramPlot.SCALE;
 	static final int HIST_WIDTH = HistogramPlot.HIST_WIDTH;
@@ -25,7 +25,7 @@ public class HistogramWindow extends ImageWindow implements Measurements, Action
 	static final int BAR_HEIGHT = HistogramPlot.BAR_HEIGHT;
 
 	static final int INTENSITY1=0, INTENSITY2=1, RGB=2, RED=3, GREEN=4, BLUE=5;
-	
+
 	protected ImageStatistics stats;
 	protected long[] histogram;
 	protected LookUpTable lut;
@@ -41,7 +41,7 @@ public class HistogramWindow extends ImageWindow implements Measurements, Action
 	protected Calibration cal;
 	protected int yMax;
 	public static int nBins = 256;
-		
+
 	private int srcImageID;			// ID of source image
 	private ImagePlus srcImp;		// source image for live histograms
 	private Thread bgThread;		// thread background drawing
@@ -52,7 +52,7 @@ public class HistogramWindow extends ImageWindow implements Measurements, Action
 	private Font font = new Font("SansSerif",Font.PLAIN,(int)(12*SCALE));
 	private boolean showBins;
 	private int col1, col2, row1, row2, row3, row4, row5;
-	    
+
 	public HistogramWindow(HistogramPlot plot, ImagePlus srcImp) {
 		super(plot);
 		srcImageID = srcImp.getID();
@@ -76,7 +76,7 @@ public class HistogramWindow extends ImageWindow implements Measurements, Action
 		showHistogram(imp, 256, 0.0, 0.0);
 	}
 
-	/** Displays a histogram using the specified title and number of bins. 
+	/** Displays a histogram using the specified title and number of bins.
 		Currently, the number of bins must be 256 expect for 32 bit images. */
 	public HistogramWindow(String title, ImagePlus imp, int bins) {
 		super(NewImage.createRGBImage(title, WIN_WIDTH, WIN_HEIGHT, 1, NewImage.FILL_WHITE));
@@ -84,7 +84,7 @@ public class HistogramWindow extends ImageWindow implements Measurements, Action
 	}
 
 	/** Displays a histogram using the specified title, number of bins and histogram range.
-		Currently, the number of bins must be 256 and the histogram range range must be the 
+		Currently, the number of bins must be 256 and the histogram range range must be the
 		same as the image range expect for 32 bit images. */
 	public HistogramWindow(String title, ImagePlus imp, int bins, double histMin, double histMax) {
 		super(NewImage.createRGBImage(title, WIN_WIDTH, WIN_HEIGHT, 1, NewImage.FILL_WHITE));
@@ -112,7 +112,7 @@ public class HistogramWindow extends ImageWindow implements Measurements, Action
 	}
 
 	/** Draws the histogram using the specified title, number of bins and histogram range.
-		Currently, the number of bins must be 256 and the histogram range range must be 
+		Currently, the number of bins must be 256 and the histogram range range must be
 		the same as the image range expect for 32 bit images. */
 	public void showHistogram(ImagePlus imp, int bins, double histMin, double histMax) {
 		boolean limitToThreshold = (Analyzer.getMeasurements()&LIMIT)!=0;
@@ -135,7 +135,7 @@ public class HistogramWindow extends ImageWindow implements Measurements, Action
 			stats = imp.getStatistics(AREA+MEAN+MODE+MIN_MAX+(limitToThreshold?LIMIT:0), bins, histMin, histMax);
 		showHistogram(imp, stats);
 	}
-	
+
 	private ImageStatistics RGBHistogram(ImagePlus imp, int bins, double histMin, double histMax) {
 		ImageProcessor ip = (ColorProcessor)imp.getProcessor();
 		ip = ip.crop();
@@ -178,7 +178,7 @@ public class HistogramWindow extends ImageWindow implements Measurements, Action
 		int type = srcImp.getType();
 		boolean fixedRange = type==ImagePlus.GRAY8 || type==ImagePlus.COLOR_256 || srcImp.isRGB();
 		if (imp==null) {
-			IJ.showStatus("imp==null");
+			IJMessage.showStatus("imp==null");
 			return;
 		}
 		ImageProcessor ip = imp.getProcessor();
@@ -225,11 +225,11 @@ public class HistogramWindow extends ImageWindow implements Measurements, Action
 			pack();
 		}
     }
-    
+
 	public void setup() {
 		setup(null);
 	}
-	
+
 	public void mouseMoved(int x, int y) {
 		ImageProcessor ip = this.imp!=null?this.imp.getProcessor():null;
 		if (ip==null)
@@ -244,7 +244,7 @@ public class HistogramWindow extends ImageWindow implements Measurements, Action
 			drawValueAndCount(ip, Double.NaN, -1);
 		this.imp.updateAndDraw();
 	}
-	
+
 	protected void drawHistogram(ImageProcessor ip, boolean fixedRange) {
 		drawHistogram(null, ip, fixedRange, 0.0, 0.0);
 	}
@@ -253,7 +253,7 @@ public class HistogramWindow extends ImageWindow implements Measurements, Action
 		int x, y;
 		long maxCount2 = 0;
 		int mode2 = 0;
-		long saveModalCount;		    	
+		long saveModalCount;
 		ip.setColor(Color.black);
 		ip.setLineWidth(1);
 		decimalPlaces = Analyzer.getPrecision();
@@ -282,7 +282,7 @@ public class HistogramWindow extends ImageWindow implements Measurements, Action
   		drawText(ip, x, y, fixedRange);
   		srcImageID = imp.getID();
 	}
-       
+
 	void drawAlignedColorBar(ImagePlus imp, double xMin, double xMax, ImageProcessor ip, int x, int y, int width, int height) {
 		ImageProcessor ipSource = imp.getProcessor();
 		float[] pixels = null;
@@ -359,13 +359,13 @@ public class HistogramWindow extends ImageWindow implements Measurements, Action
 		} else if (histogram.length<=HIST_WIDTH) {
 			int index, y;
 			for (int i=0; i<HIST_WIDTH; i++) {
-				index = (int)(i*(double)histogram.length/HIST_WIDTH); 
+				index = (int)(i*(double)histogram.length/HIST_WIDTH);
 				y = (int)(((double)HIST_HEIGHT*(double)histogram[index])/maxCount);
 				if (y>HIST_HEIGHT) y = HIST_HEIGHT;
 				ip.drawLine(i+XMARGIN, YMARGIN+HIST_HEIGHT, i+XMARGIN, YMARGIN+HIST_HEIGHT-y);
 			}
 		} else {
-			double xscale = (double)HIST_WIDTH/histogram.length; 
+			double xscale = (double)HIST_WIDTH/histogram.length;
 			for (int i=0; i<histogram.length; i++) {
 				long value = histogram[i];
 				if (value>0L) {
@@ -377,7 +377,7 @@ public class HistogramWindow extends ImageWindow implements Measurements, Action
 			}
 		}
 	}
-		
+
 	void drawLogPlot (long maxCount, ImageProcessor ip) {
 		frame = new Rectangle(XMARGIN, YMARGIN, HIST_WIDTH, HIST_HEIGHT);
 		ip.drawRect(frame.x-1, frame.y, frame.width+2, frame.height+1);
@@ -398,13 +398,13 @@ public class HistogramWindow extends ImageWindow implements Measurements, Action
 		} else if (histogram.length<=HIST_WIDTH) {
 			int index, y;
 			for (int i = 0; i<HIST_WIDTH; i++) {
-				index = (int)(i*(double)histogram.length/HIST_WIDTH); 
+				index = (int)(i*(double)histogram.length/HIST_WIDTH);
 				y = histogram[index]==0?0:(int)(HIST_HEIGHT*Math.log(histogram[index])/max);
 				if (y>HIST_HEIGHT) y = HIST_HEIGHT;
 				ip.drawLine(i+XMARGIN, YMARGIN+HIST_HEIGHT, i+XMARGIN, YMARGIN+HIST_HEIGHT-y);
 			}
 		} else {
-			double xscale = (double)HIST_WIDTH/histogram.length; 
+			double xscale = (double)HIST_WIDTH/histogram.length;
 			for (int i=0; i<histogram.length; i++) {
 				long value = histogram[i];
 				if (value>0L) {
@@ -417,7 +417,7 @@ public class HistogramWindow extends ImageWindow implements Measurements, Action
 		}
 		ip.setColor(Color.black);
 	}
-		
+
 	void drawText(ImageProcessor ip, int x, int y, boolean fixedRange) {
 		ip.setFont(font);
 		ip.setAntialiasedText(true);
@@ -442,7 +442,7 @@ public class HistogramWindow extends ImageWindow implements Measurements, Action
 				case BLUE: ip.drawString("Blue", x, y);  break;
 			}
 			ip.setJustification(ImageProcessor.LEFT_JUSTIFY);
-		}        
+		}
 		double binWidth = range/stats.nBins;
 		binWidth = Math.abs(binWidth);
 		showBins = binWidth!=1.0 || !fixedRange;
@@ -457,7 +457,7 @@ public class HistogramWindow extends ImageWindow implements Measurements, Action
 		long count = stats.longPixelCount>0?stats.longPixelCount:stats.pixelCount;
 		String modeCount = " (" + stats.maxCount + ")";
 		if (modeCount.length()>12) modeCount = "";
-		
+
 		ip.drawString("N: " + count, col1, row1);
 		ip.drawString("Min: " + d2s(stats.min), col2, row1);
 		ip.drawString("Mean: " + d2s(stats.mean), col1, row2);
@@ -468,9 +468,9 @@ public class HistogramWindow extends ImageWindow implements Measurements, Action
 			ip.drawString("Bins: " + d2s(stats.nBins), col1, row4);
 			ip.drawString("Bin Width: " + d2s(binWidth), col2, row4);
 		}
-		drawValueAndCount(ip, Double.NaN, -1);		
+		drawValueAndCount(ip, Double.NaN, -1);
 	}
-	
+
 	private void drawValueAndCount(ImageProcessor ip, double value, long count) {
 		int y = showBins?row4:row3;
 		ip.setRoi(0, y, WIN_WIDTH, WIN_HEIGHT-y);
@@ -482,19 +482,19 @@ public class HistogramWindow extends ImageWindow implements Measurements, Action
 		int row = showBins?row5:row4;
 		ip.drawString("Value: " + sValue, col1, row);
 		ip.drawString("Count: " + sCount, col2, row);
-	}	
-	
+	}
+
 	private String d2s(double d) {
 		if ((int)d==d)
 			return IJ.d2s(d, 0);
 		else
     		return IJ.d2s(d, 3, 8);
     }
-	
+
 	int getWidth(double d, ImageProcessor ip) {
 		return ip.getStringWidth(d2s(d));
 	}
-	
+
 	/** Returns the histogram values as a ResultsTable. */
 	public ResultsTable getResultsTable() {
 		int decimalPlaces = Analyzer.getPrecision();
@@ -524,14 +524,14 @@ public class HistogramWindow extends ImageWindow implements Measurements, Action
 		ResultsTable rt = getResultsTable();
 		rt.show(getTitle());
 	}
-	
+
 	protected void copyToClipboard() {
 		Clipboard systemClipboard = null;
 		try {systemClipboard = getToolkit().getSystemClipboard();}
 		catch (Exception e) {systemClipboard = null; }
 		if (systemClipboard==null)
-			{IJ.error("Unable to copy to Clipboard."); return;}
-		IJ.showStatus("Copying histogram values...");
+			{IJMessage.error("Unable to copy to Clipboard."); return;}
+		IJMessage.showStatus("Copying histogram values...");
 		CharArrayWriter aw = new CharArrayWriter(stats.nBins*4);
 		PrintWriter pw = new PrintWriter(aw);
 		for (int i=0; i<stats.nBins; i++)
@@ -540,9 +540,9 @@ public class HistogramWindow extends ImageWindow implements Measurements, Action
 		pw.close();
 		StringSelection contents = new StringSelection(text);
 		systemClipboard.setContents(contents, this);
-		IJ.showStatus(text.length() + " characters copied to Clipboard");
+		IJMessage.showStatus(text.length() + " characters copied to Clipboard");
 	}
-	
+
 	void replot() {
 		ImageProcessor ip = this.imp.getProcessor();
 		frame = new Rectangle(XMARGIN, YMARGIN, HIST_WIDTH, HIST_HEIGHT);
@@ -559,7 +559,7 @@ public class HistogramWindow extends ImageWindow implements Measurements, Action
 			drawPlot(yMax>0?yMax:newMaxCount, ip);
 		this.imp.updateAndDraw();
 	}
-		
+
 	public void actionPerformed(ActionEvent e) {
 		Object b = e.getSource();
 		if (b==live)
@@ -575,9 +575,9 @@ public class HistogramWindow extends ImageWindow implements Measurements, Action
 			replot();
 		}
 	}
-	
+
 	public void lostOwnership(Clipboard clipboard, Transferable contents) {}
-	
+
 	public int[] getHistogram() {
 		int[] hist = new int[histogram.length];
 		for (int i=0; i<histogram.length; i++)
@@ -598,7 +598,7 @@ public class HistogramWindow extends ImageWindow implements Measurements, Action
 		else
 			enableLiveMode();
 	}
-	
+
 	private void changeChannel() {
 		ImagePlus imp = WindowManager.getImage(srcImageID);
 		if (imp==null || !imp.isRGB())
@@ -638,19 +638,19 @@ public class HistogramWindow extends ImageWindow implements Measurements, Action
 		if (srcImp!=null)
 			imageUpdated(srcImp);
 	}
-	
+
 	// Unused
 	public void imageOpened(ImagePlus imp) {
 	}
 
 	// This listener is called if the source image content is changed
 	public synchronized void imageUpdated(ImagePlus imp) {
-		if (imp==srcImp) { 
+		if (imp==srcImp) {
 			doUpdate = true;
 			notify();
 		}
 	}
-	
+
 	public synchronized void roiModified(ImagePlus img, int id) {
 		if (img==srcImp) {
 			doUpdate=true;
@@ -668,7 +668,7 @@ public class HistogramWindow extends ImageWindow implements Measurements, Action
 			srcImp = null;
 		}
 	}
-	
+
 	// the background thread for live plotting.
 	public void run() {
 		while (true) {
@@ -694,7 +694,7 @@ public class HistogramWindow extends ImageWindow implements Measurements, Action
 			}
 		}
 	}
-	
+
 	private void createListeners() {
 		if (srcImp==null)
 			return;
@@ -706,7 +706,7 @@ public class HistogramWindow extends ImageWindow implements Measurements, Action
 			live.setForeground(Color.red);
 		}
 	}
-	
+
 	private void removeListeners() {
 		if (srcImp==null)
 			return;

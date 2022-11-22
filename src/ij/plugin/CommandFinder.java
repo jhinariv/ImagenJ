@@ -1,5 +1,5 @@
-/** This plugin implements the Plugins/Utilities/Find Commands 
-    command. It provides an easy user interface to finding commands 
+/** This plugin implements the Plugins/Utilities/Find Commands
+    command. It provides an easy user interface to finding commands
     you might know the name of without having to go through
     all the menus.  If you type a part of a command name, the box
     below will only show commands that match that substring (case
@@ -54,7 +54,7 @@ public class CommandFinder implements PlugIn, ActionListener, WindowListener, Ke
 	private Hashtable commandsHash;
 	private String[] commands;
 	private static boolean closeWhenRunning = Prefs.get("command-finder.close", false);
-	private static boolean applyLUT; 
+	private static boolean applyLUT;
 	private JTable table;
 	private TableModel tableModel;
 	private int lastClickedRow;
@@ -188,8 +188,8 @@ public class CommandFinder implements PlugIn, ActionListener, WindowListener, Ke
 			return;
 		Hashtable table = Menus.getCommands();
 		String className = (String) table.get(cmd);
-		if (IJ.debugMode)
-			IJ.log("showSource: " + cmd + "   " + className);
+		if (IJDebugMode.debugMode)
+			IJMessage.log("showSource: " + cmd + "   " + className);
 		if (className == null) {
 			error("No source associated with this command:\n  " + cmd);
 			return;
@@ -210,7 +210,7 @@ public class CommandFinder implements PlugIn, ActionListener, WindowListener, Ke
 		}
 		if (className.startsWith("ij.")) {
 			className = className.replaceAll("\\.", "/");
-			IJ.runPlugIn("ij.plugin.BrowserLauncher", IJ.URL + "/source/" + className + ".java");
+			IJPlugin.runPlugIn(("ij.plugin.BrowserLauncher", IJ.URL + "/source/" + className + ".java");
 			return;
 		}
 		className = IJ.getDirectory("plugins") + className.replaceAll("\\.", "/");
@@ -242,11 +242,11 @@ public class CommandFinder implements PlugIn, ActionListener, WindowListener, Ke
 	}
 
 	private void error(String msg) {
-		IJ.error("Command Finder", msg);
+		IJMessage.error("Command Finder", msg);
 	}
 
 	protected void runCommand(String command) {
-		IJ.showStatus("Running command " + command);
+		IJMessage.showStatus("Running command " + command);
 		IJ.doCommand(command);
 		closeWhenRunning = closeCheckBox.isSelected();
 		if (closeWhenRunning)
@@ -340,7 +340,7 @@ public class CommandFinder implements PlugIn, ActionListener, WindowListener, Ke
 					else {
 						ImageProcessor ip = imp.getProcessor();
 						ip.setColorModel(LutLoader.getLut(cmd));
-						IJ.showStatus(cmd);
+						IJMessage.showStatus(cmd);
 					}
 					imp.updateAndDraw();
 				}

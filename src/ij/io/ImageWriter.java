@@ -8,16 +8,16 @@ public class ImageWriter {
 	private FileInfo fi;
 	private boolean showProgressBar=true;
 	private boolean savingStack;
-	
+
 	public ImageWriter (FileInfo fi) {
 		this.fi = fi;
 	}
-	
+
 	private void showProgress(double progress) {
 		if (showProgressBar)
 			IJ.showProgress(progress);
 	}
-	
+
 	void write8BitImage(OutputStream out, byte[] pixels)  throws IOException {
 		int bytesWritten = 0;
 		int size = fi.width*fi.height;
@@ -31,12 +31,12 @@ public class ImageWriter {
 			showProgress((double)bytesWritten/size);
 		}
 	}
-	
+
 	void write8BitStack(OutputStream out, Object[] stack)  throws IOException {
 		showProgressBar = false;
 		savingStack = true;
 		for (int i=0; i<fi.nImages; i++) {
-			IJ.showStatus("Writing: " + (i+1) + "/" + fi.nImages);
+			IJMessage.showStatus("Writing: " + (i+1) + "/" + fi.nImages);
 			write8BitImage(out, (byte[])stack[i]);
 			IJ.showProgress((double)(i+1)/fi.nImages);
 		}
@@ -46,7 +46,7 @@ public class ImageWriter {
 		showProgressBar = false;
 		boolean flip = "FlipTheseImages".equals(fi.fileName);
 		for (int i=1; i<=fi.nImages; i++) {
-			IJ.showStatus("Writing: " + i + "/" + fi.nImages);
+			IJMessage.showStatus("Writing: " + i + "/" + fi.nImages);
 			ImageProcessor ip = virtualStack.getProcessor(i);
 			if (flip) ip.flipVertical();
 			byte[] pixels = (byte[])ip.getPixels();
@@ -85,11 +85,11 @@ public class ImageWriter {
 			showProgress((double)bytesWritten/size);
 		}
 	}
-	
+
 	void write16BitStack(OutputStream out, Object[] stack)  throws IOException {
 		showProgressBar = false;
 		for (int i=0; i<fi.nImages; i++) {
-			IJ.showStatus("Writing: " + (i+1) + "/" + fi.nImages);
+			IJMessage.showStatus("Writing: " + (i+1) + "/" + fi.nImages);
 			write16BitImage(out, (short[])stack[i]);
 			IJ.showProgress((double)(i+1)/fi.nImages);
 		}
@@ -99,7 +99,7 @@ public class ImageWriter {
 		showProgressBar = false;
 		boolean flip = "FlipTheseImages".equals(fi.fileName);
 		for (int i=1; i<=fi.nImages; i++) {
-			IJ.showStatus("Writing: " + i + "/" + fi.nImages);
+			IJMessage.showStatus("Writing: " + i + "/" + fi.nImages);
 			ImageProcessor ip = virtualStack.getProcessor(i);
 			if (flip) ip.flipVertical();
 			short[] pixels = (short[])ip.getPixels();
@@ -184,7 +184,7 @@ public class ImageWriter {
 			showProgress((double)bytesWritten/size);
 		}
 	}
-	
+
 	private int getCount(long imageSize) {
 		if (savingStack || imageSize<4L)
 			return (int)imageSize;
@@ -194,14 +194,14 @@ public class ImageWriter {
 		if (count>imageSize)
 			count = (int)imageSize;
 		count = (count/4)*4;
-		if (IJ.debugMode) IJ.log("ImageWriter: "+imageSize+" "+count+" "+imageSize/50);	
-		return count;	
+		if (IJDebugMode.debugMode) IJMessage.log("ImageWriter: "+imageSize+" "+count+" "+imageSize/50);
+		return count;
 	}
-	
+
 	void writeFloatStack(OutputStream out, Object[] stack)  throws IOException {
 		showProgressBar = false;
 		for (int i=0; i<fi.nImages; i++) {
-			IJ.showStatus("Writing: " + (i+1) + "/" + fi.nImages);
+			IJMessage.showStatus("Writing: " + (i+1) + "/" + fi.nImages);
 			writeFloatImage(out, (float[])stack[i]);
 			IJ.showProgress((double)(i+1)/fi.nImages);
 		}
@@ -211,7 +211,7 @@ public class ImageWriter {
 		showProgressBar = false;
 		boolean flip = "FlipTheseImages".equals(fi.fileName);
 		for (int i=1; i<=fi.nImages; i++) {
-			IJ.showStatus("Writing: " + i + "/" + fi.nImages);
+			IJMessage.showStatus("Writing: " + i + "/" + fi.nImages);
 			ImageProcessor ip = virtualStack.getProcessor(i);
 			if (flip) ip.flipVertical();
 			float[] pixels = (float[])ip.getPixels();
@@ -240,11 +240,11 @@ public class ImageWriter {
 			showProgress((double)bytesWritten/size);
 		}
 	}
-	
+
 	void writeRGBStack(OutputStream out, Object[] stack)  throws IOException {
 		showProgressBar = false;
 		for (int i=0; i<fi.nImages; i++) {
-			IJ.showStatus("Writing: " + (i+1) + "/" + fi.nImages);
+			IJMessage.showStatus("Writing: " + (i+1) + "/" + fi.nImages);
 			writeRGBImage(out, (int[])stack[i]);
 			IJ.showProgress((double)(i+1)/fi.nImages);
 		}
@@ -254,7 +254,7 @@ public class ImageWriter {
 		showProgressBar = false;
 		boolean flip = "FlipTheseImages".equals(fi.fileName);
 		for (int i=1; i<=fi.nImages; i++) {
-			IJ.showStatus("Writing: " + i + "/" + fi.nImages);
+			IJMessage.showStatus("Writing: " + i + "/" + fi.nImages);
 			ImageProcessor ip = virtualStack.getProcessor(i);
 			if (flip) ip.flipVertical();
 			int[] pixels = (int[])ip.getPixels();
@@ -318,6 +318,6 @@ public class ImageWriter {
 		}
 		savingStack = false;
 	}
-	
+
 }
 

@@ -35,7 +35,7 @@ public class Rotator implements ExtendedPlugInFilter, DialogListener {
 			overlay = imp.getOverlay();
 			if (roi!=null && overlay!=null && Macro.getOptions()==null) {
 				String msg = "This image has an overlay so the\nselection will be removed.";
-				if (!IJ.showMessageWithCancel("Rotator", msg))
+				if (!IJMessage.showMessageWithCancel("Rotator", msg))
 					return DONE;
 				imp.deleteRoi();
 			}
@@ -88,26 +88,26 @@ public class Rotator implements ExtendedPlugInFilter, DialogListener {
 			Overlay ovly = imp.getOverlay();
 			if (ovly!=null) {
 				ovly.remove(GRID);
-				if (ovly.size()==0) imp.setOverlay(null);			
+				if (ovly.size()==0) imp.setOverlay(null);
 			}
 		}
 	}
 
 	void enlargeCanvas() {
 		imp.unlock();
-		IJ.run(imp, "Select All", "");
-		IJ.run(imp, "Rotate...", "angle="+angle);
+		IJPlugin.runimp, "Select All", "");
+		IJPlugin.runimp, "Rotate...", "angle="+angle);
 		Roi roi = imp.getRoi();
 		imp.deleteRoi();
 		Rectangle2D.Double fb = roi.getFloatBounds();
 		Rectangle r = new Rectangle((int)Math.round(fb.x),(int)Math.round(fb.y),(int)Math.round(fb.width),(int)Math.round(fb.height));
 		if (r.width<imp.getWidth()) r.width = imp.getWidth();
 		if (r.height<imp.getHeight()) r.height = imp.getHeight();
-		IJ.showStatus("Rotate: Enlarging...");
+		IJMessage.showStatus("Rotate: Enlarging...");
 		if (imp.getStackSize()==1)
 			Undo.setup(Undo.COMPOUND_FILTER, imp);
-		IJ.run(imp, "Canvas Size...", "width="+r.width+" height="+r.height+" position=Center "+(fillWithBackground?"":"zero"));
-		IJ.showStatus("Rotating...");
+		IJPlugin.runimp, "Canvas Size...", "width="+r.width+" height="+r.height+" position=Center "+(fillWithBackground?"":"zero"));
+		IJMessage.showStatus("Rotating...");
 	}
 
 	void drawGridLines(int lines) {
@@ -167,11 +167,11 @@ public class Rotator implements ExtendedPlugInFilter, DialogListener {
 		Overlay ovly = imp.getOverlay();
 		if (ovly!=null) {
 			ovly.remove(GRID);
-			if (ovly.size()==0) imp.setOverlay(null);		
+			if (ovly.size()==0) imp.setOverlay(null);
 		}
 		if (enlarge)
 			flags |= NO_CHANGES;			// undoable as a "compound filter"
-		else if (imp.getStackSize()==1)			
+		else if (imp.getStackSize()==1)
 			flags |= KEEP_PREVIEW;		// standard filter without enlarge
 		done = true;
 		return IJ.setupDialog(imp, flags);
@@ -181,7 +181,7 @@ public class Rotator implements ExtendedPlugInFilter, DialogListener {
 		angle = gd.getNextNumber();
 		//only check for invalid input to "angle", don't care about gridLines
 		if (gd.invalidNumber()) {
-			if (gd.wasOKed()) IJ.error("Angle is invalid.");
+			if (gd.wasOKed()) IJMessage.error("Angle is invalid.");
 			return false;
 		}
 		gridLines = (int)gd.getNextNumber();

@@ -21,7 +21,7 @@ public class NewPlugin implements PlugIn {
     private boolean monospaced;
     private boolean menuBar = true;
 	private Editor ed;
-    
+
     public void run(String arg) {
     	type = -1;
     	if (arg.startsWith("text")||arg.equals("")) {
@@ -53,7 +53,7 @@ public class NewPlugin implements PlugIn {
     		name = "Filter_Plugin.src";
     	} else if (arg.equals("table")) {
 			String options = Macro.getOptions();
-			if  (IJ.isMacro() && options!=null && options.indexOf("[Text File]")!=-1) {
+			if  (IJMacro.isMacro() && options!=null && options.indexOf("[Text File]")!=-1) {
     			type = TEXT_FILE;
     			name = "Untitled.txt";
     			arg = "text+dialog";
@@ -77,7 +77,7 @@ public class NewPlugin implements PlugIn {
 		else
 			createPlugin(name, type, arg);
     }
-    
+
 	public void createMacro(String name) {
 		int options = (monospaced?Editor.MONOSPACED:0)+(menuBar?Editor.MENU_BAR:0);
 		if (name.endsWith(".ijm") || name.endsWith(".js"))
@@ -99,13 +99,13 @@ public class NewPlugin implements PlugIn {
 		if (text!=null)
 			ed.create(name, text);
 	}
-	
+
 	void createTable() {
 			new TextWindow(name, "", tableWidth, tableHeight);
 	}
 
 	public void createPlugin(String name, int type, String methods) {
-  		ed = (Editor)IJ.runPlugIn("ij.plugin.frame.Editor", "");
+  		ed = (Editor)IJPlugin.runPlugIn(("ij.plugin.frame.Editor", "");
 		if (ed==null) return;
 		String pluginName = name;
 		if (!(name.endsWith(".java") || name.endsWith(".JAVA")))
@@ -128,7 +128,7 @@ public class NewPlugin implements PlugIn {
 		text = text.replaceAll("\\t","    ");
 		ed.create(pluginName, text);
 	}
-	
+
 	public boolean showDialog() {
 		String title;
 		String widthUnit, heightUnit;
@@ -182,7 +182,7 @@ public class NewPlugin implements PlugIn {
 		}
 		return true;
 	}
-	
+
 	/** Returns the Editor the newly created macro or plugin was opened in. */
 	public Editor getEditor() {
 		return ed;

@@ -29,10 +29,10 @@ public class Converter implements PlugIn {
 				convert(arg);
 				imp.unlock();
 				imp.setTitle(imp.getTitle());
-			} else 
-				IJ.log("<<Converter: image is locked ("+imp+")>>");
+			} else
+				IJMessage.log("<<Converter: image is locked ("+imp+")>>");
 		} else
-			IJ.noImage();
+			IJMacro.noImage();
 	}
 
 	/** Converts the ImagePlus to the specified image type. The string
@@ -44,7 +44,7 @@ public class Converter implements PlugIn {
 		if (imp.getStackSize()>1)
 			stack = imp.getStack();
 		String msg = "Converting to " + item;
-		IJ.showStatus(msg + "...");
+		IJMessage.showStatus(msg + "...");
 	 	long start = System.currentTimeMillis();
 	 	Roi roi = imp.getRoi();
 	 	imp.deleteRoi();
@@ -131,7 +131,7 @@ public class Converter implements PlugIn {
 		}
 		catch (IllegalArgumentException e) {
 			unsupportedConversion(imp);
-			IJ.showStatus("");
+			IJMessage.showStatus("");
 	    	Undo.reset();
 	    	imp.changes = saveChanges;
 			Menus.updateMenus();
@@ -146,7 +146,7 @@ public class Converter implements PlugIn {
 	}
 
 	void unsupportedConversion(ImagePlus imp) {
-		IJ.error("Converter",
+		IJMessage.error("Converter",
 			"Supported Conversions:\n" +
 			" \n" +
 			"8-bit -> 16-bit*\n" +
@@ -185,11 +185,11 @@ public class Converter implements PlugIn {
 		if (n>256) n = 256;
 		return n;
 	}
-	
+
 	private void convertCompositeToRGBStack(ImagePlus imp) {
 		imp.setDisplayMode(IJ.COLOR);
 		if (imp.getNChannels()!=imp.getStackSize())
-			IJ.run(imp, "Reduce Dimensionality...", "channels");
+			IJPlugin.runimp, "Reduce Dimensionality...", "channels");
 		ImagePlus[] channels = ChannelSplitter.split(imp);
 		ImageStack stack = new ImageStack();
 		for (int i=0; i<channels.length; i++) {
@@ -199,5 +199,5 @@ public class Converter implements PlugIn {
 		}
 		imp.setStack(stack);
 	}
-		
+
 }

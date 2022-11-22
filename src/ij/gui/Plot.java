@@ -1009,7 +1009,7 @@ public class Plot implements Cloneable {
 		allPlotObjects.get(index).label = label;
 	}
 
-	/** Removes NaNs from the xValues and yValues arrays of all plot objects. */ 
+	/** Removes NaNs from the xValues and yValues arrays of all plot objects. */
 	public void removeNaNs() {
 		for (PlotObject plotObj : allPlotObjects){
 			if(plotObj != null && plotObj.xValues!= null && plotObj.yValues != null ){
@@ -1629,7 +1629,7 @@ public class Plot implements Cloneable {
 			getImagePlus().show();
 			return null;
 		}
-		if ((IJ.macroRunning() && IJ.getInstance()==null) || Interpreter.isBatchMode()) {
+		if ((IJMacro.macroRunning() && IJ.getInstance()==null) || Interpreter.isBatchMode()) {
 			imp = getImagePlus();
 			imp.setPlot(this);
 			WindowManager.setTempCurrentImage(imp);
@@ -1649,7 +1649,7 @@ public class Plot implements Cloneable {
 				setImagePlus(null);
 		}
 		PlotWindow pw = new PlotWindow(this);		//note: this may set imp to null if pw has listValues and autoClose are set
-		if (IJ.isMacro() && imp!=null) // wait for plot to be displayed
+		if (IJMacro.isMacro() && imp!=null) // wait for plot to be displayed
 			IJ.selectWindow(imp.getID());
 		return pw;
 	}
@@ -1664,7 +1664,7 @@ public class Plot implements Cloneable {
 			stack = new PlotVirtualStack(getSize().width,getSize().height);
 		draw();
 		stack.addPlot(this);
-		IJ.showStatus("addToPlotStack: "+stack.size());
+		IJMessage.showStatus("addToPlotStack: "+stack.size());
 		allPlotObjects.clear();
 		textLoc = null;
 	}
@@ -1673,7 +1673,7 @@ public class Plot implements Cloneable {
 
 	/** Returns the virtual stack created by addToStack(). */
 	public PlotVirtualStack getStack() {
-		IJ.showStatus("");
+		IJMessage.showStatus("");
 		return stack;
 	}
 
@@ -1681,7 +1681,7 @@ public class Plot implements Cloneable {
 	 *	Call getProcessor to retrieve the ImageProcessor with it.
 	 *	Does no action with respect to the ImagePlus (if any) */
 	public void draw() {
-		//IJ.log("draw(); plotDrawn="+plotDrawn);
+		//IJMessage.log("draw(); plotDrawn="+plotDrawn);
 		if (plotDrawn) return;
 		getInitialMinAndMax();
 		pp.frame.setFont(nonNullFont(pp.frame.getFont(), currentFont)); //make sure we have a number font for calculating the margins
@@ -1923,7 +1923,7 @@ public class Plot implements Cloneable {
 					font = plotObject.getFont();
 				else
 					plotObject.setFont(font);
-				//IJ.log("type="+plotObject.type+" color="+plotObject.color);
+				//IJMessage.log("type="+plotObject.type+" color="+plotObject.color);
 				drawPlotObject(plotObject, ip);
 			}
 
@@ -1965,7 +1965,7 @@ public class Plot implements Cloneable {
 	 *	it for plotting. Also called by the PlotWindow class to prepare the window. */
 	ImageProcessor getBlankProcessor() {
 		makeMarginValues();
-		//IJ.log("Plot.getBlankPr preferredH="+preferredPlotHeight+" pp.h="+pp.height);
+		//IJMessage.log("Plot.getBlankPr preferredH="+preferredPlotHeight+" pp.h="+pp.height);
 		if (pp.width <= 0 || pp.height <= 0) {
 			pp.width = sc(preferredPlotWidth) + leftMargin + rightMargin;
 			pp.height = sc(preferredPlotHeight) + topMargin + bottomMargin;
@@ -2121,7 +2121,7 @@ public class Plot implements Cloneable {
 		yScale = frameHeight/(yMax-yMin);
 		if (!(yMax-yMin!=0.0))
 			yBasePxl -= sc(10);
-		//IJ.log("x,yScale="+(float)xScale+","+(float)yScale+" xMin,max="+(float)xMin+","+(float)xMax+" yMin.max="+(float)yMin+","+(float)yMax);
+		//IJMessage.log("x,yScale="+(float)xScale+","+(float)yScale+" xMin,max="+(float)xMin+","+(float)xMax+" yMin.max="+(float)yMin+","+(float)yMax);
 
 		drawAxesTicksGridNumbers(steps);
 		return steps;
@@ -2651,7 +2651,7 @@ public class Plot implements Cloneable {
 						ip.setFont(baseFont);
 					}
 				}
-				//IJ.log(IJ.d2s(currentMinMax[2],digits)+": w="+w1+"; "+IJ.d2s(currentMinMax[3],digits)+": w="+w2+baseFont+" Space="+(leftMargin-sc(4+5)-fm.getHeight()));
+				//IJMessage.log(IJ.d2s(currentMinMax[2],digits)+": w="+w1+"; "+IJ.d2s(currentMinMax[3],digits)+": w="+w2+baseFont+" Space="+(leftMargin-sc(4+5)-fm.getHeight()));
 				for (int i=i1; i<=i2; i++) {
 					double v = step==0 ? yMin : i*step;
 					int y = topMargin + frameHeight - (int)Math.round((v - yMin)*yScale);
@@ -2829,7 +2829,7 @@ public class Plot implements Cloneable {
 			}
 			exponent = s.substring(ePos+1);
 		}
-		//IJ.log(s+" -> "+base+"^"+exponent+"  maxAsc="+fontAscent+" font="+baseFont);
+		//IJMessage.log(s+" -> "+base+"^"+exponent+"  maxAsc="+fontAscent+" font="+baseFont);
 		ip.setJustification(RIGHT);
 		int width = ip.getStringWidth(base);
 		if (exponent != null) {
@@ -2993,7 +2993,7 @@ public class Plot implements Cloneable {
 				-(int)Math.floor(Math.log10(Math.abs(resolution))+1e-7) :
 				Math.max(0, -log10ofN+maxDigits-2);
 		int sciDigits = -Math.max((log10ofN+digits),1);
-		//IJ.log("n="+(float)n+"digitsRaw="+digits+" log10ofN="+log10ofN+" sciDigits="+sciDigits);
+		//IJMessage.log("n="+(float)n+"digitsRaw="+digits+" log10ofN="+log10ofN+" sciDigits="+sciDigits);
 		if ((digits < -2 && log10ofN >= maxDigits) || suggestedDigits < 0)
 			digits = sciDigits; //scientific notation for large numbers or if desired via suggestedDigits (plot.setOptions)
 		else if (digits < 0)
@@ -3008,7 +3008,7 @@ public class Plot implements Cloneable {
 	}
 
 	private void drawPlotObject(PlotObject plotObject, ImageProcessor ip) {
-		//IJ.log("DRAWING type="+plotObject.type+" lineWidth="+plotObject.lineWidth+" shape="+plotObject.shape);
+		//IJMessage.log("DRAWING type="+plotObject.type+" lineWidth="+plotObject.lineWidth+" shape="+plotObject.shape);
 		if (plotObject.hasFlag(PlotObject.HIDDEN)) return;
 		ip.setColor(plotObject.color);
 		ip.setLineWidth(sc(plotObject.lineWidth));
@@ -3349,7 +3349,7 @@ public class Plot implements Cloneable {
 				sb.append(";");
 				sb.append(plotObject.macroCode);
 				if (!drawingLegend ||!sb.toString().contains("d2s") ) {// a graphical symbol won't contain "d2s" ..
-					String rtn = IJ.runMacro(sb.toString());//.. so it can go to the legend
+					String rtn = IJPlugin.runMacro(sb.toString());//.. so it can go to the legend
 					if ("[aborted]".equals(rtn))
 					plotObject.macroCode = null;
 				}
@@ -3527,7 +3527,7 @@ public class Plot implements Cloneable {
 			}
 		}
 	}
-	
+
 	/** Returns only indexed and sorted plot objects, if at least one label is indexed like "1__MyLabel" */
 	Vector<PlotObject> getIndexedPlotObjects(){
 		boolean withIndex = false;
@@ -3553,9 +3553,9 @@ public class Plot implements Cloneable {
 			}
 		}
 		if(!withIndex)
-			return null;	
+			return null;
 		return indexedObjects;
-	}	
+	}
 
 	/** Draw the legend */
 	void drawLegend(PlotObject legendObject, ImageProcessor ip) {
@@ -3567,7 +3567,7 @@ public class Plot implements Cloneable {
 		Vector<PlotObject> indexedObjects = getIndexedPlotObjects();
 		if(indexedObjects != null)
 			usedPlotObjects= indexedObjects;
-		
+
 		for (PlotObject plotObject : usedPlotObjects)
 			if (plotObject.type == PlotObject.XY_DATA && !plotObject.hasFlag(PlotObject.HIDDEN) && plotObject.label != null) {		//label exists: was set now or previously
 				nLabels++;
@@ -4066,7 +4066,7 @@ public class Plot implements Cloneable {
 		if (nBins == 1)
 			nBins = 2;
 		if (nBins > 9999) {
-			IJ.error("max bins > 9999");
+			IJMessage.error("max bins > 9999");
 			return;
 		}
 		double[] histo = new double[nBins];
@@ -4078,7 +4078,7 @@ public class Plot implements Cloneable {
 			double indexD = (val - firstBin) / binWidth;
 			int index = (int) Math.round(indexD);
 			if (index < 0 || index >= nBins) {
-				IJ.error("index out of range");
+				IJMessage.error("index out of range");
 				return;
 			} else
 				histo[index]++;
@@ -4095,7 +4095,7 @@ public class Plot implements Cloneable {
 	public void changeFont(Font font) {
 		setFont(font);
 	}
-	
+
 }
 
 /** This class contains the properties of the plot, such as size, format, range, etc, except for the data+format (plot contents).

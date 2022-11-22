@@ -65,7 +65,7 @@ public class ImageConverter {
 		imp.setProcessor(null, ip.convertToShort(doScaling));
 		imp.setCalibration(imp.getCalibration()); //update calibration
 	}
-	
+
 	private void record() {
 		if (Recorder.record) {
 			Boolean state = ImageConverter.getDoScaling();
@@ -109,7 +109,7 @@ public class ImageConverter {
 		imp.setProcessor(null, ip.convertToRGB());
 		imp.setCalibration(imp.getCalibration()); //update calibration
 	}
-	
+
 	/** Converts an RGB image to an RGB (red, green and blue) stack. */
 	public void convertToRGBStack() {
 		if (type!=ImagePlus.COLOR_RGB)
@@ -128,7 +128,7 @@ public class ImageConverter {
 		byte[] B = new byte[width*height];
 		cp.getRGB(R, G, B);
 		imp.trimProcessor();
-		
+
 		// Create stack and select Red channel
 		ColorModel cm = LookUpTable.createGrayscaleColorModel(false);
 		ImageStack stack = new ImageStack(width, height, cm);
@@ -155,7 +155,7 @@ public class ImageConverter {
 		imp.setStack(null, stack);
 		imp.setDimensions(3, 1, 1);
 	}
-	
+
 	/** Converts an RGB image to a 32-bit HSB (hue, saturation and brightness) stack. */
 	public void convertToHSB32() {
 		if (type!=ImagePlus.COLOR_RGB)
@@ -233,7 +233,7 @@ public class ImageConverter {
 		if (IJ.isLinux())
 			imp.setTitle(imp.getTitle());
 	}
-	
+
 	/** Converts a 3-slice (hue, saturation, brightness) 32-bit stack to RGB. */
 	public void convertHSB32ToRGB() {
 		if (imp.getStackSize()!=3)
@@ -270,17 +270,17 @@ public class ImageConverter {
 			throw new IllegalArgumentException("Image must be RGB");
 		if (nColors<2) nColors = 2;
 		if (nColors>256) nColors = 256;
-		
+
 		// get RGB pixels
 		IJ.showProgress(0.1);
-		IJ.showStatus("Grabbing pixels");
+		IJMessage.showStatus("Grabbing pixels");
 		int width = imp.getWidth();
 		int height = imp.getHeight();
 		ImageProcessor ip = imp.getProcessor();
 	 	ip.snapshot();
 		int[] pixels = (int[])ip.getPixels();
 		imp.trimProcessor();
-		
+
 		// convert to 8-bits
 		long start = System.currentTimeMillis();
 		MedianCut mc = new MedianCut(pixels, width, height);
@@ -288,12 +288,12 @@ public class ImageConverter {
 	    imp.setProcessor(null, ip2);
 	    imp.setTypeToColor256();
 	}
-	
+
 	/** Set true to scale to 0-255 when converting short to byte or float
 		to byte and to 0-65535 when converting float to short. */
 	public static void setDoScaling(boolean scaleConversions) {
 		doScaling = scaleConversions;
-		IJ.register(ImageConverter.class); 
+		IJ.register(ImageConverter.class);
 	}
 
 	/** Returns true if scaling is enabled. */

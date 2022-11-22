@@ -19,12 +19,12 @@ public class RGBStackMerge implements PlugIn {
 	private boolean autoFillDisabled;
 	private String firstChannelName;
 	private boolean scaleWhenConverting = true;
- 
+
 	public void run(String arg) {
 		imp = WindowManager.getCurrentImage();
 		mergeStacks();
 	}
-	
+
 	public static ImagePlus mergeChannels(ImagePlus[] images, boolean keepSourceImages) {
 		RGBStackMerge rgbsm = new RGBStackMerge();
 		return rgbsm.mergeHyperstacks(images, keepSourceImages);
@@ -48,9 +48,9 @@ public class RGBStackMerge implements PlugIn {
 		boolean createComposite = staticCreateComposite;
 		boolean keep = staticKeep;
 		ignoreLuts = staticIgnoreLuts;
-		
+
 		String options = Macro.getOptions();
-		boolean macro = IJ.macroRunning() && options!=null;
+		boolean macro = IJMacro.macroRunning() && options!=null;
 		if (macro) {
 			createComposite = keep = ignoreLuts = false;
 			options = options.replaceAll("red=", "c1=");
@@ -96,7 +96,7 @@ public class RGBStackMerge implements PlugIn {
 		int slices = 0;
 		int frames = 0;
 		for (int i=0; i<maxChannels; i++) {
-			//IJ.log(i+"  "+index[i]+"	"+titles[index[i]]+"  "+wList.length);
+			//IJMessage.log(i+"  "+index[i]+"	"+titles[index[i]]+"  "+wList.length);
 			if (index[i]<wList.length) {
 				images[i] = WindowManager.getImage(wList[index[i]]);
 				if (width==0) {
@@ -113,7 +113,7 @@ public class RGBStackMerge implements PlugIn {
 			error("There must be at least one source image or stack.");
 			return;
 		}
-		
+
 		boolean mergeHyperstacks = false;
 		for (int i=0; i<maxChannels; i++) {
 			ImagePlus img = images[i];
@@ -128,7 +128,7 @@ public class RGBStackMerge implements PlugIn {
 					if (ci.getMode()!=IJ.COMPOSITE) {
 						ci.setMode(IJ.COMPOSITE);
 						img.updateAndDraw();
-						if (!IJ.isMacro()) IJ.run("Channels Tool...");
+						if (!IJMacro.isMacro()) IJMacro.run("Channels Tool...");
 						return;
 					}
 				}
@@ -163,7 +163,7 @@ public class RGBStackMerge implements PlugIn {
 		boolean fourOrMoreChannelRGB = false;
 		for (int i=3; i<maxChannels; i++) {
 			if (stacks[i]!=null) {
-				if (!createComposite)	
+				if (!createComposite)
 					fourOrMoreChannelRGB=true;
 				createComposite = true;
 			}
@@ -217,14 +217,14 @@ public class RGBStackMerge implements PlugIn {
 				IJ.selectWindow(imp2.getID());
 		}
 	 }
-	 
+
 	 private String[] getInitialNames(String[] titles) {
 	 	String[] names = new String[maxChannels];
 	 	for (int i=0; i<maxChannels; i++)
 	 		names[i] = getName(i+1, titles);
 	 	return names;
 	 }
-	 
+
 	 private String getName(int channel, String[] titles) {
 	 	if (autoFillDisabled)
 	 		return none;
@@ -246,7 +246,7 @@ public class RGBStackMerge implements PlugIn {
 				int index = titles[i].indexOf(colors[channel-1]);
 				if (titles!=null && index!=-1 && (firstChannelName==null||titles[i].contains(firstChannelName))) {
 					name = titles[i];
-	 				if (channel==1 && index>0) 
+	 				if (channel==1 && index>0)
 	 					firstChannelName = name.substring(0, index-1);
 					break;
 				}
@@ -259,7 +259,7 @@ public class RGBStackMerge implements PlugIn {
 	 	else
 	 		return none;
 	 }
-	 	
+
 	public ImagePlus mergeHyperstacks(ImagePlus[] images, boolean keep) {
 		int n = images.length;
 		int channels = 0;
@@ -293,7 +293,7 @@ public class RGBStackMerge implements PlugIn {
 		int slices = imp.getNSlices();
 		int frames = imp.getNFrames();
 		ImageStack stack2 = new ImageStack(w, h);
-		//IJ.log("mergeHyperstacks: "+w+" "+h+" "+channels+" "+slices+" "+frames);
+		//IJMessage.log("mergeHyperstacks: "+w+" "+h+" "+channels+" "+slices+" "+frames);
 		int[] index = new int[channels];
 		for (int t=0; t<frames; t++) {
 			for (int z=0; z<slices; z++) {
@@ -339,7 +339,7 @@ public class RGBStackMerge implements PlugIn {
 		imp2.setOpenAsHyperStack(true);
 		return imp2;
 	}
-	
+
 	private boolean isDuplicate(int index, ImagePlus[] images) {
 		int count = 0;
 		for (int i=0; i<index; i++) {
@@ -400,7 +400,7 @@ public class RGBStackMerge implements PlugIn {
 		}
 		return rgb;
 	}
-	
+
 	private ImagePlus mergeUsingRGBProjection(ImagePlus[] images, boolean createComposite) {
 		ImageStack stack = new ImageStack(imp.getWidth(),imp.getHeight());
 		for (int i=0; i<images.length; i++) {
@@ -445,11 +445,11 @@ public class RGBStackMerge implements PlugIn {
 			pixels2[i] = (byte)(255-pixels2[i]&255);
 		return pixels2;
 	}
-	
+
 	void error(String msg) {
-		IJ.error("Merge Channels", msg);
+		IJMessage.error("Merge Channels", msg);
 	}
-	
+
 	public void setScaleWhenConverting(boolean scale) {
 		this.scaleWhenConverting = scale;
 	}

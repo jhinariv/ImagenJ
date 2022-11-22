@@ -50,7 +50,7 @@ public class EllipseRoi extends PolygonRoi {
 		makeEllipse(x1, y1, x2, y2);
 		imp.draw();
 	}
-		
+
 	void makeEllipse(double x1, double y1, double x2, double y2) {
 		double centerX = (x1 + x2)/2.0;
 		double centerY = (y1 + y2)/2.0;
@@ -58,7 +58,7 @@ public class EllipseRoi extends PolygonRoi {
 		double dy = y2 - y1;
 		double major = Math.sqrt(dx*dx + dy*dy);
 		double minor = major*aspectRatio;
-		double phiB = Math.atan2(dy, dx);         
+		double phiB = Math.atan2(dy, dx);
 		double alpha = phiB*180.0/Math.PI;
 		nPoints = 0;
 		for (int i=0; i<vertices; i++) {
@@ -79,7 +79,7 @@ public class EllipseRoi extends PolygonRoi {
 		cachedMask = null;
 		showStatus();
 	}
-	
+
 	public void showStatus() {
 		double[] p = getParams();
 		double dx = p[2] - p[0];
@@ -96,7 +96,7 @@ public class EllipseRoi extends PolygonRoi {
 				minor = major*p[4];
 			}
 		}
-		IJ.showStatus("major=" + IJ.d2s(major)+", minor=" + IJ.d2s(minor)+", angle=" + IJ.d2s(angle));
+		IJMessage.showStatus("major=" + IJ.d2s(major)+", minor=" + IJ.d2s(minor)+", angle=" + IJ.d2s(angle));
 	}
 
 	public void nudgeCorner(int key) {
@@ -130,7 +130,7 @@ public class EllipseRoi extends PolygonRoi {
 			ypf[i] = ypf[i]-y;
 		}
 	}
-	
+
 	protected void handleMouseUp(int screenX, int screenY) {
 		if (state==CONSTRUCTING) {
 			if (Recorder.record) {
@@ -147,29 +147,29 @@ public class EllipseRoi extends PolygonRoi {
 		state = NORMAL;
 		modifyRoi();
 	}
-	
+
 	protected void moveHandle(int sx, int sy) {
-		double ox = offScreenXD(sx); 
+		double ox = offScreenXD(sx);
 		double oy = offScreenYD(sy);
 		double x1 = xpf[handle[2]]+x;
 		double y1 = ypf[handle[2]]+y;
 		double x2 = xpf[handle[0]]+x;
 		double y2 = ypf[handle[0]]+y;
 		switch(activeHandle) {
-			case 0: 
+			case 0:
 				x2 = ox;
 				y2 = oy;
 				break;
-			case 1: 
+			case 1:
 				double dx = (xpf[handle[3]]+x) - ox;
 				double dy = (ypf[handle[3]]+y) - oy;
 				updateRatio(Math.sqrt(dx*dx+dy*dy), x1, y1, x2, y2);
 				break;
-			case 2: 
+			case 2:
 				x1 = ox;
 				y1 = oy;
 				break;
-			case 3: 
+			case 3:
 				dx = (xpf[handle[1]]+x) - ox;
 				dy = (ypf[handle[1]]+y) - oy;
 				updateRatio(Math.sqrt(dx*dx+dy*dy), x1, y1, x2, y2);
@@ -178,7 +178,7 @@ public class EllipseRoi extends PolygonRoi {
 		makeEllipse(x1, y1, x2, y2);
 		imp.draw();
 	}
-	
+
 	void updateRatio(double minor, double x1, double y1, double x2, double y2) {
 		double dx = x2 - x1;
 		double dy = y2 - y1;
@@ -187,7 +187,7 @@ public class EllipseRoi extends PolygonRoi {
 		if (aspectRatio>1.0) aspectRatio = 1.0;
 		defaultRatio = aspectRatio;
 	}
-	
+
 	public int isHandle(int sx, int sy) {
 		int size = getHandleSize()+5;
 		int halfSize = size/2;
@@ -201,7 +201,7 @@ public class EllipseRoi extends PolygonRoi {
 		}
 		return index;
 	}
-	
+
 	/** Returns the perimeter of this ellipse. */
 	public double getLength() {
 		double length = 0.0;
@@ -260,7 +260,7 @@ public class EllipseRoi extends PolygonRoi {
 		a[13] = yCenter + semiMinorY; a[15] = yCenter - semiMinorY;
 		return a;
 	}
-	
+
 	/** Always returns true. */
 	public boolean subPixelResolution() {
 		return true;

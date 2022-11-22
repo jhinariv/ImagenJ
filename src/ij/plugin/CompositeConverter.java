@@ -41,9 +41,9 @@ public class CompositeConverter implements PlugIn {
 				imp2.setSlice(slice);
 				imp.close();
 			}
-			if (IJ.isMacro() && !Interpreter.isBatchMode())
+			if (IJMacro.isMacro() && !Interpreter.isBatchMode())
 				IJ.wait(500);
-		} else if (c>=2 || (IJ.macroRunning()&&c>=1)) {
+		} else if (c>=2 || (IJMacro.macroRunning()&&c>=1)) {
 			String[] modes = {"Composite", "Color", "Grayscale"};
 			String mode = modes[0];
 			if (c==1 && z*t>7)
@@ -63,13 +63,13 @@ public class CompositeConverter implements PlugIn {
 			imp.hide();
 			if (location!=null)
 				ImageWindow.setNextLocation(location);
-			if (IJ.isMacro())
+			if (IJMacro.isMacro())
 				IJ.wait(250);
 			ci.show();
 		} else
-			IJ.error("To create a composite, the current image must be\n a stack with at least 2 channels or be in RGB format.");
+			IJMessage.error("To create a composite, the current image must be\n a stack with at least 2 channels or be in RGB format.");
 	}
-	
+
 	public static ImagePlus makeComposite(ImagePlus imp) {
 		if (imp.getBitDepth()==24) {
 			if (Recorder.scriptMode())
@@ -78,7 +78,7 @@ public class CompositeConverter implements PlugIn {
 		} else
 			return null;
 	}
-	
+
 	private static ImagePlus convertRGBToComposite(ImagePlus imp) {
 		if (imp.getBitDepth()!=24)
 			throw new IllegalArgumentException("RGB image or stack required");

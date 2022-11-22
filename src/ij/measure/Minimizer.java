@@ -70,13 +70,13 @@ public class Minimizer {
     /** Status returned: Could not initialize the simplex because either the initialParams
      *  resulted in the target function returning NaN or all attempts to find starting
      *  parameters for the other simplex points resulted in the target function returning NaN.
-     *  No minimization was possible. */    
+     *  No minimization was possible. */
     public final static int INITIALIZATION_FAILURE = 1;
     /** Status returned: aborted by call to abort method.  */
     public final static int ABORTED = 2;
     /** Status returned: Could not reinitialize the simplex because all attempts to find restarting
      *  parameters resulted in the target function returning NaN.  Reinitialization is
-     *  needed to obtain a reliable result; so the result may be inaccurate or wrong. */    
+     *  needed to obtain a reliable result; so the result may be inaccurate or wrong. */
     public final static int REINITIALIZATION_FAILURE = 3;
     /** Status returned: no convergence detected after maximum iteration count */
     public final static int MAX_ITERATIONS_EXCEEDED = 4;
@@ -128,8 +128,8 @@ public class Minimizer {
 
     // We can't set the function in the constructor because the CurveFitter
     // allows specifying the fit function after other variables
-    /** 
-     *  Set the the target function, i.e. function whose value should be minimized. 
+    /**
+     *  Set the the target function, i.e. function whose value should be minimized.
      *  @param userFunction The class having a function to minimize (implementing
      *                      the UserFunction interface).
      *                      This function must allow simultaneous calls in multiple threads unless
@@ -227,7 +227,7 @@ public class Minimizer {
             if (resultsVector.size() >= 2) return SUCCESS;  // if we have two (almost) equal results, it's enough
         } //for i <= maxRestarts
         if (ijStatusString != null)
-            IJ.showStatus("");                      // reset status display
+            IJMessage.showStatus("");                      // reset status display
         return maxRestarts>0 ?
                 MAX_RESTARTS_EXCEEDED :             // number of restarts exceeded without two equal results
                 status;                             // if only one run was required, we can't have 2 equal results
@@ -296,7 +296,7 @@ public class Minimizer {
     public int getIterations() {
         return totalNumIter;
     }
-        
+
     /** Set maximum number of iterations allowed (including all restarts and all threads).
      *  The number of function calls will be higher, up to about twice the number of
      *  iterations.
@@ -326,7 +326,7 @@ public class Minimizer {
      *  do not cause a notable increase of computing time for 'easy' optimization problems,
      *  while greatly reducing the risk of running into spurious local minima or non-
      *  optimal results due to the minimizer getting stuck. In problematic cases, the
-     *  improved 
+     *  improved
      *  The 'n' value does not refer to the restarts within one minimization run
      *  (there, at least one restart is performed, and restart is repeated until the result
      *  does not change within the error bounds).
@@ -431,7 +431,7 @@ public class Minimizer {
         wasInitialized = true;
         if (startTime == 0)
             startTime = System.currentTimeMillis();
-        //if (IJ.debugMode) showSimplex(simp, seed+" Initialized:");
+        //if (IJDebugMode.debugMode) showSimplex(simp, seed+" Initialized:");
         int bestVertexNumber = minimize(simp);          // first minimization
         double bestValueSoFar = value(simp[bestVertexNumber]);
         //reinitialize until converged or error/aborted (don't care about reinitialization failure in other thread)
@@ -443,7 +443,7 @@ public class Minimizer {
                 reinitialisationFailure = true;
                 break;
             }
-            //if (IJ.debugMode) showSimplex(simp, seed+" Reinitialized:");
+            //if (IJDebugMode.debugMode) showSimplex(simp, seed+" Reinitialized:");
             bestVertexNumber = minimize(simp);          // minimize with reinitialized simplex
             if (belowErrorLimit(value(simp[bestVertexNumber]), bestValueSoFar, 2.0)) break;
             bestValueSoFar = value(simp[bestVertexNumber]);
@@ -452,7 +452,7 @@ public class Minimizer {
             status = REINITIALIZATION_FAILURE;
         else if (status == SUCCESS || status == REINITIALIZATION_FAILURE) //i.e. not aborted, not max iterations exceeded
             numCompletedMinimizations++;                // it was a complete minimization
-        //if (IJ.debugMode) showSimplex(simp, seed+" Final:");
+        //if (IJDebugMode.debugMode) showSimplex(simp, seed+" Final:");
         if (resultsVector != null) synchronized(resultsVector) {
             resultsVector.add(simp[bestVertexNumber]);
         } else
@@ -549,13 +549,13 @@ public class Minimizer {
                     if (checkEscape && IJ.escapePressed()) {
                         status = ABORTED;
                         IJ.resetEscape();
-                        IJ.showStatus(ijStatusString+" ABORTED");
+                        IJMessage.showStatus(ijStatusString+" ABORTED");
                         break;
                     }
                     if (ijStatusString != null) {
                         String statusString = ijStatusString+totalNumIter+" ("+maxIter+" max)";
                         if (checkEscape) statusString += " ESC to stop";
-                        IJ.showStatus(statusString);
+                        IJMessage.showStatus(statusString);
                     }
                 }
             }
@@ -611,26 +611,26 @@ public class Minimizer {
     private double[][] makeSimplex(double[] initialParams, double[] initialParamVariations, Random random) {
         double[][] simp = new double[numVertices][numParams+1+numExtraArrayElements];
         /* simpTable.put(Thread.currentThread(), simp); */
-        
+
         if (initialParams!=null) {
             for (int i=0; i<numParams; i++)
                 if (Double.isNaN(initialParams[i]))
-                    if (IJ.debugMode) IJ.log("Warning: Initial Parameter["+i+"] is NaN");
+                    if (IJDebugMode.debugMode) IJMessage.log("Warning: Initial Parameter["+i+"] is NaN");
             System.arraycopy(initialParams, 0, simp[0], 0, Math.min(initialParams.length, numParams));
         }
         evaluate(simp[0]);
         if (Double.isNaN(value(simp[0]))) {
-            if (IJ.debugMode) showVertex(simp[0], "Warning: Initial Parameters yield NaN:");
+            if (IJDebugMode.debugMode) showVertex(simp[0], "Warning: Initial Parameters yield NaN:");
             findValidInitalParams(simp[0], initialParamVariations, random);
         }
         if (Double.isNaN(value(simp[0]))) {
-            if (IJ.debugMode) IJ.log("Error: Could not find initial parameters not yielding NaN:");
+            if (IJDebugMode.debugMode) IJMessage.log("Error: Could not find initial parameters not yielding NaN:");
             return null;
         }
         if (initializeSimplex(simp, initialParamVariations, random))
             return simp;
         else {
-            if (IJ.debugMode) showSimplex(simp, "Error: Could not make simplex vertices not yielding NaN");
+            if (IJDebugMode.debugMode) showSimplex(simp, "Error: Could not make simplex vertices not yielding NaN");
             return null;
         }
     }
@@ -706,7 +706,7 @@ public class Minimizer {
             if (Math.abs(range/simp[0][i])<1e-10)
                 range = Math.abs(simp[0][i]*1e-10); //range must be more than very last digits
             variations[i] = range;
-            //IJ.log("param#"+i+" variation="+(float)variations[i]);
+            //IJMessage.log("param#"+i+" variation="+(float)variations[i]);
         }
         final int maxAttempts = 100*numParams;  //max number of attempts to find params that do not lead to NaN
         for (int v=1; v<numVertices; v++) {
@@ -722,7 +722,7 @@ public class Minimizer {
                 for (int i=0; i<numParams; i++)
                     simp[v][i] = 2*random.nextFloat() - 1.0;
                 if (numTries < maxAttempts/3)       // (don't orthogonalize if finding valid params was very difficult
-                    //IJ.log("orthogonalize vertex "+v);
+                    //IJMessage.log("orthogonalize vertex "+v);
                     for (int v2=1; v2<v; v2++) {    // to avoid a degenerate simplex, make orthogonal to all others
                         double lengthSqr = 0;
                         double innerProduct = 0;
@@ -803,7 +803,7 @@ public class Minimizer {
         vertex[numParams] = userFunction.userFunction(vertex, 0);
     }
 
-    /** Function value of a vertex after call to 'evaluate' 
+    /** Function value of a vertex after call to 'evaluate'
      *  (stored it as last array element) */
     private double value(double[] vertex) {
         return vertex[numParams];
@@ -813,7 +813,7 @@ public class Minimizer {
     void copyVertex(double[] newVertex, double[] vertex) {
         System.arraycopy(newVertex, 0, vertex, 0, newVertex.length);
     }
-    
+
     /** Find the simplex vertices with the worst, nextWorst and best values
      *  of the target function */
     private void order(double[][] simp, int[] worstNextBestArray) {
@@ -833,17 +833,17 @@ public class Minimizer {
 
     // Display simplex [Iteration: s0(p1, p2....), s1(),....] in Log window
     private synchronized void showSimplex(double[][] simp, String heading) {
-        IJ.log("Minimizer: "+heading);
+        IJMessage.log("Minimizer: "+heading);
         for (int i = 0; i < numVertices; i++)
             showVertex(simp[i], null);
     }
     private synchronized void showVertex(double[] vertex, String heading) {
         if (heading != null)
-            IJ.log(heading);
+            IJMessage.log(heading);
         String s = "";
         for (int j=0; j < numParams; j++)
             s += "  " + IJ.d2s(vertex[j], 8,12);
         s += " -> " +  IJ.d2s(value(vertex), 8,12);
-        IJ.log(s);
+        IJMessage.log(s);
     }
 }

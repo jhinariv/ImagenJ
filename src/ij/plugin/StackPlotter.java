@@ -12,23 +12,23 @@ import ij.gui.*;
 import java.awt.*;
 
 public class StackPlotter implements PlugIn {
-	
+
 	private int channel = 1;
 	private int slice = 1;
 	private int frame = 1;
 	private int frames = 1;
-	
+
 	public void run(String arg) {
 		ImagePlus imp = IJ.getImage();
 		//Check if Roi is defined
 		if (imp.getRoi() == null) {
-			IJ.error("Stack Plotter", "Line or rectangular selection required");
+			IJMessage.error("Stack Plotter", "Line or rectangular selection required");
 			return;
 		}
 		//Check if Image is a Stack
 		int dim = imp.getNDimensions();
 		if (dim < 3) {
-			IJ.error("Stack Plotter","This plugin requires a stack");
+			IJMessage.error("Stack Plotter","This plugin requires a stack");
 			return;
 		}
 		//Get Stack size
@@ -48,7 +48,7 @@ public class StackPlotter implements PlugIn {
 			}
 		} else
 			slice = imp.getCurrentSlice();
-		
+
 		//Get a profile plot for each frame in the stack
 		//Store min and max value of all Profile across the stack
 		ProfilePlot[] pPlot = new ProfilePlot[length];
@@ -72,7 +72,7 @@ public class StackPlotter implements PlugIn {
 		double pp_max = ProfilePlot.getFixedMax();
 		//Set same Min Max values for all plots
 		ProfilePlot.setMinAndMax(ymin,ymax);
-		
+
 		//Make a profile stack
 		Plot plot = pPlot[0].getPlot();
 		Dimension size = plot.getSize();
@@ -89,5 +89,5 @@ public class StackPlotter implements PlugIn {
 		//reset profile plot Min and May
 		ProfilePlot.setMinAndMax(pp_min,pp_max);
 	}
-	
+
 }

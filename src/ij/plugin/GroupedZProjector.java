@@ -9,12 +9,12 @@ import ij.measure.Calibration;
 public class GroupedZProjector implements PlugIn {
 	private static int method = ZProjector.AVG_METHOD;
 	private int groupSize;
-	
+
 	public void run(String arg) {
 		ImagePlus imp = IJ.getImage();
 		int size = imp.getStackSize();
 		if (size==1) {
-			IJ.error("Z Project", "This command requires a stack");
+			IJMessage.error("Z Project", "This command requires a stack");
 			return;
 		}
 		if (imp.isHyperStack()) {
@@ -30,7 +30,7 @@ public class GroupedZProjector implements PlugIn {
 		if (imp!=null)
 			imp2.show();
 	}
-	
+
 	public ImagePlus groupZProject(ImagePlus imp, int method, int groupSize) {
 		if (method<0 || method>=ZProjector.METHODS.length)
 			return null;
@@ -56,7 +56,7 @@ public class GroupedZProjector implements PlugIn {
 		zProjectorOutput.setDimensions(zProjectDim[2], zProjectDim[3], zProjectDim[4]);
 		return zProjectorOutput;
 	}
-	
+
 	boolean showDialog(ImagePlus imp) {
 		int size = imp.getStackSize();
 		GenericDialog gd = new GenericDialog("Z Project");
@@ -78,10 +78,10 @@ public class GroupedZProjector implements PlugIn {
 		method = gd.getNextChoiceIndex();
 		groupSize = (int)gd.getNextNumber();
 		if (groupSize<1 || groupSize>size || (size%groupSize)!=0) {
-			IJ.error("ZProject", "Group size must divide evenly into the stack size.");
+			IJMessage.error("ZProject", "Group size must divide evenly into the stack size.");
 			return false;
 		}
 		return true;
 	}
-	
+
 }

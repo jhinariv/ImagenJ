@@ -27,11 +27,11 @@ public class CanvasResizer implements PlugIn {
 			fIsStack = true;
 
 		String[] sPositions = {
-			"Top-Left", "Top-Center", "Top-Right", 
+			"Top-Left", "Top-Center", "Top-Right",
 			"Center-Left", "Center", "Center-Right",
 			"Bottom-Left", "Bottom-Center", "Bottom-Right"
 		};
-			
+
 		String strTitle = fIsStack ? "Resize Stack Canvas" : "Resize Image Canvas";
 		GenericDialog gd = new GenericDialog(strTitle);
 		gd.addNumericField("Width:", wOld, 0, 5, "pixels");
@@ -41,19 +41,19 @@ public class CanvasResizer implements PlugIn {
 		gd.showDialog();
 		if (gd.wasCanceled())
 			return;
-			
+
 		wNew = (int)gd.getNextNumber();
 		hNew = (int)gd.getNextNumber();
 		int iPos = gd.getNextChoiceIndex();
 		zeroFill = gd.getNextBoolean();
 		Prefs.set("resizer.zero", zeroFill);
-		
+
 		int xOff, yOff;
 		int xC = (wNew - wOld)/2;	// offset for centered
 		int xR = (wNew - wOld);		// offset for right
 		int yC = (hNew - hOld)/2;	// offset for centered
 		int yB = (hNew - hOld);		// offset for bottom
-		
+
 		switch(iPos) {
 		case 0:	// TL
 			xOff=0;	yOff=0; break;
@@ -76,38 +76,38 @@ public class CanvasResizer implements PlugIn {
 		default: // center
 			xOff=xC; yOff=yC; break;
 		}
-		
+
 		if (fIsStack) {
 			ImageStack stackNew = expandStack(stackOld, wNew, hNew, xOff, yOff);
 			imp.setStack(null, stackNew);
 		} else {
-			if (!IJ.macroRunning())
+			if (!IJMacro.macroRunning())
 				Undo.setup(Undo.COMPOUND_FILTER, imp);
 			ImageWindow win = imp.getWindow();
 			if (win!=null && (win instanceof PlotWindow))
 				((PlotWindow)win).getPlot().setFrozen(true);
 			ImageProcessor newIP = expandImage(imp.getProcessor(), wNew, hNew, xOff, yOff);
 			imp.setProcessor(null, newIP);
-			if (!IJ.macroRunning())
+			if (!IJMacro.macroRunning())
 				Undo.setup(Undo.COMPOUND_FILTER_DONE, imp);
 		}
 		Overlay overlay = imp.getOverlay();
 		if (overlay!=null)
 			overlay.translate(xOff, yOff);
 	}
-	
+
 	public ImageStack expandStack(ImageStack stackOld, int wNew, int hNew, int xOff, int yOff) {
 		int nFrames = stackOld.getSize();
-		ImageProcessor ipOld = stackOld.getProcessor(1);		
+		ImageProcessor ipOld = stackOld.getProcessor(1);
 		ImageStack stackNew = new ImageStack(wNew, hNew, stackOld.getColorModel());
 		ImageProcessor ipNew;
-		
+
 		for (int i=1; i<=nFrames; i++) {
 			IJ.showProgress((double)i/nFrames);
 			ipNew = ipOld.createProcessor(wNew, hNew);
 			if (zeroFill)
 				ipNew.setValue(0.0);
-			else 
+			else
 				ipNew.setGlobalBackgroundColor();
 			ipNew.fill();
 			ipNew.insert(stackOld.getProcessor(i), xOff, yOff);
@@ -115,12 +115,12 @@ public class CanvasResizer implements PlugIn {
 		}
 		return stackNew;
 	}
-	
+
 	public ImageProcessor expandImage(ImageProcessor ipOld, int wNew, int hNew, int xOff, int yOff) {
 		ImageProcessor ipNew = ipOld.createProcessor(wNew, hNew);
 		if (zeroFill)
 			ipNew.setValue(0.0);
-		else 
+		else
 			ipNew.setGlobalBackgroundColor();
 		ipNew.fill();
 		ipNew.insert(ipOld, xOff, yOff);

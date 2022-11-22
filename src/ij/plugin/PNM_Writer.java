@@ -9,12 +9,12 @@ import java.util.*;
 import java.awt.image.*;
 
 /*
- This plugin saves grayscale images in PGM (portable graymap) format 
- and RGB images in PPM (portable pixmap) format. These formats, 
- along with PBM (portable bitmap), are collectively known as the 
- PNM format. More information can be found at 
+ This plugin saves grayscale images in PGM (portable graymap) format
+ and RGB images in PPM (portable pixmap) format. These formats,
+ along with PBM (portable bitmap), are collectively known as the
+ PNM format. More information can be found at
  "http://en.wikipedia.org/wiki/Portable_Pixmap_file_format".
- 
+
  @author Johannes Schindelin
  */
 public class PNM_Writer implements PlugIn {
@@ -51,7 +51,7 @@ public class PNM_Writer implements PlugIn {
 				return;
 			path = dir + name;
 		}
-		IJ.showStatus("Writing PNM "+path+"...");
+		IJMessage.showStatus("Writing PNM "+path+"...");
 		if (img.getBitDepth()==16) {
 			save16BitImage(ip, path);
 			return;
@@ -85,9 +85,9 @@ public class PNM_Writer implements PlugIn {
 		} catch(IOException e) {
 			IJ.handleException(e);
 		}
-		IJ.showStatus("");
+		IJMessage.showStatus("");
 	}
-	
+
 	private void save16BitImage(ImageProcessor ip, String path) {
 		ip.resetMinAndMax();
 		int max = (int)ip.getMax();

@@ -31,7 +31,7 @@ public class Tokenizer implements MacroConstants {
         } while (token!=EOF);
         if (pgm.hasFunctions)
         	addUserFunctions();
-		//IJ.log(program.length()+" "+pgm.getSize()+" "+IJ.d2s((double)program.length()/pgm.getSize(),1)+" "+program.length()/10);
+		//IJMessage.log(program.length()+" "+pgm.getSize()+" "+IJ.d2s((double)program.length()/pgm.getSize(),1)+" "+program.length()/10);
         return pgm;
     }
 
@@ -266,17 +266,17 @@ public class Tokenizer implements MacroConstants {
 						&& (code[j]>>TOK_SHIFT)==address && (j==0||(code[j-1]&0xfff)!=FUNCTION)) {
 							code[j] = USER_FUNCTION;
 							code[j] += address2<<TOK_SHIFT;
-							//IJ.log((code[j]&TOK_MASK)+" "+(code[j]>>TOK_SHIFT)+" "+USER_FUNCTION+" "+address);
+							//IJMessage.log((code[j]&TOK_MASK)+" "+(code[j]>>TOK_SHIFT)+" "+USER_FUNCTION+" "+address);
 						} else if (token==EOF)
 							break;
 					}
-					//IJ.log(i+"  "+pgm.decodeToken(nextToken, address));
-				}					
+					//IJMessage.log(i+"  "+pgm.decodeToken(nextToken, address));
+				}
 			} else if (token==EOF)
 				break;
 		}
 	}
-	
+
 	private String addSpacesToEmptyLines(String pgm) {
 		StringBuilder sb = new StringBuilder();
 		int len = pgm.length();

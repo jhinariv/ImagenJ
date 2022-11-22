@@ -12,10 +12,10 @@ import javax.swing.*;
 import javax.swing.filechooser.*;
 import java.awt.datatransfer.*;
 
-/** This class handles drag&drop onto JFileChoosers. */ 
+/** This class handles drag&drop onto JFileChoosers. */
  public class DragAndDropHandler extends TransferHandler {
  	private JFileChooser jFileChooser;
- 
+
 	/** Given a JFileChooser 'fc', this is how to use this class:
 	 * <pre>
 	 *     fc.setDragEnabled(true);
@@ -36,7 +36,7 @@ import java.awt.datatransfer.*;
 		return false;
 	}
 
-	/** Imports the drag&drop file or list of files and sets the JFileChooser to this. 
+	/** Imports the drag&drop file or list of files and sets the JFileChooser to this.
 	 *  Returns true if successful */
 	public boolean importData(JComponent comp, Transferable t) {
 		DataFlavor[] transferFlavors = t.getTransferDataFlavors();
@@ -45,10 +45,10 @@ import java.awt.datatransfer.*;
 				java.util.List<File> fileList = null;
 				if (dataFlavor.isFlavorJavaFileListType()) {
 					fileList = (java.util.List<File>)t.getTransferData(DataFlavor.javaFileListFlavor);
-					if (IJ.debugMode) IJ.log("dragAndDrop FileList size="+fileList.size()+" first: "+fileList.get(0));
+					if (IJDebugMode.debugMode) IJMessage.log("dragAndDrop FileList size="+fileList.size()+" first: "+fileList.get(0));
 				} else if (isSupportedTransferFlavor(dataFlavor)) {
 					String str = (String)t.getTransferData(dataFlavor);
-					if (IJ.debugMode) IJ.log("dragAndDrop str="+str);
+					if (IJDebugMode.debugMode) IJMessage.log("dragAndDrop str="+str);
 					String[] strs = str.split("[\n\r]+");               //multiple files are separate lines
 					fileList = new ArrayList<File>(strs.length);
 					for (String s : strs) {
@@ -81,7 +81,7 @@ import java.awt.datatransfer.*;
 				}
 				jFileChooser.rescanCurrentDirectory();
 				return true;
-			} catch (Exception e) {if (IJ.debugMode) IJ.handleException(e);}
+			} catch (Exception e) {if (IJDebugMode.debugMode) IJ.handleException(e);}
 		}
 		return false;
 	}

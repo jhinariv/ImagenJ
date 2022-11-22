@@ -11,7 +11,7 @@ import java.applet.Applet;
 public class JavaProperties implements PlugIn {
 
 	ArrayList list = new ArrayList();
-	
+
 	public void run(String arg) {
 		show("java.version");
 		show("java.vendor");
@@ -21,7 +21,7 @@ public class JavaProperties implements PlugIn {
 		show("os.arch");
 		show("file.separator");
 		show("path.separator");
-		
+
 		String s = System.getProperty("line.separator");
 		char ch1, ch2;
 		String str1, str2="";
@@ -38,7 +38,7 @@ public class JavaProperties implements PlugIn {
 				str2 = "<lf>";
 		}
 		list.add("  line.separator: " + str1 + str2);
-			
+
 		Applet applet = IJ.getApplet();
 		if (applet!=null) {
 			list.add("");
@@ -59,7 +59,7 @@ public class JavaProperties implements PlugIn {
 		show("java.class.path");
 		show("java.ext.dirs");
 		show("java.io.tmpdir");
-		
+
 		list.add("");
 		String userDir = System.getProperty("user.dir");
 		String userHome = System.getProperty("user.home");
@@ -92,29 +92,29 @@ public class JavaProperties implements PlugIn {
 		list.add("  IJ.getDir(\"image\"): "+ IJ.getDir("image"));
 		list.add("  IJ.getDir(\"preferences\"): "+ IJ.getDir("preferences"));
 		list.add("");
-		
+
 		list.add("  Menus.getPlugInsPath: "+Menus.getPlugInsPath());
 		list.add("  Menus.getMacrosPath: "+Menus.getMacrosPath());
-		list.add("  Prefs.getImageJDir: "+Prefs.getImageJDir());		
-		list.add("  Prefs.getThreads: "+Prefs.getThreads()+cores());	
-		list.add("  Prefs.open100Percent: "+Prefs.open100Percent);		
-		list.add("  Prefs.blackBackground: "+Prefs.blackBackground);		
-		list.add("  Prefs.useJFileChooser: "+Prefs.useJFileChooser);		
-		list.add("  Prefs.weightedColor: "+Prefs.weightedColor);		
-		list.add("  Prefs.blackCanvas: "+Prefs.blackCanvas);		
-		list.add("  Prefs.pointAutoMeasure: "+Prefs.pointAutoMeasure);		
-		list.add("  Prefs.pointAutoNextSlice: "+Prefs.pointAutoNextSlice);		
-		list.add("  Prefs.requireControlKey: "+Prefs.requireControlKey);		
-		list.add("  Prefs.useInvertingLut: "+Prefs.useInvertingLut);		
-		list.add("  Prefs.antialiasedTools: "+Prefs.antialiasedTools);		
-		list.add("  Prefs.useInvertingLut: "+Prefs.useInvertingLut);		
-		list.add("  Prefs.intelByteOrder: "+Prefs.intelByteOrder);			
-		list.add("  Prefs.noPointLabels: "+Prefs.noPointLabels);		
-		list.add("  Prefs.disableUndo: "+Prefs.disableUndo);		
+		list.add("  Prefs.getImageJDir: "+Prefs.getImageJDir());
+		list.add("  Prefs.getThreads: "+Prefs.getThreads()+cores());
+		list.add("  Prefs.open100Percent: "+Prefs.open100Percent);
+		list.add("  Prefs.blackBackground: "+Prefs.blackBackground);
+		list.add("  Prefs.useJFileChooser: "+Prefs.useJFileChooser);
+		list.add("  Prefs.weightedColor: "+Prefs.weightedColor);
+		list.add("  Prefs.blackCanvas: "+Prefs.blackCanvas);
+		list.add("  Prefs.pointAutoMeasure: "+Prefs.pointAutoMeasure);
+		list.add("  Prefs.pointAutoNextSlice: "+Prefs.pointAutoNextSlice);
+		list.add("  Prefs.requireControlKey: "+Prefs.requireControlKey);
+		list.add("  Prefs.useInvertingLut: "+Prefs.useInvertingLut);
+		list.add("  Prefs.antialiasedTools: "+Prefs.antialiasedTools);
+		list.add("  Prefs.useInvertingLut: "+Prefs.useInvertingLut);
+		list.add("  Prefs.intelByteOrder: "+Prefs.intelByteOrder);
+		list.add("  Prefs.noPointLabels: "+Prefs.noPointLabels);
+		list.add("  Prefs.disableUndo: "+Prefs.disableUndo);
 		list.add("  Prefs dir: "+Prefs.getPrefsDir());
 		list.add("  Current dir: "+OpenDialog.getDefaultDirectory());
 		list.add("  Sample images dir: "+Prefs.getImagesURL());
-		list.add("  Memory in use: "+IJ.freeMemory());	
+		list.add("  Memory in use: "+IJ.freeMemory());
 		Rectangle s1 = GUI.getScreenBounds(); // primary screen
 		Rectangle s2 = GUI.getScreenBounds(IJ.getInstance()); // screen with "ImageJ" window
 		if (s1.equals(s2))
@@ -130,11 +130,11 @@ public class JavaProperties implements PlugIn {
 		doFullDump();
 		if (IJ.getInstance()==null) {
 			for (int i=0; i<list.size(); i++)
-				IJ.log((String)list.get(i));
+				IJMessage.log((String)list.get(i));
 		} else
 			new TextWindow("Properties", "", list, 400, 500);
 	}
-	
+
 	private void listMonitors(GraphicsEnvironment ge, ArrayList list) {
 		int max = 10;
 		String[] str = new String[max];
@@ -163,7 +163,7 @@ public class JavaProperties implements PlugIn {
 		String s = r.toString();
 		return s.substring(19, s.length()-1);
 	}
-	
+
 	String cores() {
 		int cores = Runtime.getRuntime().availableProcessors();
 		if (cores==1)
@@ -171,13 +171,13 @@ public class JavaProperties implements PlugIn {
 		else
 			return " ("+cores+" cores)";
 	}
-	
+
 	void show(String property) {
 		String p = System.getProperty(property);
 		if (p!=null)
 			list.add("  " + property + ": " + p);
 	}
-	
+
 	void doFullDump() {
 		list.add("");
 		list.add("All Java Properties");

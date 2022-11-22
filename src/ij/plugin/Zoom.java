@@ -25,7 +25,7 @@ public class Zoom implements PlugIn {
 		Zoom zoom = new Zoom();
 		zoom.setZoom(imp, magnification, x, y);
 	}
-	
+
 	public static void in(ImagePlus imp) {
 		ImageCanvas ic = imp.getCanvas();
 		if (ic==null) return;
@@ -55,7 +55,7 @@ public class Zoom implements PlugIn {
 			ic.unzoom();
 		}
 	}
-	
+
 	public static void maximize(ImagePlus imp) {
 		ImageWindow win = imp.getWindow();
 		if (win!=null) {
@@ -75,14 +75,14 @@ public class Zoom implements PlugIn {
 				count++;
 			}
 		}
-		if (IJ.debugMode)
-			IJ.log("Zoom: "+ count+" "+imp.windowActivated()+" "+isCanvas+" "+imp);
+		if (IJDebugMode.debugMode)
+			IJMessage.log("Zoom: "+ count+" "+imp.windowActivated()+" "+isCanvas+" "+imp);
     }
 
 	public void run(String arg) {
 		ImagePlus imp = WindowManager.getCurrentImage();
 		if (imp==null) {
-			IJ.noImage();
+			IJMacro.noImage();
 			return;
 		}
 		ImageCanvas ic = imp.getCanvas();
@@ -128,7 +128,7 @@ public class Zoom implements PlugIn {
 		} else if (arg.equals("scale"))
 			scaleToFit(imp);
 	}
-		
+
 	void zoomToSelection(ImagePlus imp, ImageCanvas ic) {
 		waitUntilActivated(imp);
 		Roi roi = imp.getRoi();
@@ -150,7 +150,7 @@ public class Zoom implements PlugIn {
 			w = imp.getWindow().getBounds();
 		}
 	}
-	
+
 	/** Based on Albert Cardona's ZoomExact plugin:
 		http://albert.rierol.net/software.html */
 	void setZoom(ImagePlus imp, double mag, int x, int y) {
@@ -206,7 +206,7 @@ public class Zoom implements PlugIn {
 		}
 		if (x<0) x=0;
 		if (y<0) y=0;
-		String options = IJ.macroRunning()?Macro.getOptions():null;
+		String options = IJMacro.macroRunning()?Macro.getOptions():null;
 		boolean legacyMacro = areaSelection && options!=null && options.contains("x=") && !options.contains("width=");
 		Rectangle bounds = GUI.getMaxWindowBounds(win);
 		boolean smallImage = mag>1.0 && width*mag<bounds.width && height*mag<bounds.height;
@@ -255,7 +255,7 @@ public class Zoom implements PlugIn {
 		ic.repaint();
 		IJ.wait(100);
 	}
-	
+
 	private void scaleToFit(ImagePlus imp) {
 		waitUntilActivated(imp);
 		ImageCanvas ic = imp.getCanvas();
@@ -264,14 +264,14 @@ public class Zoom implements PlugIn {
 		if (ic.getScaleToFit()) {
 			ic.setScaleToFit(false);
 			ic.unzoom();
-			IJ.showStatus("Exiting scale to fit mode (resize with 'alt' key to scale to fit)");
+			IJMessage.showStatus("Exiting scale to fit mode (resize with 'alt' key to scale to fit)");
 		} else {
 			ic.setScaleToFit(true);
 			ic.fitToWindow();
-			IJ.showStatus("Resize window to scale (use 'alt' key as shortcut)");
+			IJMessage.showStatus("Resize window to scale (use 'alt' key as shortcut)");
 		}
 
 	}
-	
+
 }
 

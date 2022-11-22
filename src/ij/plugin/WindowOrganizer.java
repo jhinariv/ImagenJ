@@ -18,7 +18,7 @@ public class WindowOrganizer implements PlugIn {
 		if (arg.equals("show"))
 			{showAll(wList); return;}
 		if (wList==null) {
-			IJ.noImage();
+			IJMacro.noImage();
 			return;
 		}
 		if (arg.equals("tile"))
@@ -26,7 +26,7 @@ public class WindowOrganizer implements PlugIn {
 		else
 			cascadeWindows(wList);
 	}
-	
+
 	void tileWindows(int[] wList) {
 		Rectangle screen = GUI.getMaxWindowBounds(IJ.getInstance());
 		int minWidth = Integer.MAX_VALUE;
@@ -40,7 +40,7 @@ public class WindowOrganizer implements PlugIn {
 			if (win==null)
 				continue;
 			if (win instanceof PlotWindow && !((PlotWindow)win).getPlot().isFrozen()) {
-				IJ.error("Tile", "Unfrozen plot windows cannot be tiled.");
+				IJMessage.error("Tile", "Unfrozen plot windows cannot be tiled.");
 				return;
 			}
 			Dimension d = win.getSize();
@@ -98,7 +98,7 @@ public class WindowOrganizer implements PlugIn {
 			nRows++;
 		hloc = XSTART;
 		vloc = YSTART;
-		
+
 		for (int i=0; i<nPics; i++) {
 			if (hloc+tileWidth>screen.width) {
 				hloc = XSTART;
@@ -124,8 +124,8 @@ public class WindowOrganizer implements PlugIn {
 		if (imp!=null)
 			win = imp.getWindow();
 		return win;
-	}		
-			
+	}
+
 	void cascadeWindows(int[] wList) {
 		Rectangle screen = GUI.getMaxWindowBounds(IJ.getInstance());
 		int x = XSTART;
@@ -157,7 +157,7 @@ public class WindowOrganizer implements PlugIn {
 			if (imp!=null) imp.setIJMenuBar(i==wList.length-1);
 		}
 	}
-	
+
 	void showImageJ() {
 		ImageJ ij = IJ.getInstance();
 		if (ij!=null)
@@ -170,7 +170,7 @@ public class WindowOrganizer implements PlugIn {
 				ImageWindow win = getWindow(wList[i]);
 				if (win!=null)
 					WindowManager.toFront(win);
-				
+
 			}
 		}
 		Window[] windows = WindowManager.getAllNonImageWindows();

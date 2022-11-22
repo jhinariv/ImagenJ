@@ -10,10 +10,10 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
 
-/** This plugin implements the Process/Binary/Make Binary 
+/** This plugin implements the Process/Binary/Make Binary
 	and Convert to Mask commands. */
 public class Thresholder implements PlugIn, Measurements, ItemListener {
-	
+
 	public static final String[] methods = AutoThresholder.getMethods();
 	public static final String[] backgrounds = {"Default", "Dark", "Light"};
 	private double minThreshold;
@@ -49,12 +49,12 @@ public class Thresholder implements PlugIn, Measurements, ItemListener {
 			convertStack(imp);
 		IJ.showProgress(1.0);
 	}
-	
+
 	void convertStack(ImagePlus imp) {
 		showLegacyDialog = false;
 		boolean thresholdSet = imp.isThreshold();
 		this.imp = imp;
-		if (!IJ.isMacro()) {
+		if (!IJMacro.isMacro()) {
 			method = staticMethod;
 			background = staticBackground;
 			useLocal = staticUseLocal;
@@ -98,7 +98,7 @@ public class Thresholder implements PlugIn, Measurements, ItemListener {
 			oneSlice = false;
 			createStack = true;
 		}
-		if (!IJ.isMacro()) {
+		if (!IJMacro.isMacro()) {
 			staticMethod = method;
 			staticBackground = background;
 			staticUseLocal = useLocal;
@@ -110,7 +110,7 @@ public class Thresholder implements PlugIn, Measurements, ItemListener {
 			listThresholds = false;
 			createStack = false;
 			if (oneSlice && imp.getBitDepth()!=8) {
-				IJ.error("Thresholder", "8-bit stack required to process a single slice.");
+				IJMessage.error("Thresholder", "8-bit stack required to process a single slice.");
 				return;
 			}
 		}
@@ -155,16 +155,16 @@ public class Thresholder implements PlugIn, Measurements, ItemListener {
 		double saveMinThreshold = ip.getMinThreshold();
 		double saveMaxThreshold = ip.getMaxThreshold();
 		autoThreshold = saveMinThreshold==ImageProcessor.NO_THRESHOLD;
-					
+
 		boolean useBlackAndWhite = false;
 		boolean fill1 = true;
 		boolean fill2 = true;
 		String options = Macro.getOptions();
 		boolean modernMacro = options!=null && !(options.contains("thresholded")||options.contains("remaining"));
-		if (autoThreshold || modernMacro || (IJ.macroRunning()&&options==null))
+		if (autoThreshold || modernMacro || (IJMacro.macroRunning()&&options==null))
 			showLegacyDialog = false;
 		int fcolor=255, bcolor=0;
-			
+
 		if (showLegacyDialog) {
 			GenericDialog gd = new GenericDialog("Make Binary");
 			gd.addCheckbox("Thresholded pixels to foreground color", fill1);
@@ -208,11 +208,11 @@ public class Thresholder implements PlugIn, Measurements, ItemListener {
 		if (type!=ImagePlus.GRAY8)
 			convertToByte(imp);
 		ip = imp.getProcessor();
-		
+
 		if (autoThreshold)
 			autoThreshold(ip);
 		else {
-			if (Recorder.record && !Recorder.scriptMode() && (!IJ.isMacro()||Recorder.recordInMacros))
+			if (Recorder.record && !Recorder.scriptMode() && (!IJMacro.isMacro()||Recorder.recordInMacros))
 				Recorder.record("//setThreshold", (int)saveMinThreshold, (int)saveMaxThreshold);
  			minThreshold = saveMinThreshold;
  			maxThreshold = saveMaxThreshold;
@@ -222,7 +222,7 @@ public class Thresholder implements PlugIn, Measurements, ItemListener {
 			ip.setColorModel(ip.getDefaultColorModel());
 		ip.resetThreshold();
 
-		if (IJ.debugMode) IJ.log("Thresholder (apply): "+minThreshold+"-"+maxThreshold+" "+fcolor+" "+bcolor+" "+fill1+" "+fill2);
+		if (IJDebugMode.debugMode) IJMessage.log("Thresholder (apply): "+minThreshold+"-"+maxThreshold+" "+fcolor+" "+bcolor+" "+fill1+" "+fill2);
 		int[] lut = new int[256];
 		for (int i=0; i<256; i++) {
 			if (i>=minThreshold && i<=maxThreshold)
@@ -239,19 +239,19 @@ public class Thresholder implements PlugIn, Measurements, ItemListener {
 			boolean invertedLut = imp.isInvertedLut();
 			if ((invertedLut && Prefs.blackBackground) || (!invertedLut && !Prefs.blackBackground)) {
 				ip.invertLut();
-				if (!IJ.isMacro() && ThresholdAdjuster.isDarkBackground() && !invertedLut && !Prefs.blackBackground)
-					IJ.log("\"Black background\" not set in Process>Binary>Options; inverting LUT");
-				if (IJ.debugMode) IJ.log("Thresholder (inverting lut)");
+				if (!IJMacro.isMacro() && ThresholdAdjuster.isDarkBackground() && !invertedLut && !Prefs.blackBackground)
+					IJMessage.log("\"Black background\" not set in Process>Binary>Options; inverting LUT");
+				if (IJDebugMode.debugMode) IJMessage.log("Thresholder (inverting lut)");
 			}
 		}
 		if (fill1 && fill2 && ((fcolor==0&&bcolor==255)||(fcolor==255&&bcolor==0))) {
 			imp.getProcessor().setThreshold(fcolor, fcolor, ImageProcessor.NO_LUT_UPDATE);
-			if (IJ.debugMode) IJ.log("Thresholder: "+fcolor+"-"+fcolor+" ("+(Prefs.blackBackground?"black":"white")+" background)");
+			if (IJDebugMode.debugMode) IJMessage.log("Thresholder: "+fcolor+"-"+fcolor+" ("+(Prefs.blackBackground?"black":"white")+" background)");
 		}
 		imp.updateAndRepaintWindow();
 		imp.unlock();
 	}
-	
+
 	private ImageProcessor updateColorThresholdedImage(ImagePlus imp) {
 		Object mask = imp.getProperty("Mask");
 		if (mask==null || !(mask instanceof ByteProcessor))
@@ -269,7 +269,7 @@ public class Thresholder implements PlugIn, Measurements, ItemListener {
 		}
 		return maskIP;
 	}
-	
+
 	private void applyShortOrFloatThreshold(ImagePlus imp) {
 		if (!imp.lock()) return;
 		int width = imp.getWidth();
@@ -293,7 +293,7 @@ public class Thresholder implements PlugIn, Measurements, ItemListener {
 		}
 		float value;
 		ImageProcessor ip1, ip2;
-		IJ.showStatus("Converting to mask");
+		IJMessage.showStatus("Converting to mask");
 		for (int i=1; i<=nSlices; i++) {
 			IJ.showProgress(i, nSlices);
 			String label = stack1.getSliceLabel(i);
@@ -319,8 +319,8 @@ public class Thresholder implements PlugIn, Measurements, ItemListener {
 			ci.updateAndDraw();
 		}
 		imp.getProcessor().setThreshold(255, 255, ImageProcessor.NO_LUT_UPDATE);
-		if (IJ.debugMode) IJ.log("Thresholder16: 255-255 ("+(Prefs.blackBackground?"black":"white")+" background)");
-		IJ.showStatus("");
+		if (IJDebugMode.debugMode) IJMessage.log("Thresholder16: 255-255 ("+(Prefs.blackBackground?"black":"white")+" background)");
+		IJMessage.showStatus("");
 		imp.unlock();
 	}
 
@@ -330,7 +330,7 @@ public class Thresholder implements PlugIn, Measurements, ItemListener {
 		double[] maxValues = listThresholds?new double[nSlices]:null;
 		int bitDepth = imp.getBitDepth();
 		if (bitDepth!=8) {
-			IJ.showStatus("Converting to byte");
+			IJMessage.showStatus("Converting to byte");
 			ImageStack stack1 = imp.getStack();
 			ImageStack stack2 = new ImageStack(imp.getWidth(), imp.getHeight());
 			for (int i=1; i<=nSlices; i++) {
@@ -347,9 +347,9 @@ public class Thresholder implements PlugIn, Measurements, ItemListener {
 			imp.setStack(null, stack2);
 		}
 		ImageStack stack = imp.getStack();
-		IJ.showStatus("Auto-thresholding");
+		IJMessage.showStatus("Auto-thresholding");
 		if (listThresholds)
-			IJ.log("Thresholding method: "+method);
+			IJMessage.log("Thresholding method: "+method);
 		for (int i=1; i<=nSlices; i++) {
 			IJ.showProgress(i, nSlices);
 			ImageProcessor ip = stack.getProcessor(i);
@@ -367,7 +367,7 @@ public class Thresholder implements PlugIn, Measurements, ItemListener {
 					t2 = minValues[i-1] + (t2/255.0)*(maxValues[i-1]-minValues[i-1]);
 				}
 				int digits = bitDepth==32?2:0;
-				IJ.log("  "+i+": "+IJ.d2s(t1,digits)+"-"+IJ.d2s(t2,digits));
+				IJMessage.log("  "+i+": "+IJ.d2s(t1,digits)+"-"+IJ.d2s(t2,digits));
 			}
 			int[] lut = new int[256];
 			for (int j=0; j<256; j++) {
@@ -387,7 +387,7 @@ public class Thresholder implements PlugIn, Measurements, ItemListener {
 			ci.resetDisplayRanges();
 			ci.updateAndDraw();
 		}
-		IJ.showStatus("");
+		IJMessage.showStatus("");
 	}
 
 	void convertToByte(ImagePlus imp) {
@@ -407,7 +407,7 @@ public class Thresholder implements PlugIn, Measurements, ItemListener {
 		imp.setSlice(currentSlice);
 		imp.setCalibration(imp.getCalibration()); //update calibration
 	}
-	
+
 	/** Returns an 8-bit binary (0 and 255) threshold mask
 	 * that has the same dimensions as this image.
 	 * @see ij.process.ImageProcessor#createMask
@@ -422,14 +422,14 @@ public class Thresholder implements PlugIn, Measurements, ItemListener {
 			throw new IllegalArgumentException("Image must be thresholded");
 		return ip.createMask();
 	}
-	
+
 	void autoThreshold(ImageProcessor ip) {
 		ip.setAutoThreshold(ImageProcessor.ISODATA2, ImageProcessor.NO_LUT_UPDATE);
 		minThreshold = ip.getMinThreshold();
 		maxThreshold = ip.getMaxThreshold();
-		if (IJ.debugMode) IJ.log("Thresholder (auto): "+minThreshold+"-"+maxThreshold);
+		if (IJDebugMode.debugMode) IJMessage.log("Thresholder (auto): "+minThreshold+"-"+maxThreshold);
  	}
- 	
+
  	public static void setMethod(String method) {
  		staticMethod = method;
  	}
@@ -448,7 +448,7 @@ public class Thresholder implements PlugIn, Measurements, ItemListener {
 			background = choice.getSelectedItem();
 		updateThreshold(imp);
 	}
-	
+
 	private void updateThreshold(ImagePlus imp) {
 		ImageProcessor ip = imp.getProcessor();
 		if (method.equals("Default") && background.equals("Default"))

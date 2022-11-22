@@ -170,7 +170,7 @@ public class MaximumFinder implements ExtendedPlugInFilter, DialogListener {
         boolean invertedLut = imp.isInvertedLut();
         if (useMinThreshold && ((invertedLut&&!lightBackground) || (!invertedLut&&lightBackground))) {
             if (!thresholdWarningShown)
-                if (!IJ.showMessageWithCancel(
+                if (!IJMessage.showMessageWithCancel(
                     "Find Maxima",
                     "\"Above Lower Threshold\" option cannot be used\n"+
                     "when finding minima (image with light background\n"+
@@ -244,7 +244,7 @@ public class MaximumFinder implements ExtendedPlugInFilter, DialogListener {
         maxImp.setCalibration(cal);             //keep the spatial calibration
         maxImp.show();
      } //public void run
-     
+
 
     /** Finds the image maxima and returns them as a Polygon, where
      * poly.npoints is the number of maxima. There is an example at<br>
@@ -255,7 +255,7 @@ public class MaximumFinder implements ExtendedPlugInFilter, DialogListener {
      * @param excludeOnEdges Whether to exclude edge maxima. Also determines whether strict mode is on, i.e.,
      *                       whether the global maximum is accepted even if all other pixel are less than 'tolerance'
      *                       below this level (In 1.52m and before, 'strict' and 'excludeOnEdges' were the same).
-     * @return         A Polygon containing the coordinates of the maxima, where poly.npoints 
+     * @return         A Polygon containing the coordinates of the maxima, where poly.npoints
      *                       is the number of maxima. Note that poly.xpoints.length may be greater
      *                       than the number of maxima.
      */
@@ -275,7 +275,7 @@ public class MaximumFinder implements ExtendedPlugInFilter, DialogListener {
      * @param excludeOnEdges Whether to exclude edge maxima. Also determines whether strict mode is on, i.e.,
      *                       whether the global maximum is accepted even if all other pixel are less than 'tolerance'
      *                       below this level (In 1.52m and before, 'strict' and 'excludeOnEdges' were the same).
-     * @return         A Polygon containing the coordinates of the maxima, where poly.npoints 
+     * @return         A Polygon containing the coordinates of the maxima, where poly.npoints
      *                       is the number of maxima. Note that poly.xpoints.length may be greater
      *                       than the number of maxima.
      */
@@ -309,7 +309,7 @@ public class MaximumFinder implements ExtendedPlugInFilter, DialogListener {
 			return new int[0];
 		if (tolerance < 0)
 			tolerance = 0;
-		if(edgeMode==CIRCULAR){ 
+		if(edgeMode==CIRCULAR){
 		    double[] cascade3 = new double[len * 3];
 		    for (int jj = 0; jj <len; jj++){
 			cascade3[jj] = xx[jj];
@@ -385,24 +385,24 @@ public class MaximumFinder implements ExtendedPlugInFilter, DialogListener {
 		    int[] returrn2Arr = new int[count];
 		    System.arraycopy(returnArr, 0, returrn2Arr, 0, count);
 		    returnArr = returrn2Arr;
-		    
+
 		}
 		return returnArr;
 	}
-	
+
 	public static int[] findMaxima(double[] xx, double tolerance, boolean excludeOnEdges) {
 	    int edgeBehavior = (excludeOnEdges) ? 1 : 0;
 	    return findMaxima(xx, tolerance, edgeBehavior);
 	}
-	 
+
 	/**
 	* Returns minimum positions of array xx, sorted with decreasing strength
 	*/
 	public static int[] findMinima(double[] xx, double tolerance, boolean excludeEdges ) {
-	    int edgeMode = (excludeEdges) ? 1 : 0;	
+	    int edgeMode = (excludeEdges) ? 1 : 0;
 	    return findMinima(xx, tolerance, edgeMode);
 	}
-		
+
 	public static int[] findMinima(double[] xx, double tolerance, int edgeMode) {
 		int len = xx.length;
 		double[] negArr = new double[len];
@@ -410,8 +410,8 @@ public class MaximumFinder implements ExtendedPlugInFilter, DialogListener {
 			negArr[jj] = -xx[jj];
 		int[] minPositions = findMaxima(negArr, tolerance, edgeMode);
 		return minPositions;
-	}	
-	
+	}
+
      /** Find the maxima of an image.
      * @param ip             The input image
      * @param tolerance      Height tolerance: maxima are accepted only if protruding more than this value
@@ -505,11 +505,11 @@ public class MaximumFinder implements ExtendedPlugInFilter, DialogListener {
         boolean excludeEdgesNow = excludeOnEdges && outputType!=SEGMENTED;
 
         if (Thread.currentThread().isInterrupted()) return null;
-        IJ.showStatus("Getting sorted maxima...");
+        IJMessage.showStatus("Getting sorted maxima...");
         long[] maxPoints = maximumPossible ?
                 getSortedMaxPoints(ip, typeP, excludeEdgesNow, isEDM, globalMin, globalMax, threshold) : new long[0];
         if (Thread.currentThread().isInterrupted()) return null;
-        IJ.showStatus("Analyzing  maxima...");
+        IJMessage.showStatus("Analyzing  maxima...");
         float maxSortingError = 0;
         if (ip instanceof FloatProcessor)   //sorted sequence may be inaccurate by this value
             maxSortingError = 1.1f * (isEDM ? SQRT2/2f : (globalMax-globalMin)/2e9f);
@@ -524,10 +524,10 @@ public class MaximumFinder implements ExtendedPlugInFilter, DialogListener {
             // Segmentation required, convert to 8bit (also for 8-bit images, since the calibration
             // may have a negative slope). outIp has background 0, maximum areas 255
             outIp = make8bit(ip, typeP, isEDM, globalMin, globalMax, threshold);
-            //if (IJ.debugMode) new ImagePlus("pixel types precleanup", typeP.duplicate()).show();
+            //if (IJDebugMode.debugMode) new ImagePlus("pixel types precleanup", typeP.duplicate()).show();
             cleanupMaxima(outIp, typeP, maxPoints);     //eliminate all the small maxima (i.e. those outside MAX_AREA)
-            //if (IJ.debugMode) new ImagePlus("pixel types postcleanup", typeP).show();
-            //if (IJ.debugMode) new ImagePlus("pre-watershed", outIp.duplicate()).show();
+            //if (IJDebugMode.debugMode) new ImagePlus("pixel types postcleanup", typeP).show();
+            //if (IJDebugMode.debugMode) new ImagePlus("pre-watershed", outIp.duplicate()).show();
             if (!watershedSegment(outIp))               //do watershed segmentation
                 return null;                            //if user-cancelled, return
             if (!isEDM) cleanupExtraLines(outIp);       //eliminate lines due to local minima (none in EDM)
@@ -550,7 +550,7 @@ public class MaximumFinder implements ExtendedPlugInFilter, DialogListener {
 
         return outIp;
     } // public ByteProcessor findMaxima
-        
+
     /** Find all local maxima (irrespective whether they finally qualify as maxima or not)
      * @param ip    The image to be analyzed
      * @param typeP A byte image, same size as ip, where the maximum points are marked as MAXIMUM
@@ -562,7 +562,7 @@ public class MaximumFinder implements ExtendedPlugInFilter, DialogListener {
      * @return          Maxima sorted by value. In each array element (long, i.e., 64-bit integer), the value
      *                  is encoded in the upper 32 bits and the pixel offset in the lower 32 bit
      * Note: Do not use the positions of the points marked as MAXIMUM in typeP, they are invalid for images with a roi.
-     */    
+     */
     long[] getSortedMaxPoints(ImageProcessor ip, ByteProcessor typeP, boolean excludeEdgesNow,
             boolean isEDM, float globalMin, float globalMax, double threshold) {
         Rectangle roi = ip.getRoi();
@@ -601,8 +601,8 @@ public class MaximumFinder implements ExtendedPlugInFilter, DialogListener {
             } // for x
         } // for y
         if (thread.isInterrupted()) return null;
-        //long t1 = System.currentTimeMillis();IJ.log("markMax:"+(t1-t0));
-        
+        //long t1 = System.currentTimeMillis();IJMessage.log("markMax:"+(t1-t0));
+
         float vFactor = (float)(2e9/(globalMax-globalMin)); //for converting float values into a 32-bit int
         long[] maxPoints = new long[nMax];                  //value (int) is in the upper 32 bit, pixel offset in the lower
         int iMax = 0;
@@ -613,10 +613,10 @@ public class MaximumFinder implements ExtendedPlugInFilter, DialogListener {
                     int iValue = (int)((fValue-globalMin)*vFactor); //32-bit int, linear function of float value
                     maxPoints[iMax++] = (long)iValue<<32|p;
                 }
-        //long t2 = System.currentTimeMillis();IJ.log("makeArray:"+(t2-t1));
+        //long t2 = System.currentTimeMillis();IJMessage.log("makeArray:"+(t2-t1));
         if (thread.isInterrupted()) return null;
         Arrays.sort(maxPoints);                                 //sort the maxima by value
-        //long t3 = System.currentTimeMillis();IJ.log("sort:"+(t3-t2));
+        //long t3 = System.currentTimeMillis();IJMessage.log("sort:"+(t3-t2));
         return maxPoints;
     } //getSortedMaxPoints
 
@@ -632,8 +632,8 @@ public class MaximumFinder implements ExtendedPlugInFilter, DialogListener {
     *                       not deviating from each other by more than this (this could be a result of
     *                       precision loss when sorting ints instead of floats, or because sorting does not
     *                       take the height correction in 'trueEdmHeight' into account
-    * @param outputType 
-    */   
+    * @param outputType
+    */
    void analyzeAndMarkMaxima(ImageProcessor ip, ByteProcessor typeP, long[] maxPoints, boolean excludeEdgesNow,
         boolean isEDM, float globalMin, double tolerance, boolean strict, int outputType, float maxSortingError) {
         byte[] types =  (byte[])typeP.getPixels();
@@ -643,11 +643,11 @@ public class MaximumFinder implements ExtendedPlugInFilter, DialogListener {
         xyCoordinates = null;
         Roi roi = null;
         boolean displayOrCount = outputType==POINT_SELECTION||outputType==LIST||outputType==COUNT;
-        if (displayOrCount) 
+        if (displayOrCount)
             xyCoordinates = new Polygon();
         if (imp!=null)
-            roi = imp.getRoi();	    
-      
+            roi = imp.getRoi();
+
         for (int iMax=nMax-1; iMax>=0; iMax--) {    //process all maxima now, starting from the highest
             if (iMax%100 == 0 && Thread.currentThread().isInterrupted()) return;
             int offset0 = (int)maxPoints[iMax];     //type cast gets 32 lower bits, where pixel index is encoded
@@ -655,7 +655,7 @@ public class MaximumFinder implements ExtendedPlugInFilter, DialogListener {
             if ((types[offset0]&PROCESSED)!=0)      //this maximum has been reached from another one, skip it
                 continue;
             //we create a list of connected points and start the list at the current maximum
-            int x0 = offset0 % width;               
+            int x0 = offset0 % width;
             int y0 = offset0 / width;
             float v0 = isEDM?trueEdmHeight(x0,y0,ip):ip.getPixelValue(x0,y0);
             boolean sortingError;
@@ -773,7 +773,7 @@ public class MaximumFinder implements ExtendedPlugInFilter, DialogListener {
                 	if (npoints<15 && points.getSize()<3)
                 		points.setSize(3);
                 	if (npoints==1)
-                 		points.setSize(4);               		
+                 		points.setSize(4);
                 	imp.setRoi(points);
                 }
             } else if (outputType==LIST) {
@@ -810,7 +810,7 @@ public class MaximumFinder implements ExtendedPlugInFilter, DialogListener {
                     rt.setLabel(s, rt.size()-1);
                 }
                 rt.show("Results");
-            } 
+            }
         }
         if (previewing && messageArea!=null)
             messageArea.setText((xyCoordinates==null ? 0 : xyCoordinates.npoints)+" Maxima");
@@ -897,7 +897,7 @@ public class MaximumFinder implements ExtendedPlugInFilter, DialogListener {
             return trueH;
         }
     }
-    
+
     /** eliminate unmarked maxima for use by watershed. Starting from each previous maximum,
      * explore the surrounding down to successively lower levels until a marked maximum is
      * touched (or the plateau of a previously eliminated maximum leads to a marked maximum).
@@ -905,7 +905,7 @@ public class MaximumFinder implements ExtendedPlugInFilter, DialogListener {
      * @param outIp     the image containing the pixel values
      * @param typeP     the types of the pixels are marked here
      * @param maxPoints array containing the coordinates of all maxima that might be relevant
-     */    
+     */
     void cleanupMaxima(ByteProcessor outIp, ByteProcessor typeP, long[] maxPoints) {
         byte[] pixels = (byte[])outIp.getPixels();
         byte[] types = (byte[])typeP.getPixels();
@@ -964,7 +964,7 @@ public class MaximumFinder implements ExtendedPlugInFilter, DialogListener {
      *  single dots and lines ending somewhere within a segmented particle
      *  Needed for post-processing watershed-segmented images that can have local minima
      *  @param ip 8-bit image with background = 0, lines between 1 and 254 and segmented particles = 255
-     */    
+     */
     void cleanupExtraLines(ImageProcessor ip) {
         byte[] pixels =  (byte[])ip.getPixels();
         for (int y=0, i=0; y<height; y++) {
@@ -983,7 +983,7 @@ public class MaximumFinder implements ExtendedPlugInFilter, DialogListener {
 
     /** delete a line starting at x, y up to the next (4-connected) vertex */
     void removeLineFrom (byte[] pixels, int x, int y) {
-        //IJ.log("del line from "+x+","+y);
+        //IJMessage.log("del line from "+x+","+y);
         pixels[x + width*y] = (byte)255;                        //delete the first point
         boolean continues;
         do {
@@ -1005,7 +1005,7 @@ public class MaximumFinder implements ExtendedPlugInFilter, DialogListener {
                 }
             } // for directions d
         } while (continues);
-        //IJ.log("deleted to "+x+","+y);
+        //IJMessage.log("deleted to "+x+","+y);
     } // void removeLineFrom
 
     /** Analyze the neighbors of a pixel (x, y) in a byte image; pixels <255 ("non-white") are
@@ -1075,7 +1075,7 @@ public class MaximumFinder implements ExtendedPlugInFilter, DialogListener {
                 deleteParticle(x,y,ip,wand);
             y = height - 1;
             if ((types[x+y*width]&MAX_AREA) != 0 && pixels[x+y*width] != 0)
-                deleteParticle(x,y,ip,wand);            
+                deleteParticle(x,y,ip,wand);
         }
         for (int y=1; y<height-1; y++) {
             int x = 0;
@@ -1083,7 +1083,7 @@ public class MaximumFinder implements ExtendedPlugInFilter, DialogListener {
                 deleteParticle(x,y,ip,wand);
             x = width - 1;
             if ((types[x+y*width]&MAX_AREA) != 0 && pixels[x+y*width] != 0)
-                deleteParticle(x,y,ip,wand);            
+                deleteParticle(x,y,ip,wand);
         }
     } //void deleteEdgeParticles
 
@@ -1093,7 +1093,7 @@ public class MaximumFinder implements ExtendedPlugInFilter, DialogListener {
     void deleteParticle(int x, int y, ByteProcessor ip, Wand wand) {
         wand.autoOutline(x, y, 255, 255);
         if (wand.npoints==0) {
-            IJ.log("wand error selecting edge particle at x, y = "+x+", "+y);
+            IJMessage.log("wand error selecting edge particle at x, y = "+x+", "+y);
             return;
         }
         Roi roi = new PolygonRoi(wand.xpoints, wand.ypoints, wand.npoints, Roi.TRACED_ROI);
@@ -1110,9 +1110,9 @@ public class MaximumFinder implements ExtendedPlugInFilter, DialogListener {
      * old value.
      * @param ip  The byteProcessor containing the image, with size given by the class variables width and height
      * @return    false if canceled by the user (note: can be cancelled only if called by "run" with a known ImagePlus)
-     */    
+     */
     private boolean watershedSegment(ByteProcessor ip) {
-        boolean debug = IJ.debugMode;
+        boolean debug = IJDebugMode.debugMode;
         ImageStack movie=null;
         if (debug) {
             movie = new ImageStack(ip.getWidth(), ip.getHeight());
@@ -1147,14 +1147,14 @@ public class MaximumFinder implements ExtendedPlugInFilter, DialogListener {
            } //for x
         } //for y
         // Create an array of the points (pixel offsets) that we set to 255 in one pass.
-        // If we remember this list we need not create a snapshot of the ImageProcessor. 
+        // If we remember this list we need not create a snapshot of the ImageProcessor.
         int[] setPointList = new int[Math.min(maxBinSize, (width*height+2)/3)];
         // now do the segmentation, starting at the highest level and working down.
         // At each level, dilate the particle (set pixels to 255), constrained to pixels
         // whose values are at that level and also constrained (by the fateTable)
         // to prevent features from merging.
         int[] table = makeFateTable();
-        IJ.showStatus("Segmenting (Esc to cancel)");
+        IJMessage.showStatus("Segmenting (Esc to cancel)");
         final int[] directionSequence = new int[] {7, 3, 1, 5, 0, 4, 2, 6}; // diagonal directions first
         for (int level=highestValue; level>=1; level--) {
             int remaining = histogram[level];  //number of points in the level that have not been processed
@@ -1165,7 +1165,7 @@ public class MaximumFinder implements ExtendedPlugInFilter, DialogListener {
                 do {                        // expand each level in 8 directions
                     int n = processLevel(directionSequence[dIndex%8], ip, table,
                             levelStart[level], remaining, coordinates, setPointList);
-                    //IJ.log("level="+level+" direction="+directionSequence[dIndex%8]+" remain="+remaining+"-"+n);
+                    //IJMessage.log("level="+level+" direction="+directionSequence[dIndex%8]+" remain="+remaining+"-"+n);
                     remaining -= n;         // number of points processed
                     sumN += n;
                     if (n > 0) idle = 0;    // nothing processed in this direction?
@@ -1195,7 +1195,7 @@ public class MaximumFinder implements ExtendedPlugInFilter, DialogListener {
                         int x = xy&intEncodeXMask;
                         int y = (xy&intEncodeYMask)>>intEncodeShift;
                         int pOffset = x + y*width;
-                        if ((pixels[pOffset]&255)==255) IJ.log("ERROR");
+                        if ((pixels[pOffset]&255)==255) IJMessage.log("ERROR");
                         boolean addToNext = false;
                         if (x==0 || y==0 || x==width-1 || y==height-1)
                             addToNext = true;           //image border
@@ -1207,7 +1207,7 @@ public class MaximumFinder implements ExtendedPlugInFilter, DialogListener {
                         if (addToNext)
                             coordinates[newNextLevelEnd++] = xy;
                     }
-                    //IJ.log("level="+level+": add "+(newNextLevelEnd-levelStart[nextLevel+1])+" points to "+nextLevel);
+                    //IJMessage.log("level="+level+": add "+(newNextLevelEnd-levelStart[nextLevel+1])+" points to "+nextLevel);
                     //tasklist for the next level to process becomes longer by this:
                     histogram[nextLevel] = newNextLevelEnd - levelStart[nextLevel];
                 }
@@ -1268,7 +1268,7 @@ public class MaximumFinder implements ExtendedPlugInFilter, DialogListener {
                 coordinates[levelStart+(nUnchanged++)] = xy; //keep this pixel for future passes
 
         } // for pixel i
-        //IJ.log("pass="+pass+", changed="+nChanged+" unchanged="+nUnchanged);
+        //IJMessage.log("pass="+pass+", changed="+nChanged+" unchanged="+nUnchanged);
         for (int i=0; i<nChanged; i++)
             pixels[setPointList[i]] = (byte)255;
         return nChanged;
@@ -1340,7 +1340,7 @@ public class MaximumFinder implements ExtendedPlugInFilter, DialogListener {
         intEncodeXMask = mult-1;
         intEncodeYMask = ~intEncodeXMask;
         intEncodeShift = shift;
-        //IJ.log("masks (hex):"+Integer.toHexString(xMask)+","+Integer.toHexString(xMask)+"; shift="+shift);
+        //IJMessage.log("masks (hex):"+Integer.toHexString(xMask)+","+Integer.toHexString(xMask)+"; shift="+shift);
         dirOffset  = new int[] {-width, -width+1, +1, +width+1, +width, +width-1,   -1, -width-1 };
         //dirOffset is created last, so check for it being null before makeDirectionOffsets
         //(in case we have multiple threads using the same MaximumFinder)

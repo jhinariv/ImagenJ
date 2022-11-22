@@ -14,7 +14,7 @@ point projection with either of the other two methods (partial opacity).  The us
 volume about any of the three orthogonal axes (x, y, or z), make portions of the volume transparent (using
 thresholding), or add a greater degree of visual realism by employing depth cues. Based on Pascal code
 contributed by Michael Castle of the  University of Michigan Mental Health Research Institute.
-*/ 
+*/
 
 public class Projector implements PlugIn {
 
@@ -23,7 +23,7 @@ public class Projector implements PlugIn {
 	private static final int BIGPOWEROF2 = 8192;
 	private static final String[] axisList = {"X-Axis", "Y-Axis", "Z-Axis"};
 	private static final String[] methodList = {"Nearest Point", "Brightest Point", "Mean Value"};
-	
+
 	private static int axisOfRotationS = yAxis;
 	private static int projectionMethodS = brightestPoint;
 	private static int initAngleS = 0;
@@ -45,11 +45,11 @@ public class Projector implements PlugIn {
 	private int depthCueInt = depthCueIntS;
 	private boolean interpolate = interpolateS;
 	private boolean allTimePoints = allTimePointsS;
-	
+
 	private boolean debugMode;
 	private double sliceInterval = 1.0; // pixels
 	private int transparencyLower = 1;
-	private int transparencyUpper = 255;	
+	private int transparencyUpper = 255;
 	private ImagePlus imp;
 	private ImageStack stack;
 	private ImageStack stack2;
@@ -68,14 +68,14 @@ public class Projector implements PlugIn {
 	public void run(String arg) {
 		imp = IJ.getImage();
 		ImageProcessor ip = imp.getProcessor();
-		if (ip.isInvertedLut() && !IJ.isMacro()) {
-			if (!IJ.showMessageWithCancel("3D Project", ZProjector.lutMessage))
+		if (ip.isInvertedLut() && !IJMacro.isMacro()) {
+			if (!IJMessage.showMessageWithCancel("3D Project", ZProjector.lutMessage))
 				return;
 		}
 		if (!showDialog())
 			return;
 		if (sliceInterval>100) {
-			IJ.error("Z spacing ("+(int)sliceInterval+") is too large.");
+			IJMessage.error("Z spacing ("+(int)sliceInterval+") is too large.");
 			return;
 		}
 		imp.startTiming();
@@ -84,7 +84,7 @@ public class Projector implements PlugIn {
 			if (imp.getNSlices()>1)
 				doHyperstackProjections(imp);
 			else
-				IJ.error("Hyperstack Z dimension must be greater than 1");
+				IJMessage.error("Hyperstack Z dimension must be greater than 1");
 			return;
 		}
 		if (interpolate && sliceInterval>1.0) {
@@ -114,7 +114,7 @@ public class Projector implements PlugIn {
 		gd.addChoice("Projection method:", methodList, methodList[projectionMethod]);
 		gd.addChoice("Axis of rotation:", axisList, axisList[axisOfRotation]);
 		//gd.addMessage("");
-		gd.addNumericField("Slice spacing ("+cal.getUnits()+"):",cal.pixelDepth,2); 
+		gd.addNumericField("Slice spacing ("+cal.getUnits()+"):",cal.pixelDepth,2);
 
 		gd.addNumericField("Initial angle (0-359 degrees):", initAngle, 0);
 		gd.addNumericField("Total rotation (0-359 degrees):", totalAngle, 0);
@@ -162,7 +162,7 @@ public class Projector implements PlugIn {
 		allTimePointsS = allTimePoints;
 		return true;
     }
-    	
+
 	private void doHyperstackProjections(ImagePlus imp) {
 		double originalSliceInterval = sliceInterval;
 		ImagePlus buildImp = null;
@@ -176,7 +176,7 @@ public class Projector implements PlugIn {
 			allTimePoints = false;
 		if (!allTimePoints)
 			f1 = f2 = imp.getFrame();
-		
+
 		int channels =  imp.getNChannels();
 		progressScale = 1.0/channels;
 		if (allTimePoints)
@@ -272,7 +272,7 @@ public class Projector implements PlugIn {
 		int curval, prevval, nextval, aboveval, belowval;
 		int n, nProjections, angle;
 		boolean minProjSize = true;
-		
+
 		stack = imp.getStack();
 		if (imp.getBitDepth()==16 || imp.getBitDepth()==32) {
 			ImageStack stack2 = new ImageStack(imp.getWidth(),imp.getHeight());
@@ -333,9 +333,9 @@ public class Projector implements PlugIn {
 		}
 		if ((projwidth%2)==1)
 			projwidth++;
-		int projsize = projwidth * projheight;		
+		int projsize = projwidth * projheight;
 		if (projwidth<=0 || projheight<=0) {
-			IJ.error("'projwidth' or 'projheight' <= 0");
+			IJMessage.error("'projwidth' or 'projheight' <= 0");
 			return null;
 		}
 		try {
@@ -345,7 +345,7 @@ public class Projector implements PlugIn {
 			if (images!=null)
 				for (int i=0; i<images.length; i++) images[i]=null;
 			stack2 = null;
-			IJ.error("Projector - Out of Memory",
+			IJMessage.error("Projector - Out of Memory",
 				"To use less memory, use a rectanguar\n"
 				+"selection,  reduce \"Total Rotation\",\n"
 				+"and/or increase \"Angle Increment\"."
@@ -355,17 +355,17 @@ public class Projector implements PlugIn {
 		ImagePlus projections = new ImagePlus("Projections of "+imp.getShortTitle(), stack2);
 		projections.setCalibration(imp.getCalibration());
 		//projections.show();
-		
+
 		IJ.resetEscape();
 		theta = initAngle;
 		IJ.resetEscape();
 		for (n=0; n<nProjections; n++) {
-			IJ.showStatus(n+"/"+nProjections);
+			IJMessage.showStatus(n+"/"+nProjections);
 			showProgress((double)n/nProjections);
 			thetarad = theta * Math.PI/180.0;
 			costheta = (int)(BIGPOWEROF2*Math.cos(thetarad) + 0.5);
 			sintheta = (int)(BIGPOWEROF2*Math.sin(thetarad) + 0.5);
-			
+
 			projArray = (byte[])stack2.getPixels(n+1);
 			if (projArray==null)
 				break;
@@ -400,7 +400,7 @@ public class Projector implements PlugIn {
 					doOneProjectionZ (nSlices, xcenter, ycenter, zcenter, projwidth, projheight, costheta, sintheta);
 					break;
 			}
-			
+
 			if (projectionMethod==meanValue) {
 				int count;
 				for (int i=0; i<projsize; i++) {
@@ -432,13 +432,13 @@ public class Projector implements PlugIn {
 				done=true;
 				IJ.beep();
 				IJ.showProgress(1.0);
-				IJ.showStatus("aborted");
+				IJMessage.showStatus("aborted");
 				break;
 			}
 			projections.setSlice(n+1);
  		} //end for all projections
  		showProgress(1.0);
- 
+
 		if (debugMode) {
 			if (projArray!=null) new ImagePlus("projArray", new ByteProcessor(projwidth, projheight, projArray, null)).show();
 			if (opaArray!=null) new ImagePlus("opaArray", new ByteProcessor(projwidth, projheight, opaArray, null)).show();
@@ -457,8 +457,8 @@ public class Projector implements PlugIn {
 		return projections;
 
 	} // doProjection()
-	
-	
+
+
 	private void allocateArrays(int nProjections, int projwidth, int projheight) {
 		int projsize = projwidth*projheight;
 		ColorModel cm = imp.getProcessor().getColorModel();
@@ -468,7 +468,7 @@ public class Projector implements PlugIn {
 		for (int i=0; i<nProjections; i++)
 			stack2.addSlice(null, new byte[projsize]);
 		if ((projectionMethod==nearestPoint) || (opacity > 0))
-			zBuffer = new short[projsize];		
+			zBuffer = new short[projsize];
 		if ((opacity>0) && (projectionMethod!=nearestPoint))
  			opaArray = new byte[projsize];
 		if ((projectionMethod==brightestPoint) && (depthCueInt<100)) {
@@ -480,7 +480,7 @@ public class Projector implements PlugIn {
 			countBuffer = new short[projsize];
 		}
 	}
-				
+
 
 	/**
 	This method projects each pixel of a volume (stack of slices) onto a plane as the volume rotates about the x-axis. Integer
@@ -506,7 +506,7 @@ public class Projector implements PlugIn {
 		int projsize = projwidth * projheight;
 
 		//find z-coordinates of first and last slices
-		zmax = zcenter + projheight/2;  
+		zmax = zcenter + projheight/2;
 		zmin = zcenter - projheight/2;
 		zmaxminuszmintimes100 = 100 * (zmax-zmin);
 		c100minusDepthCueInt = 100 - depthCueInt;
@@ -548,7 +548,7 @@ public class Projector implements PlugIn {
 							zBuffer[offset] = (short)znew;
 							if (OpacityAndNotNearestPt) {
 								if (DepthCueSurfLessThan100)
-									opaArray[offset] = (byte)(/*255 -*/ (depthCueSurf*(/*255-*/thispixel)/100 + 
+									opaArray[offset] = (byte)(/*255 -*/ (depthCueSurf*(/*255-*/thispixel)/100 +
 										 c100minusDepthCueSurf*(/*255-*/thispixel)*(zmax-znew)/zmaxminuszmintimes100));
 								else
 									opaArray[offset] = (byte)thispixel;
@@ -586,7 +586,7 @@ public class Projector implements PlugIn {
 			} // for j (all rows of BoundRect)
 		} // for k (all slices)
 	} //  doOneProjectionX()
-	
+
 
 	/** Projects each pixel of a volume (stack of slices) onto a plane as the volume rotates about the y-axis. */
 	private void  doOneProjectionY (int nSlices, int xcenter, int zcenter, int projwidth, int projheight, int costheta, int sintheta) {
@@ -606,7 +606,7 @@ public class Projector implements PlugIn {
 		int projsize = projwidth * projheight;
 
 		//find z-coordinates of first and last slices
-		zmax = zcenter + projwidth/2;  
+		zmax = zcenter + projwidth/2;
 		zmin = zcenter - projwidth/2;
 		zmaxminuszmintimes100 = 100 * (zmax-zmin);
 		c100minusDepthCueInt = 100 - depthCueInt;
@@ -646,7 +646,7 @@ public class Projector implements PlugIn {
 								zBuffer[offset] = (short)znew;
 								if (OpacityAndNotNearestPt) {
 									if (DepthCueSurfLessThan100)
-										opaArray[offset] = (byte)((depthCueSurf*thispixel/100 + 
+										opaArray[offset] = (byte)((depthCueSurf*thispixel/100 +
 											c100minusDepthCueSurf*thispixel*(zmax-znew)/zmaxminuszmintimes100));
 									else
 										opaArray[offset] = (byte)thispixel;
@@ -680,7 +680,7 @@ public class Projector implements PlugIn {
 			} // for j (all rows)
 		} // for k (all slices)
 	} // DoOneProjectionY()
-	
+
 
 	/** Projects each pixel of a volume (stack of slices) onto a plane as the volume rotates about the z-axis. */
 	private void doOneProjectionZ (int nSlices, int xcenter, int ycenter, int zcenter, int projwidth, int projheight, int costheta, int sintheta) {
@@ -700,7 +700,7 @@ public class Projector implements PlugIn {
 		int projsize = projwidth * projheight;
 
 		//find z-coordinates of first and last slices
-		//zmax = zcenter + projwidth/2;  
+		//zmax = zcenter + projwidth/2;
 		//zmin = zcenter - projwidth/2;
 		zmax = (int)((nSlices-1)*sliceInterval+0.5) - zcenter;
 		zmin = -zcenter;
@@ -785,8 +785,8 @@ public class Projector implements PlugIn {
 
 	private ImagePlus zScale(ImagePlus imp, boolean showProgress) {
 		if (imp.getBitDepth()==16 || imp.getBitDepth()==32)
-			IJ.run(imp, "8-bit", "");
-		IJ.showStatus("Z Scaling...");
+			IJPlugin.runimp, "8-bit", "");
+		IJMessage.showStatus("Z Scaling...");
 		ImageStack stack1 = imp.getStack();
 		int depth1 = stack1.getSize();
 		ImagePlus imp2 = null;
@@ -804,7 +804,7 @@ public class Projector implements PlugIn {
 		ImageStack stack2 = imp2.getStack();
 		ImageProcessor xzPlane1 = ip.createProcessor(width2, depth1);
 		xzPlane1.setInterpolate(true);
-		ImageProcessor xzPlane2;		
+		ImageProcessor xzPlane2;
 		int[] line = new int[width2];
 		for (int y=0; y<height2; y++) {
 			for (int z=0; z<depth1; z++) {
@@ -833,7 +833,7 @@ public class Projector implements PlugIn {
 		ip2.setColorModel(cm);
 		return imp2;
 	}
-	
+
 	private void showProgress(double percent) {
 		if (showMicroProgress && !done)
 			IJ.showProgress(progressBase+percent*progressScale);

@@ -9,45 +9,45 @@ Best-fitting ellipse routines by:
 
   Bob Rodieck
   Department of Ophthalmology, RJ-10
-  University of Washington, 
+  University of Washington,
   Seattle, WA, 98195
 
 Notes on best-fitting ellipse:
 
   Consider some arbitrarily shaped closed profile, which we wish to
-  characterize in a quantitative manner by a series of terms, each 
-  term providing a better approximation to the shape of the profile.  
-  Assume also that we wish to include the orientation of the profile 
-  (i.e. which way is up) in our characterization. 
+  characterize in a quantitative manner by a series of terms, each
+  term providing a better approximation to the shape of the profile.
+  Assume also that we wish to include the orientation of the profile
+  (i.e. which way is up) in our characterization.
 
-  One approach is to view the profile as formed by a series harmonic 
+  One approach is to view the profile as formed by a series harmonic
   components, much in the same way that one can decompose a waveform
-  over a fixed interval into a series of Fourier harmonics over that 
+  over a fixed interval into a series of Fourier harmonics over that
   interval. From this perspective the first term is the mean radius,
-  or some related value (i.e. the area).  The second term is the 
+  or some related value (i.e. the area).  The second term is the
   magnitude and phase of the first harmonic, which is equivalent to the
-  best-fitting ellipse.  
+  best-fitting ellipse.
 
   What constitutes the best-fitting ellipse?  First, it should have the
   same area.  In statistics, the measure that attempts to characterize some
-  two-dimensional distribution of data points is the 'ellipse of 
-  concentration' (see Cramer, Mathematical Methods of Statistics, 
+  two-dimensional distribution of data points is the 'ellipse of
+  concentration' (see Cramer, Mathematical Methods of Statistics,
   Princeton Univ. Press, 945, page 283).  This measure equates the second
-  order central moments of the ellipse to those of the distribution, 
-  and thereby effectively defines both the shape and size of the ellipse. 
+  order central moments of the ellipse to those of the distribution,
+  and thereby effectively defines both the shape and size of the ellipse.
 
   This technique can be applied to a profile by assuming that it constitutes
   a uniform distribution of points bounded by the perimeter of the profile.
   For most 'blob-like' shapes the area of the ellipse is close to that
   of the profile, differing by no more than about 4%. We can then make
-  a small adjustment to the size of the ellipse, so as to give it the 
-  same area as that of the profile.  This is what is done here, and 
-  therefore this is what we mean by 'best-fitting'. 
+  a small adjustment to the size of the ellipse, so as to give it the
+  same area as that of the profile.  This is what is done here, and
+  therefore this is what we mean by 'best-fitting'.
 
   For a real pathologic case, consider a dumbell shape formed by two small
   circles separated by a thin line. Changing the distance between the
-  circles alters the second order moments, and thus the size of the ellipse 
-  of concentration, without altering the area of the profile. 
+  circles alters the second order moments, and thus the size of the ellipse
+  of concentration, without altering the area of the profile.
 
 public class Ellipse_Fitter implements PlugInFilter {
 	public int setup(String arg, ImagePlus imp) {
@@ -56,7 +56,7 @@ public class Ellipse_Fitter implements PlugInFilter {
 	public void run(ImageProcessor ip) {
 		EllipseFitter ef = new EllipseFitter();
 		ef.fit(ip);
-		IJ.log(IJ.d2s(ef.major)+" "+IJ.d2s(ef.minor)+" "+IJ.d2s(ef.angle)+" "+IJ.d2s(ef.xCenter)+" "+IJ.d2s(ef.yCenter));
+		IJMessage.log(IJ.d2s(ef.major)+" "+IJ.d2s(ef.minor)+" "+IJ.d2s(ef.angle)+" "+IJ.d2s(ef.xCenter)+" "+IJ.d2s(ef.yCenter));
 		ef.drawEllipse(ip);
 	}
 }
@@ -67,25 +67,25 @@ public class Ellipse_Fitter implements PlugInFilter {
 public class EllipseFitter {
 
 	static final double HALFPI = 1.5707963267949;
-	
+
 	/** X centroid */
 	public double xCenter;
 
 	/** X centroid */
 	public double  yCenter;
-	
+
 	/** Length of major axis */
 	public double major;
-	
+
 	/** Length of minor axis */
 	public double minor;
-	
+
 	/** Angle in degrees */
 	public double angle;
-	
+
 	/** Angle in radians */
 	public double theta;
-	
+
 	/** Initialized by makeRoi() */
 	public int[] xCoordinates;
 	/** Initialized by makeRoi() */
@@ -93,7 +93,7 @@ public class EllipseFitter {
 	/** Initialized by makeRoi() */
 	public int nCoordinates = 0;
 
-	
+
 	private int bitCount;
 	private double  xsum, ysum, x2sum, y2sum, xysum;
 	private byte[] mask;
@@ -105,7 +105,7 @@ public class EllipseFitter {
 	//private double pw, ph;
 	private boolean record;
 
-	/** Fits an ellipse to the current ROI. The 'stats' argument, currently not used, 
+	/** Fits an ellipse to the current ROI. The 'stats' argument, currently not used,
 		can be null. The fit parameters are returned in public fields. */
 	public void fit(ImageProcessor ip, ImageStatistics stats) {
 		this.ip = ip;
@@ -117,7 +117,7 @@ public class EllipseFitter {
 		height = r.height;
 		getEllipseParam();
 	}
-	
+
 	void getEllipseParam() {
 		double    sqrtPi = 1.772453851;
 		double    a11, a12, a22, m4, z, scale, tmp, xoffset, yoffset;
@@ -208,7 +208,7 @@ public class EllipseFitter {
 					xSumOfLine += x;
 					x2sum += x * x;
 				}
-			} 
+			}
  			xsum += xSumOfLine;
 			ysum += bitcountOfLine * y;
 			ye = y;
@@ -239,13 +239,13 @@ public class EllipseFitter {
 		u02 = y2 - (y1 * y1);
 		u11 = xy - x1 * y1;
 	}
-	
-	/* 
+
+	/*
 	basic equations:
 
 		a: major axis
 		b: minor axis
-		t: theta, angle of major axis, clockwise with respect to x axis. 
+		t: theta, angle of major axis, clockwise with respect to x axis.
 
 		g11*x^2 + 2*g12*x*y + g22*y^2 = 1       -- equation of ellipse
 
@@ -259,10 +259,10 @@ public class EllipseFitter {
 		k2:= (g12^2 - g11*g22)/g11^2
 		k3:= 1/g11
 
-		ymax or ymin occur when there is a single value for x, that is when:    
-		k2*y^2 + k3 = 0    
+		ymax or ymin occur when there is a single value for x, that is when:
+		k2*y^2 + k3 = 0
 	*/
-	
+
 	/** Draws the ellipse on the specified image. */
 	public void drawEllipse(ImageProcessor ip) {
 		if (major==0.0 && minor==0.0)
@@ -326,8 +326,8 @@ public class EllipseFitter {
 				ip.lineTo(xc + x, yc + y);
 		}
 	}
-	
-	/** Generates the xCoordinates, yCoordinates public arrays 
+
+	/** Generates the xCoordinates, yCoordinates public arrays
 		that can be used to create an ROI. */
 	public void makeRoi(ImageProcessor ip) {
 		record = true;
@@ -338,7 +338,7 @@ public class EllipseFitter {
 		drawEllipse(ip);
 		record = false;
 	}
-	
+
 	private double sqr(double x) {
 		return x*x;
 	}

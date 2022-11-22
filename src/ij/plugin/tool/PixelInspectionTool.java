@@ -13,7 +13,7 @@ import java.awt.geom.*;
 
 /**
  * This plugin continuously displays the pixel values of the cursor and
- * its surroundings. It is usefule for examining how a filter changes the 
+ * its surroundings. It is usefule for examining how a filter changes the
  * data (also during preview).
  *
  * If the Pixel Inspector Window is in the foreground, "c" with any modifier
@@ -57,7 +57,7 @@ public class  PixelInspectionTool extends PlugInTool {
 	}
 
 	public void showOptionsDialog() {
-		if (pi!=null) pi.showDialog();		
+		if (pi!=null) pi.showDialog();
 	}
 
 	void drawOutline(ImagePlus imp, MouseEvent e) {
@@ -152,7 +152,7 @@ class PixelInspector extends PlugInFrame
 	Label[] labels;					//the display fields
 	//Label prefsLabel = new Label("Prefs\u2026");
 	Label prefsLabel = new Label("Prefs");
-	
+
 
 	/* Initialization, preparing the window (panel) **/
 	public PixelInspector(ImagePlus imp, PixelInspectionTool tool) {
@@ -163,7 +163,7 @@ class PixelInspector extends PlugInFrame
 		ij = IJ.getInstance();
 		if (ij == null) return;		//it won't work with the ImageJ applet
 		if (imp==null) {
-			IJ.noImage(); return;
+			IJMacro.noImage(); return;
 		}
 		id = imp.getID();
 		bitDepth = imp.getBitDepth();
@@ -252,7 +252,7 @@ class PixelInspector extends PlugInFrame
 	//KeyListener
 	public void keyPressed(KeyEvent e) {
 		boolean thisPanel = e.getSource() instanceof PixelInspector;
-		if (thisPanel && e.getKeyCode()==KeyEvent.VK_C) { 
+		if (thisPanel && e.getKeyCode()==KeyEvent.VK_C) {
 			copyToClipboard();
 			return;
 		}
@@ -275,17 +275,17 @@ class PixelInspector extends PlugInFrame
 			roi.setName(TITLE);
 			roi.setStrokeColor(Color.red);
 			overlay.add(roi);
-			imp.setOverlay(overlay);	
+			imp.setOverlay(overlay);
 	   }
 	}
 
 	public void mousePressed(MouseEvent e) {
 		showDialog();
-	}   
-	public void mouseEntered(MouseEvent e) {}   
-	public void mouseExited(MouseEvent e) {}   
-	public void mouseClicked(MouseEvent e) {}   
-	public void mouseReleased(MouseEvent e) {}   
+	}
+	public void mouseEntered(MouseEvent e) {}
+	public void mouseExited(MouseEvent e) {}
+	public void mouseClicked(MouseEvent e) {}
+	public void mouseReleased(MouseEvent e) {}
 
 	/** In the Overlay class in imageJ 1.46g and later. */
 	static int getIndex(Overlay overlay, String name) {
@@ -428,7 +428,7 @@ class PixelInspector extends PlugInFrame
 		labels[(2*radius+2)*(radius+1)+radius+1].setForeground(Color.RED);
 		for (int i=0; i<size; i++) {			//header lines have a darker background
 			labels[i+1].setBackground(bgColor);
-			labels[(2*radius+2)*(i+1)].setBackground(bgColor);		
+			labels[(2*radius+2)*(i+1)].setBackground(bgColor);
 		}
 		for (int i=1; i<labels.length; i++)
 			labels[i].setAlignment(Label.RIGHT);
@@ -504,7 +504,7 @@ class PixelInspector extends PlugInFrame
 		if (clip==null) return;
 		StringSelection contents = new StringSelection(s);
 		clip.setContents(contents, contents);
-		IJ.showStatus(size*size+" pixel values copied to clipboard");
+		IJMessage.showStatus(size*size+" pixel values copied to clipboard");
 	}
 
 	/** Preferences dialog */

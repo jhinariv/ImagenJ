@@ -14,19 +14,19 @@ public class Animator implements PlugIn {
 	private ImagePlus imp;
 	private StackWindow swin;
 	private int slice;
-	private int nSlices;	
+	private int nSlices;
 	/** Set 'arg' to "set" to display a dialog that allows the user to specify the
 		animation speed. Set it to "start" to start animating the current stack.
 		Set it to "stop" to stop animation. Set it to "next" or "previous"
-		to stop any animation and display the next or previous frame. 
+		to stop any animation and display the next or previous frame.
 	*/
 	public void run(String arg) {
 		imp = IJ.getImage();
 		nSlices = imp.getStackSize();
 		if (nSlices<2)
-			{IJ.error("Stack required."); return;}
+			{IJMessage.error("Stack required."); return;}
 		if (imp.isLocked())
-			{IJ.beep(); IJ.showStatus("Image is locked: \""+imp.getTitle()+"\""); return;}
+			{IJ.beep(); IJMessage.showStatus("Image is locked: \""+imp.getTitle()+"\""); return;}
 		ImageWindow win = imp.getWindow();
 		if ((win==null || !(win instanceof StackWindow)) && !arg.equals("options")) {
 			if (arg.equals("next"))
@@ -40,12 +40,12 @@ public class Animator implements PlugIn {
 		ImageStack stack = imp.getStack();
 		slice = imp.getCurrentSlice();
 		IJ.register(Animator.class);
-		
+
 		if (arg.equals("options")) {
 			doOptions();
 			return;
 		}
-			
+
 		if (arg.equals("start")) {
 			startAnimation();
 			return;
@@ -58,7 +58,7 @@ public class Animator implements PlugIn {
 			stopAnimation();
 			return;
 		}
-			
+
 		if (arg.equals("next")) {
 			if (Prefs.reverseNextPreviousOrder)
 				changeSlice(1);
@@ -66,7 +66,7 @@ public class Animator implements PlugIn {
 				nextSlice();
 			return;
 		}
-		
+
 		if (arg.equals("previous")) {
 			if (Prefs.reverseNextPreviousOrder)
 				changeSlice(-1);
@@ -74,7 +74,7 @@ public class Animator implements PlugIn {
 				previousSlice();
 			return;
 		}
-		
+
 		if (arg.equals("set")) {
 			setSlice();
 			return;
@@ -105,7 +105,7 @@ public class Animator implements PlugIn {
 		}
 		int frames = imp.getNFrames();
 		int slices = imp.getNSlices();
-		
+
 		if (imp.isDisplayedHyperStack() && frames>1) {
 			int frame = imp.getFrame();
 			first = 1;
@@ -169,7 +169,7 @@ public class Animator implements PlugIn {
 			}
 			return;
 		}
-		
+
 		long startTime=System.currentTimeMillis();
 		int count = 0;
 		double fps = 0.0;
@@ -184,7 +184,7 @@ public class Animator implements PlugIn {
 			ImageCanvas ic = imp.getCanvas();
 			boolean showFrameRate = !(ic!=null?ic.cursorOverImage():false);
 			if (showFrameRate)
-				IJ.showStatus((int)(fps+0.5) + " fps");
+				IJMessage.showStatus((int)(fps+0.5) + " fps");
 			if (time<nextTime)
 				IJ.wait((int)(nextTime-time));
 			else
@@ -262,7 +262,7 @@ public class Animator implements PlugIn {
 		if (start && swin!=null && !swin.getAnimate())
 			startAnimation();
 	}
-	
+
 	void nextSlice() {
 		boolean hyperstack = imp.isDisplayedHyperStack();
 		int channels = imp.getNChannels();
@@ -290,8 +290,8 @@ public class Animator implements PlugIn {
 			swin.showSlice(slice);
 		}
 		imp.updateStatusbarValue();
-	}	
-	
+	}
+
 	void previousSlice() {
 		boolean hyperstack = imp.isDisplayedHyperStack();
 		int channels = imp.getNChannels();
@@ -357,13 +357,13 @@ public class Animator implements PlugIn {
 		}
 		imp.updateStatusbarValue();
 	}
-	
+
 	void setSlice() {
 		if (imp.isDisplayedHyperStack()) {
 			GenericDialog gd = new GenericDialog("Set Position");
 			int c = imp.getChannel();
 			int z = imp.getSlice();
-			int t = imp.getFrame();			
+			int t = imp.getFrame();
 			gd.addNumericField("Channel:", c);
 			gd.addNumericField("Slice:", z);
 			gd.addNumericField("Frame:", t);

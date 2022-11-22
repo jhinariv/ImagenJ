@@ -139,7 +139,7 @@ public class OverlayBrushTool extends PlugInTool implements Runnable {
 			overlay.add(circle);
 			imp.setOverlay(overlay);
 		}
-		IJ.showStatus("Overlay Brush width: "+IJ.d2s(width));
+		IJMessage.showStatus("Overlay Brush width: "+IJ.d2s(width));
 		mode = RESIZED;
 	}
 
@@ -160,12 +160,12 @@ public class OverlayBrushTool extends PlugInTool implements Runnable {
 	public void run() {
 		new Options();
 	}
-	
+
 	public static void setWidth(double brushWidth) {
 		width = (float)brushWidth;
 	}
-	
-		
+
+
 	class Options implements DialogListener {
 
 		Options() {
@@ -174,7 +174,7 @@ public class OverlayBrushTool extends PlugInTool implements Runnable {
 				return;
 			}
 			options = this;
-			if (IJ.debugMode) IJ.log("Options: true");
+			if (IJDebugMode.debugMode) IJMessage.log("Options: true");
 			showDialog();
 		}
 
@@ -223,7 +223,7 @@ public class OverlayBrushTool extends PlugInTool implements Runnable {
 			}
 			gd.showDialog();
 			Prefs.saveLocation(LOC_KEY, gd.getLocation());
-			if (IJ.debugMode) IJ.log("Options: false");
+			if (IJDebugMode.debugMode) IJMessage.log("Options: false");
 			gd = null;
 		}
 

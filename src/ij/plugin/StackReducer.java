@@ -14,11 +14,11 @@ public class StackReducer implements PlugIn {
 	public void run(String arg) {
 		imp = WindowManager.getCurrentImage();
 		if (imp==null)
-			{IJ.noImage(); return;}
+			{IJMacro.noImage(); return;}
 		ImageStack stack = imp.getStack();
 		int size = stack.size();
 		if (size==1 || (imp.getNChannels()==size&&imp.isComposite()))
-			{IJ.error("Stack or hyperstack required"); return;}
+			{IJMessage.error("Stack or hyperstack required"); return;}
 		if (!showDialog(stack))
 			return;
 		if (!hyperstack && (stack instanceof VirtualStack)) {
@@ -52,7 +52,7 @@ public class StackReducer implements PlugIn {
 			reduceSlices = gd.getNextBoolean();
 		return true;
 	}
-	
+
 	public void reduceStack(ImagePlus imp, int factor) {
 		ImageStack stack = imp.getStack();
 		boolean virtual = stack.isVirtual();
@@ -70,7 +70,7 @@ public class StackReducer implements PlugIn {
 		Calibration cal = imp.getCalibration();
 		if (cal.scaled()) cal.pixelDepth *= factor;
 	}
-	
+
 	public void reduceHyperstack(ImagePlus imp, int factor, boolean reduceSlices) {
 		int channels = imp.getNChannels();
 		int slices = imp.getNSlices();
@@ -90,7 +90,7 @@ public class StackReducer implements PlugIn {
 					int i = imp.getStackIndex(c, z, t);
 					IJ.showProgress(i, n);
 					ImageProcessor ip = stack.getProcessor(imp.getStackIndex(c, z, t));
-					//IJ.log(count++ +"  "+i+" "+c+" "+z+" "+t);
+					//IJMessage.log(count++ +"  "+i+" "+c+" "+z+" "+t);
 					stack2.addSlice(stack.getSliceLabel(i), ip);
 				}
 			}
@@ -101,5 +101,5 @@ public class StackReducer implements PlugIn {
 		if (virtual) imp.setTitle(imp.getTitle());
 		IJ.showProgress(1.0);
 	}
-	
+
 }

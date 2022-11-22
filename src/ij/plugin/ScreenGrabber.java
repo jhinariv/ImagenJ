@@ -6,7 +6,7 @@ import java.awt.*;
 
 /** This plugin implements the Plugins/Utilities/Capture Screen
     and Plugins/Utilities/Capture Image commands. Note that these
-    commands may not work on Linux if windows translucency or 
+    commands may not work on Linux if windows translucency or
     special effects are enabled in the windows manager. */
 public class ScreenGrabber implements PlugIn {
 	private static int delay = 10;
@@ -22,7 +22,7 @@ public class ScreenGrabber implements PlugIn {
 		if (imp2!=null)
 			imp2.show();
 	}
-	
+
 	private ImagePlus captureDelayed() {
 		GenericDialog gd = new GenericDialog("Delayed Capture");
 		gd.addNumericField("Delay (seconds):", delay, 0);
@@ -34,13 +34,13 @@ public class ScreenGrabber implements PlugIn {
 		if (delay>60) delay=60;
 		for (int i=0; i<delay; i++) {
 			IJ.wait(1000);
-			IJ.showStatus("Delayed capture: "+(i+1)+"/"+delay);
+			IJMessage.showStatus("Delayed capture: "+(i+1)+"/"+delay);
 			if (delay>4 && i==delay-2) IJ.beep();
 		}
 		return captureScreen();
 	}
 
-    
+
 	/** Captures the entire screen and returns it as an ImagePlus. */
 	public ImagePlus captureScreen() {
 		ImagePlus imp = null;
@@ -57,7 +57,7 @@ public class ScreenGrabber implements PlugIn {
 	public ImagePlus captureImage() {
 		ImagePlus imp = IJ.getImage();
 		if (imp==null) {
-			IJ.noImage();
+			IJMacro.noImage();
 			return null;
 		}
 		ImageWindow win = imp.getWindow();

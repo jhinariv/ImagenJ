@@ -48,7 +48,7 @@ public class Duplicator implements PlugIn, TextListener, ItemListener {
 		if (roiA!=null) {
 			Rectangle r = roiA.getBounds();
 			if (r.x>=imp.getWidth() || r.y>=imp.getHeight() || r.x+r.width<=0 || r.y+r.height<=0) {
-				IJ.error("Roi is outside image");
+				IJMessage.error("Roi is outside image");
 				return;
 			}
 		}
@@ -56,14 +56,14 @@ public class Duplicator implements PlugIn, TextListener, ItemListener {
 		String title = imp.getTitle();
 		String newTitle = WindowManager.getUniqueName(imp, title);
 		defaultTitle = newTitle;
-		duplicateStack = staticDuplicateStack && !IJ.isMacro();
+		duplicateStack = staticDuplicateStack && !IJMacro.isMacro();
 		ignoreSelection = (staticIgnoreSelection||ignoreNextSelection) && Macro.getOptions()==null;
 		if (!IJ.altKeyDown()||stackSize>1) {
 			if (imp.isHyperStack() || imp.isComposite()) {
-				duplicateHyperstack(imp, newTitle);			
+				duplicateHyperstack(imp, newTitle);
 				if (isRotatedRect) {
-					straightenRotatedRect(impA, roiA, IJ.getImage());	
-				}								
+					straightenRotatedRect(impA, roiA, IJ.getImage());
+				}
 				return;
 			} else
 				newTitle = showDialog(imp, "Duplicate...", "Title: ");
@@ -92,7 +92,7 @@ public class Duplicator implements PlugIn, TextListener, ItemListener {
 		if (roi!=null && (cal.xOrigin!=0.0||cal.yOrigin!=0.0)) {
 			cal.xOrigin -= roi.getBounds().x;
 			cal.yOrigin -= roi.getBounds().y;
-		}	
+		}
 		imp2.setTitle(newTitle);
 		imp2.setProp("UniqueName","true");
 		if (roi!=null && roi.isArea() && roi.getType()!=Roi.RECTANGLE) {
@@ -109,7 +109,7 @@ public class Duplicator implements PlugIn, TextListener, ItemListener {
 		if (isRotatedRect)
 			straightenRotatedRect(impA, roiA, imp2);
 	}
-	
+
 	private void recordCrop(ImagePlus imp) {
 		if (!Recorder.record)
 			return;
@@ -130,23 +130,23 @@ public class Duplicator implements PlugIn, TextListener, ItemListener {
 				Recorder.recordCall("imp = imp.crop(\"slice\");");
 		}
 	}
-	
+
  /** Rotates duplicated part of image
 	- impA is original image,
 	- roiA is orig rotatedRect
-	- impB contains duplicated overlapping bounding rectangle	
+	- impB contains duplicated overlapping bounding rectangle
 	processing steps:
 	- increase canvas of impB before rotation
 	- rotate impB
 	- calculate excentricity
-	- translate to compensate excentricity 
+	- translate to compensate excentricity
 	- create orthogonal rectangle in center
-	- crop to impC	
+	- crop to impC
 	Author: N. Vischer
 	*/
 	private void straightenRotatedRect(ImagePlus impA, Roi roiA, ImagePlus impB) {
 		impB.deleteRoi(); //we have it in roiA
-		Color colorBack = Toolbar.getBackgroundColor();	
+		Color colorBack = Toolbar.getBackgroundColor();
 		IJ.setBackgroundColor(0,0,0);
 		String title = impB.getTitle();
 		if(impB.getOverlay() != null)
@@ -217,8 +217,8 @@ public class Duplicator implements PlugIn, TextListener, ItemListener {
 		impB.updateAndDraw();
 		impA.setRoi(roiA); //restore rotated rect in source image
 		Toolbar.setBackgroundColor(colorBack);
-	}	
-	                
+	}
+
 	/** Returns a copy of the image, stack or hyperstack contained in the specified ImagePlus.
 	* @see ij.ImagePlus#duplicate
 	*/
@@ -239,7 +239,7 @@ public class Duplicator implements PlugIn, TextListener, ItemListener {
 		boolean showProgress = virtualStack || ((double)n*stack.getWidth()*stack.getHeight()>=209715200.0);
 		for (int i=1; i<=n; i++) {
 			if (showProgress) {
-				IJ.showStatus("Duplicating: "+i+"/"+n);
+				IJMessage.showStatus("Duplicating: "+i+"/"+n);
 				IJ.showProgress(i,n);
 			}
 			ImageProcessor ip2 = stack.getProcessor(i);
@@ -278,7 +278,7 @@ public class Duplicator implements PlugIn, TextListener, ItemListener {
    		}
 		return imp2;
 	}
-	
+
 	/** Returns a copy the current image or stack slice, cropped if there is a selection.
 	* @see ij.ImagePlus#crop
 	* @see ij.ImagePlus#crop(String)
@@ -306,7 +306,7 @@ public class Duplicator implements PlugIn, TextListener, ItemListener {
 				if (label.length()>250 && label.indexOf('\n')>0 && label.contains("0002,"))
 					imp2.setProperty("Info", label); // DICOM metadata
 				else
-					imp2.setProp("Slice_Label", label);					
+					imp2.setProp("Slice_Label", label);
 			}
 			if (imp.isComposite()) {
 				LUT lut = ((CompositeImage)imp).getChannelLut();
@@ -336,7 +336,7 @@ public class Duplicator implements PlugIn, TextListener, ItemListener {
  		}
 		return imp2;
 	}
-	
+
 	/** Returns a new stack containing a subrange of the specified stack. */
 	public ImagePlus run(ImagePlus imp, int firstSlice, int lastSlice) {
 		Rectangle rect = null;
@@ -347,12 +347,12 @@ public class Duplicator implements PlugIn, TextListener, ItemListener {
 		boolean virtualStack = stack.isVirtual();
 		double min = imp.getDisplayRangeMin();
 		double max = imp.getDisplayRangeMax();
-		ImageStack stack2 = null;	
+		ImageStack stack2 = null;
 		int n = lastSlice-firstSlice+1;
 		boolean showProgress = virtualStack || ((double)n*stack.getWidth()*stack.getHeight()>=209715200.0);
 		for (int i=firstSlice; i<=lastSlice; i++) {
 			if (showProgress) {
-				IJ.showStatus("Duplicating: "+i+"/"+lastSlice);
+				IJMessage.showStatus("Duplicating: "+i+"/"+lastSlice);
 				IJ.showProgress(i-firstSlice,n);
 			}
 			ImageProcessor ip2 = stack.getProcessor(i);
@@ -423,7 +423,7 @@ public class Duplicator implements PlugIn, TextListener, ItemListener {
 					LUT lut = ((CompositeImage)imp).getChannelLut(i);
 					((CompositeImage)imp2).setChannelLut(lut, i2++);
 				}
-				if (imp.getNChannels()==imp2.getNChannels()) {	
+				if (imp.getNChannels()==imp2.getNChannels()) {
 					boolean[] active = ((CompositeImage)imp).getActiveChannels();
 					boolean[] active2 = ((CompositeImage)imp2).getActiveChannels();
 					if (active!=null && active2!=null && active.length==active2.length) {
@@ -524,7 +524,7 @@ public class Duplicator implements PlugIn, TextListener, ItemListener {
 			Recorder.recordOption("use");
 		return title;
 	}
-	
+
 	private String getNewTitle() {
 		if (titleChanged)
 			return null;
@@ -541,7 +541,7 @@ public class Duplicator implements PlugIn, TextListener, ItemListener {
 		}
 		return title;
 	}
-	
+
 	void duplicateHyperstack(ImagePlus imp, String newTitle) {
 		newTitle = showHSDialog(imp, newTitle);
 		if (newTitle==null)
@@ -563,7 +563,7 @@ public class Duplicator implements PlugIn, TextListener, ItemListener {
 		if (imp2==null) return;
 		imp2.setTitle(newTitle);
 		if (imp2.getWidth()==0 || imp2.getHeight()==0) {
-			IJ.error("Duplicator", "Selection is outside the image");
+			IJMessage.error("Duplicator", "Selection is outside the image");
 			return;
 		}
 		if (roi!=null && roi.isArea() && roi.getType()!=Roi.RECTANGLE) {
@@ -573,7 +573,7 @@ public class Duplicator implements PlugIn, TextListener, ItemListener {
 		}
 		imp2.show();
 		imp2.setPosition(imp.getC(), imp.getZ(), imp.getT());
-		if (IJ.isMacro()&&imp2.getWindow()!=null)
+		if (IJMacro.isMacro()&&imp2.getWindow()!=null)
 			IJ.wait(50);
 	}
 
@@ -657,7 +657,7 @@ public class Duplicator implements PlugIn, TextListener, ItemListener {
 			staticDuplicateStack = duplicateStack;
 		return newTitle;
 	}
-	
+
 	/*
 	* Returns the part of 'roi' overlaping 'imp'
 	* Author Marcel Boeglin 2013.12.15
@@ -687,14 +687,14 @@ public class Duplicator implements PlugIn, TextListener, ItemListener {
 	}
 
 	public void textValueChanged(TextEvent e) {
-		if (IJ.debugMode) IJ.log("Duplicator.textValueChanged: "+e);
+		if (IJDebugMode.debugMode) IJMessage.log("Duplicator.textValueChanged: "+e);
 		if (e.getSource()==titleField) {
 			if (!titleField.getText().equals(getNewTitle()))
 				titleChanged = true;
 		} else
 			stackCheckbox.setState(true);
 	}
-	
+
 	public void itemStateChanged(ItemEvent e) {
 		duplicateStack = stackCheckbox.getState();
 		if (titleField!=null) {
@@ -705,9 +705,9 @@ public class Duplicator implements PlugIn, TextListener, ItemListener {
 			}
 		}
 	}
-	
+
 	public static void ignoreNextSelection() {
 		ignoreNextSelection = true;
 	}
-	
+
 }

@@ -14,25 +14,25 @@ import java.util.ArrayList;
 
 /** This class opens images, roi's, luts and text files dragged and dropped on  the "ImageJ" window.
      It is based on the Draw_And_Drop plugin by Eric Kischell (keesh@ieee.org).
-     
-     10 November 2006: Albert Cardona added Linux support and an  
+
+     10 November 2006: Albert Cardona added Linux support and an
      option to open all images in a dragged folder as a stack.
 */
-     
+
 public class DragAndDrop implements PlugIn, DropTargetListener, Runnable {
 	private Iterator iterator;
 	private static boolean convertToRGB;
 	private static boolean virtualStack;
 	private boolean openAsVirtualStack;
-	
+
 	public void run(String arg) {
 		ImageJ ij = IJ.getInstance();
 		ij.setDropTarget(null);
 		new DropTarget(ij, this);
 		new DropTarget(Toolbar.getInstance(), this);
 		new DropTarget(ij.getStatusBar(), this);
-	}  
-	    
+	}
+
 	public void drop(DropTargetDropEvent dtde)  {
 		dtde.acceptDrop(DnDConstants.ACTION_COPY);
 		DataFlavor[] flavors = null;
@@ -40,9 +40,9 @@ public class DragAndDrop implements PlugIn, DropTargetListener, Runnable {
 			Transferable t = dtde.getTransferable();
 			iterator = null;
 			flavors = t.getTransferDataFlavors();
-			if (IJ.debugMode) IJ.log("DragAndDrop.drop: "+flavors.length+" flavors");
+			if (IJDebugMode.debugMode) IJMessage.log("DragAndDrop.drop: "+flavors.length+" flavors");
 			for (int i=0; i<flavors.length; i++) {
-				if (IJ.debugMode) IJ.log("  flavor["+i+"]: "+flavors[i].getMimeType());
+				if (IJDebugMode.debugMode) IJMessage.log("  flavor["+i+"]: "+flavors[i].getMimeType());
 				if (flavors[i].isFlavorJavaFileListType()) {
 					Object data = t.getTransferData(DataFlavor.javaFileListFlavor);
 					iterator = ((List)data).iterator();
@@ -56,7 +56,7 @@ public class DragAndDrop implements PlugIn, DropTargetListener, Runnable {
 					ArrayList list = new ArrayList();
 					if (s.indexOf("href=\"")!=-1 || s.indexOf("src=\"")!=-1) {
 						s = parseHTML(s);
-						if (IJ.debugMode) IJ.log("  url: "+s);
+						if (IJDebugMode.debugMode) IJMessage.log("  url: "+s);
 						list.add(s);
 						this.iterator = list.iterator();
 						break;
@@ -66,7 +66,7 @@ public class DragAndDrop implements PlugIn, DropTargetListener, Runnable {
 					while (null != (tmp = br.readLine())) {
 						tmp = java.net.URLDecoder.decode(tmp.replaceAll("\\+","%2b"), "UTF-8");
 						if (tmp.startsWith("file://")) tmp = tmp.substring(7);
-						if (IJ.debugMode) IJ.log("  content: "+tmp);
+						if (IJDebugMode.debugMode) IJMessage.log("  content: "+tmp);
 						if (tmp.startsWith("http://"))
 							list.add(s);
 						else
@@ -88,22 +88,22 @@ public class DragAndDrop implements PlugIn, DropTargetListener, Runnable {
 		dtde.dropComplete(true);
 		if (flavors==null || flavors.length==0) {
 			if (IJ.isMacOSX())
-				IJ.error("First drag and drop ignored. Please try again. You can avoid this\n"
+				IJMessage.error("First drag and drop ignored. Please try again. You can avoid this\n"
 				+"problem by dragging to the toolbar instead of the status bar.");
 			else
-				IJ.error("Drag and drop failed");
+				IJMessage.error("Drag and drop failed");
 		}
 	}
-	    
+
 	private String fixLinuxString(String s) {
 		StringBuffer sb = new StringBuffer(200);
 		for (int i=0; i<s.length(); i+=2)
 			sb.append(s.charAt(i));
 		return new String(sb);
 	}
-	
+
 	private String parseHTML(String s) {
-		if (IJ.debugMode) IJ.log("parseHTML:\n"+s);
+		if (IJDebugMode.debugMode) IJMessage.log("parseHTML:\n"+s);
 		int index1 = s.indexOf("src=\"");
 		if (index1>=0) {
 			int index2 = s.indexOf("\"", index1+5);
@@ -120,30 +120,30 @@ public class DragAndDrop implements PlugIn, DropTargetListener, Runnable {
 	}
 
 	public void dragEnter(DropTargetDragEvent e)  {
-		IJ.showStatus("<<Drag and Drop>>");
-		if (IJ.debugMode) IJ.log("DragEnter: "+e.getLocation());
+		IJMessage.showStatus("<<Drag and Drop>>");
+		if (IJDebugMode.debugMode) IJMessage.log("DragEnter: "+e.getLocation());
 		e.acceptDrag(DnDConstants.ACTION_COPY);
 		openAsVirtualStack = false;
 	}
 
 	public void dragOver(DropTargetDragEvent e) {
-		if (IJ.debugMode) IJ.log("DragOver: "+e.getLocation());
+		if (IJDebugMode.debugMode) IJMessage.log("DragOver: "+e.getLocation());
 		Point loc = e.getLocation();
 		int buttonSize = Toolbar.getButtonSize();
 		int width = IJ.getInstance().getSize().width;
 		openAsVirtualStack = width-loc.x<=(buttonSize+buttonSize/3);
 		if (openAsVirtualStack)
-			IJ.showStatus("<<Open as virtual stack or text image>>");
+			IJMessage.showStatus("<<Open as virtual stack or text image>>");
 		else
-			IJ.showStatus("<<Drag and Drop>>");
+			IJMessage.showStatus("<<Drag and Drop>>");
 	}
-	
+
 	public void dragExit(DropTargetEvent e) {
-		IJ.showStatus("");
+		IJMessage.showStatus("");
 	}
-	
+
 	public void dropActionChanged(DropTargetDragEvent e) {}
-	
+
 	public void run() {
 		Iterator iterator = this.iterator;
 		while(iterator.hasNext()) {
@@ -160,31 +160,31 @@ public class DragAndDrop implements PlugIn, DropTargetListener, Runnable {
 				openFile((File)obj);
 		}
 	}
-	
+
 	/** Open a URL. */
 	private void openURL(String url) {
-		if (IJ.debugMode) IJ.log("DragAndDrop.openURL: "+url);
+		if (IJDebugMode.debugMode) IJMessage.log("DragAndDrop.openURL: "+url);
 		if (url!=null)
 			IJ.open(url);
 	}
 
 	/** Open a file. If it's a directory, ask to open all images as a sequence in a stack or individually. */
 	public void openFile(File f) {
-		if (IJ.debugMode) IJ.log("DragAndDrop.openFile: "+f);
+		if (IJDebugMode.debugMode) IJMessage.log("DragAndDrop.openFile: "+f);
 		try {
 			if (null == f) return;
 			String path = f.getCanonicalPath();
 			if (f.exists()) {
 				if (f.isDirectory()) {
 					if (openAsVirtualStack)
-						IJ.run("Image Sequence...", "open=[" + path + "] sort use");
+						IJMacro.run("Image Sequence...", "open=[" + path + "] sort use");
 					else
 						openDirectory(f, path);
 				} else {
 					if (openAsVirtualStack && (path.endsWith(".tif")||path.endsWith(".TIF")))
 						(new FileInfoVirtualStack()).run(path);
 					else if (openAsVirtualStack && (path.endsWith(".avi")||path.endsWith(".AVI")))
-						IJ.run("AVI...", "open=["+path+"] use");
+						IJMacro.run("AVI...", "open=["+path+"] use");
 					else if (openAsVirtualStack && (path.endsWith(".txt"))) {
 						ImageProcessor ip = (new TextReader()).open(path);
 						if (ip!=null)
@@ -198,14 +198,14 @@ public class DragAndDrop implements PlugIn, DropTargetListener, Runnable {
 					OpenDialog.setDefaultDirectory(f.getParent());
 				}
 			} else {
-				IJ.log("File not found: " + path);
+				IJMessage.log("File not found: " + path);
 			}
 		} catch (Throwable e) {
 			if (!Macro.MACRO_CANCELED.equals(e.getMessage()))
 				IJ.handleException(e);
 		}
 	}
-	
+
 	private void openDirectory(File f, String path) {
 		if (path==null) return;
 		path = IJ.addSeparator(path);
@@ -217,5 +217,5 @@ public class DragAndDrop implements PlugIn, DropTargetListener, Runnable {
 		fo.setDirectory(path);
 		fo.run("");
 	}
-		
+
 }

@@ -20,13 +20,13 @@ public class PluginInstaller implements PlugIn {
 		if (name==null)
 				return;
 		if (!validExtension(name)) {
-			IJ.error("Plugin Installer", errorMessage());
+			IJMessage.error("Plugin Installer", errorMessage());
 			return;
 		}
 		String path = directory + name;
 		install(path);
 	}
-	
+
 	public boolean install(String path) {
 		boolean isURL = path.contains("://");
 		String lcPath = path.toLowerCase();
@@ -53,7 +53,7 @@ public class PluginInstaller implements PlugIn {
 			name = name.substring(0,name.length()-4) + ".ijm";
 		if (name.endsWith(".zip")) {
 			if (!name.contains("_")) {
-				IJ.error("Plugin Installer", "No underscore in file name:\n \n  "+name);
+				IJMessage.error("Plugin Installer", "No underscore in file name:\n \n  "+name);
 				return false;
 			}
 			name = name.substring(0,name.length()-4) + ".jar";
@@ -89,24 +89,24 @@ public class PluginInstaller implements PlugIn {
 				return false;
 			dir = sd.getDirectory();
 		}
-		//IJ.log(dir+"   "+Menus.getPlugInsPath());
+		//IJMessage.log(dir+"   "+Menus.getPlugInsPath());
 		if (!savePlugin(new File(dir,name), data))
 			return false;
 		if (name.endsWith(".java"))
-			IJ.runPlugIn("ij.plugin.Compiler", dir+name);
+			IJPlugin.runPlugIn(("ij.plugin.Compiler", dir+name);
 		Menus.updateImageJMenus();
 		if (isTool) {
 			if (isMacro)
-				IJ.runPlugIn("ij.plugin.Macro_Runner", "Tools/"+name);
+				IJPlugin.runPlugIn(("ij.plugin.Macro_Runner", "Tools/"+name);
 			else if (name.endsWith(".class")) {
 				name = name.replaceAll("_"," ");
 				name = name.substring(0,name.length()-6);
-				IJ.run(name);
+				IJPlugin.runname);
 			}
 		}
 		return true;
 	}
-	
+
 	private String getToolName(byte[] data) {
 		String text = new String(data);
 		String name = null;
@@ -136,14 +136,14 @@ public class PluginInstaller implements PlugIn {
 		name = name + ".ijm";
 		return name;
 	}
-	
+
 	boolean savePlugin(File f, byte[] data) {
 		try {
 			FileOutputStream out = new FileOutputStream(f);
 			out.write(data, 0, data.length);
 			out.close();
 		} catch (IOException e) {
-			IJ.error("Plugin Installer", ""+e);
+			IJMessage.error("Plugin Installer", ""+e);
 			return false;
 		}
 		return true;
@@ -157,7 +157,7 @@ public class PluginInstaller implements PlugIn {
 		int n = 0;
 		try {
 			url = new URL(urlString);
-			if (IJ.debugMode) IJ.log("PluginInstaller: "+urlString+"  " +url);
+			if (IJDebugMode.debugMode) IJMessage.log("PluginInstaller: "+urlString+"  " +url);
 			if (url==null)
 				return null;
 			URLConnection uc = url.openConnection();
@@ -165,7 +165,7 @@ public class PluginInstaller implements PlugIn {
 			unknownLength = len<0;
 			if (unknownLength) len = maxLength;
 			if (name!=null)
-				IJ.showStatus("Downloading "+url.getFile());
+				IJMessage.showStatus("Downloading "+url.getFile());
 			InputStream in = uc.getInputStream();
 			data = new byte[len];
 			int lenk = len/1024;
@@ -175,7 +175,7 @@ public class PluginInstaller implements PlugIn {
 					break;
 				n += count;
 				if (name!=null)
-					IJ.showStatus("Downloading "+name+" ("+(n/1024)+"/"+lenk+"k)");
+					IJMessage.showStatus("Downloading "+name+" ("+(n/1024)+"/"+lenk+"k)");
 				IJ.showProgress(n, len);
 			}
 			in.close();
@@ -183,12 +183,12 @@ public class PluginInstaller implements PlugIn {
 			String msg = "" + e;
 			if (!msg.contains("://"))
 				msg += "\n   "+urlString;
-			IJ.error("Plugin Installer", msg);
+			IJMessage.error("Plugin Installer", msg);
 			return null;
 		} finally {
 			IJ.showProgress(1.0);
 		}
-		if (name!=null) IJ.showStatus("");
+		if (name!=null) IJMessage.showStatus("");
 		if (unknownLength) {
 			byte[] data2 = data;
 			data = new byte[n];
@@ -197,10 +197,10 @@ public class PluginInstaller implements PlugIn {
 		}
 		return data;
 	}
-	
+
 	byte[] download(File f) {
 		if (!f.exists()) {
-			IJ.error("Plugin Installer", "File not found: "+f);
+			IJMessage.error("Plugin Installer", "File not found: "+f);
 			return null;
 		}
 		byte[] data = null;
@@ -213,12 +213,12 @@ public class PluginInstaller implements PlugIn {
 			dis.close();
 		}
 		catch (Exception e) {
-			IJ.error("Plugin Installer", ""+e);
+			IJMessage.error("Plugin Installer", ""+e);
 			data = null;
 		}
 		return data;
 	}
-	
+
 	private boolean validExtension(String name) {
 		name = name.toLowerCase(Locale.US);
 		boolean valid = false;
@@ -228,7 +228,7 @@ public class PluginInstaller implements PlugIn {
 		}
 		return false;
 	}
-	
+
 	private String errorMessage() {
 		String s = "File name must end in ";
 		int len = validExtensions.length;
@@ -242,5 +242,5 @@ public class PluginInstaller implements PlugIn {
 		}
 		return s;
 	}
-	
+
 }

@@ -14,9 +14,9 @@ import java.util.*;
 the wand tool. It is similar to the "Gel Plotting Macros" in NIH Image. */
 public class GelAnalyzer implements PlugIn {
 
-    static final String OPTIONS = "gel.options"; 
-    static final String VSCALE = "gel.vscale"; 
-    static final String HSCALE = "gel.hscale"; 
+    static final String OPTIONS = "gel.options";
+    static final String VSCALE = "gel.vscale";
+    static final String HSCALE = "gel.hscale";
     static final int OD=1, PERCENT=2, OUTLINE=4, INVERT=8;
 	static int saveID;
 	static int nLanes, saveNLanes;
@@ -36,22 +36,22 @@ public class GelAnalyzer implements PlugIn {
 	static double horizontalScaleFactor = Prefs.get(HSCALE, 1.0);
 	static Overlay overlay;
 	boolean invertedLut;
-	
+
 	ImagePlus imp;
 	Font f;
 	double odMin=Double.MAX_VALUE, odMax=-Double.MAX_VALUE;
 	static boolean isVertical;
 	static boolean showLaneDialog = true;
-	
+
 	public void run(String arg) {
 		if (arg.equals("options")) {
 			showDialog();
 			return;
 		}
-		
+
 		imp = WindowManager.getCurrentImage();
 		if (imp==null) {
-			IJ.noImage();
+			IJMacro.noImage();
 			return;
 		}
 
@@ -99,7 +99,7 @@ public class GelAnalyzer implements PlugIn {
 			plotLanes(gel, true);
 			return;
 		}
-		
+
 		if (arg.equals("draw")) {
 			outlineLanes();
 			return;
@@ -129,7 +129,7 @@ public class GelAnalyzer implements PlugIn {
 			selectNextLane(rect);
 			return;
 		}
-		
+
 		if (arg.equals("plot")) {
 			if (( isVertical && (rect.x!=x[nLanes]) ) || ( !(isVertical) && (rect.y!=x[nLanes]) )) {
 				selectNextLane(rect);
@@ -187,7 +187,7 @@ public class GelAnalyzer implements PlugIn {
 			isVertical = false;
 		} else
 			isVertical = true;
-			
+
 		/*
 		if ( (isVertical && (rect.height/rect.width)<2 ) || (!isVertical && (rect.width/rect.height)<2 ) ) {
 			GenericDialog gd = new GenericDialog("Lane Orientation");
@@ -205,7 +205,7 @@ public class GelAnalyzer implements PlugIn {
 		}
 		*/
 
-		IJ.showStatus("Lane 1 selected ("+(isVertical?"vertical":"horizontal")+" lanes)");
+		IJMessage.showStatus("Lane 1 selected ("+(isVertical?"vertical":"horizontal")+" lanes)");
 		firstRect = rect;
 		nLanes = 1;
 		saveNLanes = 0;
@@ -226,7 +226,7 @@ public class GelAnalyzer implements PlugIn {
 		}
 		if (nLanes<MAX_LANES)
 			nLanes += 1;
-		IJ.showStatus("Lane " + nLanes + " selected");
+		IJMessage.showStatus("Lane " + nLanes + " selected");
 		if (isVertical)
 			x[nLanes] = rect.x;
 		else
@@ -244,7 +244,7 @@ public class GelAnalyzer implements PlugIn {
 		}
 		updateRoiList(rect);
 	}
-	
+
 	void updateRoiList(Rectangle rect) {
 			if (gel==null)
 				return;
@@ -266,7 +266,7 @@ public class GelAnalyzer implements PlugIn {
 		int plotWidth;
 		double[][] profiles;
 		profiles = new double[MAX_LANES+1][];
-		IJ.showStatus("Plotting " + nLanes + " lanes");
+		IJMessage.showStatus("Plotting " + nLanes + " lanes");
 		ImageProcessor ipRotated = imp.getProcessor();
 		if (isVertical)
 			ipRotated = ipRotated.rotateLeft();
@@ -445,7 +445,7 @@ public class GelAnalyzer implements PlugIn {
 		lanes.deleteRoi();
 		lanes.show();
 	}
-	
+
 	void setCustomLut(ImageProcessor ip) {
 		IndexColorModel cm = (IndexColorModel)ip.getColorModel();
 		byte[] reds = new byte[256];
@@ -466,7 +466,7 @@ public class GelAnalyzer implements PlugIn {
 	}
 
 	void show(String msg) {
-		IJ.showMessage("Gel Analyzer", msg);
+		IJMessage.showMessage("Gel Analyzer", msg);
 	}
 
 	public static ImagePlus getGelImage() {
@@ -483,7 +483,7 @@ class Plots extends ImagePlus {
 		img = ip.createImage();
 		ImageCanvas ic = new PlotsCanvas(this);
 		win = new ImageWindow(this, ic);
-		IJ.showStatus("");
+		IJMessage.showStatus("");
 		if (ic.getMagnification()==1.0)
 			return;
 		while(ic.getMagnification()<1.0)
@@ -531,7 +531,7 @@ class PlotsCanvas extends ImageCanvas {
 		if (Toolbar.getToolId()!=Toolbar.WAND || IJ.spaceBarDown())
 			return;
 		if (IJ.shiftKeyDown()) {
-			IJ.showMessage("Gel Analyzer", "Unable to measure area because shift key is down.");
+			IJMessage.showMessage("Gel Analyzer", "Unable to measure area because shift key is down.");
 			imp.deleteRoi();
 			counter = 0;
 			return;
@@ -625,7 +625,7 @@ class PlotsCanvas extends ImageCanvas {
 		double total = 0.0;
 		for (int i=0; i<counter; i++)
 			total += measured[i];
-		if (IJ.debugMode && counter==actual.length) {
+		if (IJDebugMode.debugMode && counter==actual.length) {
 			debug();
 			return;
 		}
@@ -644,6 +644,6 @@ class PlotsCanvas extends ImageCanvas {
 			double m = (measured[i]/measured[0])*100;
 		}
 	}
-	
+
 }
 

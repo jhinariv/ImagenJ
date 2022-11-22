@@ -7,17 +7,17 @@ import java.awt.*;
 
 /** This plugin implements ImageJ's Process/Math submenu. */
 public class ImageMath implements ExtendedPlugInFilter, DialogListener {
-	
+
 	public static final String MACRO_KEY = "math.macro";
 	private int flags = DOES_ALL|SUPPORTS_MASKING|KEEP_PREVIEW|PARALLELIZE_STACKS;
 	private String arg;
 	private ImagePlus imp;
-	private boolean canceled;	
+	private boolean canceled;
 	private double lower=-1.0, upper=-1.0;
 	private String macro2;
 	private PlugInFilterRunner pfr;
 	private GenericDialog gd;
-	
+
 	private static double defaultAddValue = 25;
 	private static double defaultMulValue = 1.25;
 	private static double defaultMinValue = 0;
@@ -25,7 +25,7 @@ public class ImageMath implements ExtendedPlugInFilter, DialogListener {
 	private static String defaultAndValue = "11110000";
 	private static double defaultGammaValue = 0.5;
 	private static String defaultMacro = Prefs.get(MACRO_KEY, "v=v+50*sin(d/10)");
-	
+
 	private static double lastAddValue = defaultAddValue;
 	private static double lastMulValue = defaultMulValue;
 	private static double lastMinValue = defaultMinValue;
@@ -41,7 +41,7 @@ public class ImageMath implements ExtendedPlugInFilter, DialogListener {
 	private String andValue = defaultAndValue;
 	private double gammaValue = defaultGammaValue;
 	private String macro = defaultMacro;
-	
+
 	public int setup(String arg, ImagePlus imp) {
 		this.arg = arg;
 		this.imp = imp;
@@ -68,21 +68,21 @@ public class ImageMath implements ExtendedPlugInFilter, DialogListener {
 				ip.and(Integer.parseInt(andValue,2));
 			} catch (NumberFormatException e) {
 				andValue = defaultAndValue;
-				IJ.error("Binary number required");
+				IJMessage.error("Binary number required");
 			}
 		} else if (arg.equals("or")) {
 	 		try {
 				ip.or(Integer.parseInt(andValue,2));
 			} catch (NumberFormatException e) {
 				andValue = defaultAndValue;
-				IJ.error("Binary number required");
+				IJMessage.error("Binary number required");
 			}
 		} else if (arg.equals("xor")) {
 	 		try {
 				ip.xor(Integer.parseInt(andValue,2));
 			} catch (NumberFormatException e) {
 				andValue = defaultAndValue;
-				IJ.error("Binary number required");
+				IJMessage.error("Binary number required");
 			}
 		} else if (arg.equals("min")) {
 	 		ip.min(minValue);
@@ -96,7 +96,7 @@ public class ImageMath implements ExtendedPlugInFilter, DialogListener {
 	 		if (gammaValue<0.05 || gammaValue>5.0) {
 		 		if (!previewing() && !canceled) {
 	 				canceled = true;
-	 				IJ.error("Gamma must be between 0.05 and 5.0");
+	 				IJMessage.error("Gamma must be between 0.05 and 5.0");
 	 			}
 	 			gammaValue = defaultGammaValue;
 	 		} else
@@ -126,7 +126,7 @@ public class ImageMath implements ExtendedPlugInFilter, DialogListener {
 	 		setBackgroundToNaN(ip);
 		} else if (arg.equals("abs")) {
 			if (!((ip instanceof FloatProcessor)||imp.getCalibration().isSigned16Bit())) {
-				IJ.error("32-bit or signed 16-bit image required");
+				IJMessage.error("32-bit or signed 16-bit image required");
 				canceled = true;
 			} else {
 				ip.abs();
@@ -137,20 +137,20 @@ public class ImageMath implements ExtendedPlugInFilter, DialogListener {
 		}
 
 	}
-	
+
 	boolean previewing() {
 		return gd!=null && gd.isPreviewActive();
 	}
- 
+
  	boolean isFloat(ImageProcessor ip) {
 		if (!(ip instanceof FloatProcessor)) {
-			IJ.error("32-bit float image required");
+			IJMessage.error("32-bit float image required");
 			canceled = true;
 			return false;
 		} else
 			return true;
 	}
-	
+
 	void getValue (String title, String prompt, double defaultValue, int digits) {
 		int places = Analyzer.getPrecision();
 		if (places>7) places=7;
@@ -189,7 +189,7 @@ public class ImageMath implements ExtendedPlugInFilter, DialogListener {
 			upper = ip.getMaxThreshold();
 			if (lower==ImageProcessor.NO_THRESHOLD || !(ip instanceof FloatProcessor)) {
 				String title = imp!=null?"\n\""+imp.getTitle()+"\"":"";
-				IJ.error("NaN Backround", "Thresholded 32-bit float image required:"+title);
+				IJMessage.error("NaN Backround", "Thresholded 32-bit float image required:"+title);
 				canceled = true;
 				return;
 			}
@@ -210,7 +210,7 @@ public class ImageMath implements ExtendedPlugInFilter, DialogListener {
 		ip.resetMinAndMax();
 		return;
 	}
-	
+
 	// first default: v = v+(sin(x/(w/25))+sin(y/(h/25)))*40
 	// a=round(a/10); if (a%2==0) v=0;
 	// cone: v=d
@@ -228,7 +228,7 @@ public class ImageMath implements ExtendedPlugInFilter, DialogListener {
 	private void applyMacro(ImageProcessor ip) {
 		if (macro2==null) return;
 		macro = macro2;
-		ip.setSliceNumber(pfr.getSliceNumber());	
+		ip.setSliceNumber(pfr.getSliceNumber());
 		boolean showProgress = pfr.getSliceNumber()==1 && !Interpreter.isBatchMode();
 		applyMacro(ip, macro, showProgress);
 		if (pfr.getSliceNumber()==1)
@@ -403,11 +403,11 @@ public class ImageMath implements ExtendedPlugInFilter, DialogListener {
 			IJ.showProgress(1.0);
 		WindowManager.setTempCurrentImage(temp);
 	}
-	
+
 	private static final double getD(int dx, int dy) {
           return Math.sqrt(dx*dx + dy*dy);
 	}
-	
+
 	private static final double getA(int y, int x) {
 		double angle = Math.atan2(y, x);
 		if (angle<0) angle += 2*Math.PI;
@@ -504,7 +504,7 @@ public class ImageMath implements ExtendedPlugInFilter, DialogListener {
 	 		gammaValue = gd.getNextNumber();
 	 		if (gammaValue<0.05 || gammaValue>5.0) {
 	 			if (previewing()) {
-	 				IJ.showStatus("Gamma must be between 0.05 and 5.0");
+	 				IJMessage.showStatus("Gamma must be between 0.05 and 5.0");
 	 				gammaValue = defaultGammaValue;
 	 				return false;
 	 			}
@@ -512,7 +512,7 @@ public class ImageMath implements ExtendedPlugInFilter, DialogListener {
 	 	}
 		canceled = gd.invalidNumber();
 		if (gd.wasOKed() && canceled) {
-			IJ.error("Value is invalid.");
+			IJMessage.error("Value is invalid.");
 			return false;
 		}
 		return true;

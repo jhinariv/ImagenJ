@@ -89,7 +89,7 @@ public class PlotCanvas extends ImageCanvas {
 		zoom(sx, sy, Math.sqrt(0.5));
 	}
 
-	void zoom(int sx, int sy, double zoomFactor) {//n__ 
+	void zoom(int sx, int sy, double zoomFactor) {//n__
 		if (plot == null || plot.isFrozen()) {
 			if (zoomFactor > 1)
 				super.zoomIn(sx, sy);
@@ -134,7 +134,7 @@ public class PlotCanvas extends ImageCanvas {
 		Dimension extraSize = win.getExtraSize();
 		int width = bounds.width-extraSize.width;//(insets.left+insets.right+ImageWindow.HGAP*2);
 		int height = bounds.height-extraSize.height;//(insets.top+insets.bottom+ImageWindow.VGAP*2);
-		//IJ.log("fitToWindow "+bounds+"-> w*h="+width+"*"+height);
+		//IJMessage.log("fitToWindow "+bounds+"-> w*h="+width+"*"+height);
 		resizeCanvas(width, height);
 		getParent().doLayout();
 	}

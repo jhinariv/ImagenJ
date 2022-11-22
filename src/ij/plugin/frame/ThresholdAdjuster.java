@@ -73,7 +73,7 @@ public class ThresholdAdjuster extends PlugInDialog implements PlugIn, Measureme
 		super("Threshold");
 		ImagePlus cimp = WindowManager.getCurrentImage();
 		if (cimp!=null && cimp.getBitDepth()==24) {
-			IJ.error("Threshold Adjuster",
+			IJMessage.error("Threshold Adjuster",
 				"Image>Adjust>Threshold only works with grayscale images.\n \n"
 				+"You can:\n"
 				+"   Convert to grayscale: Image>Type>8-bit\n"
@@ -403,7 +403,7 @@ public class ThresholdAdjuster extends PlugInDialog implements PlugIn, Measureme
 	 *  Returns the ImageProcessor of the image that should be used, or null if no appropriate image.
 	*/
 	ImageProcessor setup(ImagePlus imp, boolean enableAutoThreshold) {
-		if (IJ.debugMode) IJ.log("ThresholdAdjuster.setup: enableAuto="+enableAutoThreshold);
+		if (IJDebugMode.debugMode) IJMessage.log("ThresholdAdjuster.setup: enableAuto="+enableAutoThreshold);
 		if (imp==null)
 			return null;
 		ImageProcessor ip;
@@ -515,7 +515,7 @@ public class ThresholdAdjuster extends PlugInDialog implements PlugIn, Measureme
 		}
 	}
 
-	/** Whether the (auto)-thresholded pixels should be those 
+	/** Whether the (auto)-thresholded pixels should be those
 	 * with high values, i.e., the background should be at low values.
 	 * (E.g. dark background and non-inverting LUT)
 	*/
@@ -600,7 +600,7 @@ public class ThresholdAdjuster extends PlugInDialog implements PlugIn, Measureme
 			for (int i=maxThresholdInt+1; i<=maxValue; i++)
 				above += histogram[i];
 			int total = below + inside + above;
-			//IJ.log("<"+minThresholdInt+":"+below+" in:"+inside+"; >"+maxThresholdInt+":"+above+" sum="+total);
+			//IJMessage.log("<"+minThresholdInt+":"+below+" in:"+inside+"; >"+maxThresholdInt+":"+above+" sum="+total);
 			if (mode==OVER_UNDER)
 				percentiles.setText("below: "+IJ.d2s(100.*below/total)+" %,  above: "+IJ.d2s(100.*above/total)+" %");
 			else
@@ -691,7 +691,7 @@ public class ThresholdAdjuster extends PlugInDialog implements PlugIn, Measureme
 	}
 
 	void reset(ImagePlus imp, ImageProcessor ip) {
-		//IJ.log("reset1: "+noReset+" "+noResetChanged+" "+mode);
+		//IJMessage.log("reset1: "+noReset+" "+noResetChanged+" "+mode);
 		if (noResetChanged) {
 			noResetChanged = false;
 			if ((noReset&&mode!=OVER_UNDER) || ip.getBitDepth()==8)
@@ -835,7 +835,7 @@ public class ThresholdAdjuster extends PlugInDialog implements PlugIn, Measureme
 
  	void apply(ImagePlus imp) {
  		if (imp.getProcessor().getMinThreshold()==ImageProcessor.NO_THRESHOLD) {
- 			IJ.error("Thresholder", "Threshold is not set");
+ 			IJMessage.error("Thresholder", "Threshold is not set");
  			return;
  		}
  		try {
@@ -846,7 +846,7 @@ public class ThresholdAdjuster extends PlugInDialog implements PlugIn, Measureme
 					return;
 				else if (!d.yesPressed()) {
 					Recorder.recordInMacros = true;
-					IJ.run("NaN Background");
+					IJMacro.run("NaN Background");
 					Recorder.recordInMacros = false;
 					return;
 				}
@@ -900,7 +900,7 @@ public class ThresholdAdjuster extends PlugInDialog implements PlugIn, Measureme
 		imp = WindowManager.getCurrentImage();
 		if (imp==null) {
 			IJ.beep();
-			IJ.showStatus("No image");
+			IJMessage.showStatus("No image");
 			return;
 		}
 		ip = setup(imp, false);
@@ -908,9 +908,9 @@ public class ThresholdAdjuster extends PlugInDialog implements PlugIn, Measureme
 			imp.unlock();
 			IJ.beep();
 			if (imp.isComposite())
-				IJ.showStatus("\"Composite\" mode images cannot be thresholded");
+				IJMessage.showStatus("\"Composite\" mode images cannot be thresholded");
 			else
-				IJ.showStatus("RGB images cannot be thresholded");
+				IJMessage.showStatus("RGB images cannot be thresholded");
 			return;
 		}
 		switch (action) {
@@ -978,7 +978,7 @@ public class ThresholdAdjuster extends PlugInDialog implements PlugIn, Measureme
 			}
 		}
 	}
-	
+
 	public static boolean isDarkBackground() {
 		return instance!=null?instance.darkBackground.getState():false;
 	}
@@ -1064,7 +1064,7 @@ class ThresholdPlot extends Canvas implements Measurements, MouseListener {
     }
 
 	ImageStatistics setHistogram(ImagePlus imp, boolean entireStack, boolean rawValues) {
-		if (IJ.debugMode) IJ.log("ThresholdAdjuster:setHistogram: "+entireStack+" "+entireStack2);
+		if (IJDebugMode.debugMode) IJMessage.log("ThresholdAdjuster:setHistogram: "+entireStack+" "+entireStack2);
 		double mean = entireStack?imp.getProcessor().getStats().mean:0.0;
 		if (entireStack && stats!=null && imp.getID()==imageID2
 		&& entireStack==entireStack2 && mean==mean2)
@@ -1099,12 +1099,12 @@ class ThresholdPlot extends Canvas implements Measurements, MouseListener {
 			boolean calibrated = cal.calibrated() && !rawValues;
 			if (ip instanceof FloatProcessor) {
 				int digits = Math.max(Analyzer.getPrecision(), 2);
-				IJ.showStatus("min="+IJ.d2s(ip.getMin(),digits)+", max="+IJ.d2s(ip.getMax(),digits));
+				IJMessage.showStatus("min="+IJ.d2s(ip.getMin(),digits)+", max="+IJ.d2s(ip.getMax(),digits));
 			} else {
 				int digits = calibrated && !cal.isSigned16Bit() ? 2 : 0;
 				double cmin = calibrated?cal.getCValue(ip.getMin()):ip.getMin();
 				double cmax = calibrated?cal.getCValue(ip.getMax()):ip.getMax();
-				IJ.showStatus("min="+IJ.d2s(cal.getCValue(cmin), digits)+", max="+IJ.d2s(cal.getCValue(cmax), digits));
+				IJMessage.showStatus("min="+IJ.d2s(cal.getCValue(cmin), digits)+", max="+IJ.d2s(cal.getCValue(cmax), digits));
 			}
 			ip = ip.convertToByte(true);
 			ip.setColorModel(ip.getDefaultColorModel());
@@ -1114,7 +1114,7 @@ class ThresholdPlot extends Canvas implements Measurements, MouseListener {
 		ip.setRoi(roi);
 		if (stats==null)
 			stats = ip.getStats();
-		if (IJ.debugMode) IJ.log("  stats: "+stats);
+		if (IJDebugMode.debugMode) IJMessage.log("  stats: "+stats);
 		int maxCount2 = 0;  // number of pixels in 2nd-highest bin, used for y scale if mode is too high
 		histogram = stats.histogram;
 		originalModeCount = histogram[stats.mode];
@@ -1205,7 +1205,7 @@ class ThresholdPlot extends Canvas implements Measurements, MouseListener {
 		g.drawRect(lowerThreshold+1, 0, upperThreshold-lowerThreshold, height+1);
 		g.drawLine(lowerThreshold+1, 1, upperThreshold+1, 1);
 	}
-	
+
 	void setThreshold(int min, int max) {
  		lowerThreshold = (int)Math.round(min*scale);
  		upperThreshold = (int)Math.round(max*scale);

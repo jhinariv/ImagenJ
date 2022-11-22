@@ -50,11 +50,34 @@ public class ImageInfo implements PlugIn {
 		path = Prefs.getCustomPrefsPath();
 		if (path!=null)
 			s += "*Custom preferences*: "+ path +"\n";
-		//if (IJ.isMacOSX()) {
-		//	String time = " ("+ImageWindow.setMenuBarTime+"ms)";
-		//	s += "SetMenuBarCount: "+Menus.setMenuBarCount+time+"\n";
-		//}
 		new TextWindow("Info", s, 600, 300);
+	}
+
+	protected String getImageInfoUno(ImagePlus imp) {
+		String infoProperty = null;
+		ImageStack stack = imp.getStack();
+			String label = stack.getSliceLabel(imp.getCurrentSlice());
+			if (label!=null && label.indexOf('\n')>0)
+				infoProperty = label;
+		return infoProperty;
+	}
+
+	protected String getImageInfoDos(ImagePlus imp) {
+		String infoProperty = (String)imp.getProperty("Info");
+			if (infoProperty==null)
+				infoProperty = getExifData(imp);
+		return infoProperty;
+	}
+
+	protected String getImageInfoTres(ImagePlus imp) {
+		String infoProperty = null;
+		String properties = getImageProperties(imp);
+		if (properties!=null) {
+			infoProperty = properties;
+			if (infoProperty!=null)
+				infoProperty = properties + "\n" + infoProperty;
+		}
+		return infoProperty;
 	}
 
 	public String getImageInfo(ImagePlus imp) {
@@ -62,24 +85,13 @@ public class ImageInfo implements PlugIn {
 		String infoProperty = null;
 		boolean isStack = imp.getStackSize()>1;
 		if (isStack || imp.hasImageStack()) {
-			ImageStack stack = imp.getStack();
-			String label = stack.getSliceLabel(imp.getCurrentSlice());
-			if (label!=null && label.indexOf('\n')>0)
-				infoProperty = label;
+			infoProperty = getImageInfoUno(imp);
 		}
 		if (infoProperty==null || (isStack && (imp.getStack() instanceof ListVirtualStack))) {
-			infoProperty = (String)imp.getProperty("Info");
-			if (infoProperty==null)
-				infoProperty = getExifData(imp);
+			infoProperty = getImageInfoDos(imp);
 		}
 		if (imp.getProp("HideInfo")==null) {
-			String properties = getImageProperties(imp);
-			if (properties!=null) {
-				if (infoProperty!=null)
-					infoProperty = properties + "\n" + infoProperty;
-				else
-					infoProperty = properties;
-			}
+			infoProperty = getImageInfoTres(imp);
 		}
 		String info = getInfo(imp, ip);
 		if (infoProperty!=null)
@@ -103,7 +115,7 @@ public class ImageInfo implements PlugIn {
 		String path = directory + name;
 		String metadata = null;
 		try {
-			Class c = IJ.getClassLoader().loadClass("Exif_Reader");
+			Class c = IJPlugin.getClassLoader().loadClass("Exif_Reader");
 			if (c==null) return null;
 			String methodName = "getMetadata";
 			Class[] argClasses = new Class[1];
@@ -132,8 +144,6 @@ public class ImageInfo implements PlugIn {
     	int channels = imp.getNChannels();
     	int slices = imp.getNSlices();
     	int frames = imp.getNFrames();
-		int digits = imp.getBitDepth()==32?4:0;
-		int dp, dp2;
 		boolean nonUniformUnits = !cal.getXUnit().equals(cal.getYUnit());
 		String xunit = cal.getXUnit();
 		String yunit = cal.getYUnit();
@@ -230,7 +240,7 @@ public class ImageInfo implements PlugIn {
     	}
     	String lutName = imp.getProp(LUT.nameKey);
     	if (lutName!=null)
-			s += "LUT name: "+lutName+"\n";    		
+			s += "LUT name: "+lutName+"\n";
 		double interval = cal.frameInterval;
 		double fps = cal.fps;
     	if (stackSize>1) {
@@ -379,7 +389,7 @@ public class ImageInfo implements PlugIn {
 	   		s += "Properties: " + pinfo + "\n";
 	   	else
 	   		s += "No properties\n";
-	   	
+
 	    Overlay overlay = imp.getOverlay();
 		if (overlay!=null) {
 			int n = overlay.size();
@@ -483,11 +493,6 @@ public class ImageInfo implements PlugIn {
 	}
 
 	// returns a Y coordinate based on the "Invert Y Coodinates" flag
-	private int yy(int y, ImagePlus imp) {
-		return Analyzer.updateY(y, imp.getHeight());
-	}
-
-	// returns a Y coordinate based on the "Invert Y Coodinates" flag
 	private double yy(double y, ImagePlus imp) {
 		return Analyzer.updateY(y, imp.getHeight());
 	}
@@ -499,15 +504,15 @@ public class ImageInfo implements PlugIn {
 		//ed.create("Info for "+imp.getTitle(), info);
 	}
 
-    private String d2s(double n) {
+	private String d2s(double n) {
 		return IJ.d2s(n,Tools.getDecimalPlaces(n));
-    }
-    
-    private String getImageProperties(ImagePlus imp) {
-    	String s = "";
-    	String[] props = imp.getPropertiesAsArray();
-    	if (props==null)
-    		return null;
+	}
+
+	private String getImageProperties(ImagePlus imp) {
+		String s = "";
+		String[] props = imp.getPropertiesAsArray();
+		if (props==null)
+			return null;
 		for (int i=0; i<props.length; i+=2) {
 			String key = props[i];
 			String value = props[i+1];
@@ -521,6 +526,6 @@ public class ImageInfo implements PlugIn {
 			}
 		}
 		return  (s.length()>0)?s:null;
-    }
+	}
 
 }

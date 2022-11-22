@@ -44,7 +44,7 @@ public class Grid implements PlugIn, DialogListener {
 		if (showDialog() && !isMacro)
 			saveSettings();
 	}
-		
+
 	// http://stackoverflow.com/questions/30654203/how-to-create-a-circle-using-generalpath-and-apache-poi
 	private void drawCircles(double size) {
 		double R  = size*tileWidth;
@@ -134,7 +134,7 @@ public class Grid implements PlugIn, DialogListener {
 					width = width/mag;
 				roi.setStrokeWidth(width);
 			}
-			IJ.showStatus(linesV*linesH+" nodes");
+			IJMessage.showStatus(linesV*linesH+" nodes");
 			Overlay overlay = imp.getOverlay();
 			if (overlay!=null)
 				overlay.remove(GRID);
@@ -216,9 +216,9 @@ public class Grid implements PlugIn, DialogListener {
 		if (areaPerPoint/(pixelWidth*pixelHeight)<minArea) {
 			String err = "\"Area per Point\" too small";
 			if (gd.wasOKed())
-				IJ.error("Grid", err);
+				IJMessage.error("Grid", err);
 			else
-				IJ.showStatus(err);
+				IJMessage.showStatus(err);
 			return true;
 		}
 		double tileSize = Math.sqrt(areaPerPoint);
@@ -234,7 +234,7 @@ public class Grid implements PlugIn, DialogListener {
 			xstart = (int)(tileWidth/2.0+0.5);
 			ystart = (int)(tileHeight/2.0+0.5);
 		}
-		linesV = (int)((width-xstart)/tileWidth)+1; 
+		linesV = (int)((width-xstart)/tileWidth)+1;
 		linesH = (int)((height-ystart)/tileHeight)+1;
 		if (gd.invalidNumber())
 			return true;
@@ -243,7 +243,7 @@ public class Grid implements PlugIn, DialogListener {
 	}
 
 	private void drawGrid() {
-		//IJ.log(centered+" "+xstart+" "+ystart);
+		//IJMessage.log(centered+" "+xstart+" "+ystart);
 		if (type.equals(types[LINES]))
 			drawLines();
 		else if (type.equals(types[HLINES]))
@@ -257,10 +257,10 @@ public class Grid implements PlugIn, DialogListener {
 		else
 			drawGrid(null);
 	}
-	
+
 	private void getSettings() {
 		String prefs = Prefs.get(OPTIONS, "Lines,Cyan,-");
-		//IJ.log("options: "+prefs);
+		//IJMessage.log("options: "+prefs);
 		String[] options = Tools.split(prefs, ",");
 		if (options.length>=3) {
 			type = options[0];
@@ -275,7 +275,7 @@ public class Grid implements PlugIn, DialogListener {
 				randomOffset = false;
 		}
 	}
-	
+
 	private void saveSettings() {
 		String options = type+","+color+",";
 		String options2 = (bold?"bold ":"")+(centered?"centered ":"")+(randomOffset?"random ":"");

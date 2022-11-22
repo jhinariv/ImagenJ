@@ -1,13 +1,13 @@
 package ij.plugin;
 import java.io.*;
-import java.util.Properties; 
+import java.util.Properties;
 import ij.*;
 import ij.io.*;
 import ij.process.*;
 import ij.measure.*;
 
 /**
- * This plugin saves a 16 or 32 bit image in FITS format. It is a stripped-down version of the SaveAs_FITS 
+ * This plugin saves a 16 or 32 bit image in FITS format. It is a stripped-down version of the SaveAs_FITS
  *	plugin from the collection of astronomical image processing plugins by Jennifer West at
  *	http://www.umanitoba.ca/faculties/science/astronomy/jwest/plugins.html.
  *
@@ -23,14 +23,14 @@ public class FITS_Writer implements PlugIn {
     private boolean unsigned16 = false;
     private double bZero = 0.0;
     private double bScale = 1.0;
-            
+
 	public void run(String path) {
 		ImagePlus imp = IJ.getImage();
 		ImageProcessor ip = imp.getProcessor();
 		int numImages = imp.getImageStackSize();
 		int bitDepth = imp.getBitDepth();
 		if (bitDepth==24) {
-			IJ.error("RGB images are not supported");
+			IJMessage.error("RGB images are not supported");
 			return;
 		}
 
@@ -47,7 +47,7 @@ public class FITS_Writer implements PlugIn {
 		String name = f.getName();
 		if (f.exists()) f.delete();
 		int numBytes = 0;
-        
+
         cal = imp.getCalibration();
         unsigned16 = (bitDepth==16 && cal.getFunction()==Calibration.NONE && cal.getCoefficients()==null);
 
@@ -90,7 +90,7 @@ public class FITS_Writer implements PlugIn {
 
 //	/**
 //	 * Creates a FITS header for an image which doesn't have one already.
-//	 */	
+//	 */
 //	void createHeader(String path, ImageProcessor ip, int numBytes) {
 //
 //		String bitperpix = "";
@@ -120,7 +120,7 @@ public class FITS_Writer implements PlugIn {
 
 	/**
 	 * Writes one line of a FITS header
-	 */ 
+	 */
 	char[] writeCard(String title, String value, String comment) {
 		char[] card = new char[80];
 		for (int i = 0; i < 80; i++)
@@ -134,12 +134,12 @@ public class FITS_Writer implements PlugIn {
         numCards++;
 		return card;
 	}
-    
-	void writeCard(char[] line, String path) {    
+
+	void writeCard(char[] line, String path) {
         appendFile(line, path);
         numCards++;
     }
-    
+
 	/**
 	 * Converts a String to a char[]
 	 */
@@ -148,7 +148,7 @@ public class FITS_Writer implements PlugIn {
 		for (int i = offset; i < 80 && i < str.length()+offset; i++)
 			ch[i] = str.charAt(j++);
 	}
-    
+
 
 	/**
 	 * Appends 'line' to the end of the file specified by 'path'.
@@ -159,11 +159,11 @@ public class FITS_Writer implements PlugIn {
 			output.write(line);
 			output.close();
 		} catch (IOException e) {
-			IJ.showStatus("Error writing file!");
+			IJMessage.showStatus("Error writing file!");
 			return;
 		}
 	}
-			
+
 	/**
 	 * Appends the data of the current image to the end of the file specified by path.
 	 */
@@ -172,40 +172,40 @@ public class FITS_Writer implements PlugIn {
 		int h = ip.getHeight();
 		if (ip instanceof ByteProcessor) {
 			byte[] pixels = (byte[])ip.getPixels();
-			try {   
+			try {
 				DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(path,true)));
 				for (int i = h - 1; i >= 0; i-- )
                     for (int j = i*w; j < w*(i+1); j++)
                         dos.writeByte(pixels[j]);
 				dos.close();
             } catch (IOException e) {
-				IJ.showStatus("Error writing file!");
+				IJMessage.showStatus("Error writing file!");
 				return;
-            }    
+            }
         } else if (ip instanceof ShortProcessor) {
 			short[] pixels = (short[])ip.getPixels();
-			try {   
+			try {
 				DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(path,true)));
                 for (int i = h - 1; i >= 0; i-- )
                     for (int j = i*w; j < w*(i+1); j++)
                         dos.writeShort(pixels[j]^0x8000);
 				dos.close();
             } catch (IOException e) {
-				IJ.showStatus("Error writing file!");
+				IJMessage.showStatus("Error writing file!");
 				return;
             }
 		} else if (ip instanceof FloatProcessor) {
 			float[] pixels = (float[])ip.getPixels();
-			try {   
+			try {
 				DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(path,true)));
 				for (int i = h - 1; i >= 0; i-- )
                     for (int j = i*w; j < w*(i+1); j++)
 					dos.writeFloat(pixels[j]);
 				dos.close();
             } catch (IOException e) {
-				IJ.showStatus("Error writing file!");
+				IJMessage.showStatus("Error writing file!");
 				return;
-                }					   
+                }
             }
         }
 
@@ -236,7 +236,7 @@ public class FITS_Writer implements PlugIn {
                 Properties props = img.getProperties();
                 if (props == null)
                     return null;
-                content = (String)props.getProperty ("Info");  
+                content = (String)props.getProperty ("Info");
             }
         }
 		if (content == null)
@@ -306,7 +306,7 @@ public class FITS_Writer implements PlugIn {
         if (imh < 100)
             hbuf = hbuf + " ";
         if (imh < 10)
-            hbuf = hbuf + " ";        
+            hbuf = hbuf + " ";
 		// THESE KEYWORDS NEED TO BE MADE CONFORMAL WITH THE PRESENT IMAGE
 		if      (numBytes==2) {bitperpix = "                  16";}
 		else if (numBytes==4) {bitperpix = "                 -32";}

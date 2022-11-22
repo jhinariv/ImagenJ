@@ -15,7 +15,7 @@ import ij.macro.Interpreter;
 
 /** This plugin implements ImageJ's Analyze/Measure and Analyze/Set Measurements commands. */
 public class Analyzer implements PlugInFilter, Measurements {
-	
+
 	private static boolean drawLabels = true;
 	private String arg;
 	private ImagePlus imp;
@@ -24,7 +24,7 @@ public class Analyzer implements PlugInFilter, Measurements {
 	private StringBuffer min,max,mean,sd;
 	private boolean disableReset;
 	private boolean resultsUpdated;
-	
+
 	// Order must agree with order of checkboxes in Set Measurements dialog box
 	private static final int[] list = {AREA,MEAN,STD_DEV,MODE,MIN_MAX,
 		CENTROID,CENTER_OF_MASS,PERIMETER,RECT,ELLIPSE,SHAPE_DESCRIPTORS, FERET,
@@ -50,7 +50,7 @@ public class Analyzer implements PlugInFilter, Measurements {
 	private static boolean switchingModes;
 	private static boolean showMin = true;
 	private static boolean showAngle = true;
-	
+
 	public Analyzer() {
 		rt = systemRT;
 		rt.showRowNumbers(true);
@@ -58,14 +58,14 @@ public class Analyzer implements PlugInFilter, Measurements {
 		rt.setNaNEmptyCells((systemMeasurements&NaN_EMPTY_CELLS)!=0);
 		measurements = systemMeasurements;
 	}
-	
+
 	/** Constructs a new Analyzer using the specified ImagePlus object
 		and the current measurement options and default results table. */
 	public Analyzer(ImagePlus imp) {
 		this();
 		this.imp = imp;
 	}
-	
+
 	/** Construct a new Analyzer using an ImagePlus object and a ResultsTable. */
 	public Analyzer(ImagePlus imp, ResultsTable rt) {
 		this(imp, Analyzer.getMeasurements(), rt);
@@ -82,7 +82,7 @@ public class Analyzer implements PlugInFilter, Measurements {
 		rt.setNaNEmptyCells((systemMeasurements&NaN_EMPTY_CELLS)!=0);
 		this.rt = rt;
 	}
-	
+
 	public int setup(String arg, ImagePlus imp) {
 		this.arg = arg;
 		this.imp = imp;
@@ -94,7 +94,7 @@ public class Analyzer implements PlugInFilter, Measurements {
 			summarize();
 			return DONE;
 		} else if (arg.equals("clear")) {
-			if (IJ.macroRunning())
+			if (IJMacro.macroRunning())
 				unsavedMeasurements = false;
 			resetCounter();
 			return DONE;
@@ -110,7 +110,7 @@ public class Analyzer implements PlugInFilter, Measurements {
 		if ((measurements&ADD_TO_OVERLAY)!=0)
 			addRoiToOverlay();
 	}
-	
+
 	private void addRoiToOverlay() {
 		Roi roi = imp.getRoi();
 		if (roi==null)
@@ -224,7 +224,7 @@ public class Analyzer implements PlugInFilter, Measurements {
 				rt.show("Results");
 		}
 	}
-	
+
 	void setOptions(GenericDialog gd) {
 		int oldMeasurements = systemMeasurements;
 		int previous = 0;
@@ -248,7 +248,7 @@ public class Analyzer implements PlugInFilter, Measurements {
 		if ((systemMeasurements&LABELS)==0)
 			systemRT.disableRowLabels();
 	}
-	
+
 	/** Measures the image or selection and adds the results to the default results table. */
 	public void measure() {
 		String lastHdr = rt.getColumnHeading(ResultsTable.LAST_HEADING);
@@ -279,21 +279,21 @@ public class Analyzer implements PlugInFilter, Measurements {
 			reset();
 		saveResults(stats, roi);
 	}
-		
+
 	/*
 	void showHeadings() {
 		String[] headings = rt.getHeadings();
 		int columns = headings.length;
 		if (columns==0)
 			return;
-		IJ.log("Headings: "+headings.length+" "+rt.getColumnHeading(ResultsTable.LAST_HEADING));
+		IJMessage.log("Headings: "+headings.length+" "+rt.getColumnHeading(ResultsTable.LAST_HEADING));
 		for (int i=0; i<columns; i++) {
 			if (headings[i]!=null)
-				IJ.log("   "+i+" "+headings[i]+" "+rt.getColumnIndex(headings[i]));
+				IJMessage.log("   "+i+" "+headings[i]+" "+rt.getColumnIndex(headings[i]));
 		}
 	}
 	*/
-	
+
 	boolean reset() {
 		boolean ok = true;
 		if (rt.size()>0 && !disableReset)
@@ -308,8 +308,8 @@ public class Analyzer implements PlugInFilter, Measurements {
 	public static boolean isRedirectImage() {
 		return redirectTarget!=0;
 	}
-	
-	/** Set the "Redirect To" image. Pass 'null' as the 
+
+	/** Set the "Redirect To" image. Pass 'null' as the
 	    argument to disable redirected sampling. */
 	public static void setRedirectImage(ImagePlus imp) {
 		if (imp==null) {
@@ -323,7 +323,7 @@ public class Analyzer implements PlugInFilter, Measurements {
 				redirectImage = imp;
 		}
 	}
-	
+
 	private ImagePlus getRedirectImageOrStack(ImagePlus cimp) {
 		ImagePlus rimp = getRedirectImage(cimp);
 		if (rimp!=null) {
@@ -336,21 +336,21 @@ public class Analyzer implements PlugInFilter, Measurements {
 
 	/** Returns the image selected in the "Redirect To:" popup
 		menu of the Analyze/Set Measurements dialog, or null
-		if "None" is selected, the image was not found or the 
+		if "None" is selected, the image was not found or the
 		image is not the same size as <code>currentImage</code>. */
 	public static ImagePlus getRedirectImage(ImagePlus cimp) {
 		ImagePlus rimp = WindowManager.getImage(redirectTarget);
 		if (rimp==null)
 			rimp = redirectImage;
 		if (rimp==null) {
-			IJ.error("Analyzer", "Redirect image (\""+redirectTitle+"\")\n"
+			IJMessage.error("Analyzer", "Redirect image (\""+redirectTitle+"\")\n"
 				+ "not found.");
 			redirectTarget = 0;
 			Macro.abort();
 			return null;
 		}
 		if (rimp.getWidth()!=cimp.getWidth() || rimp.getHeight()!=cimp.getHeight()) {
-			IJ.error("Analyzer", "Redirect image (\""+redirectTitle+"\") \n"
+			IJMessage.error("Analyzer", "Redirect image (\""+redirectTitle+"\") \n"
 				+ "is not the same size as the current image.");
 			Macro.abort();
 			return null;
@@ -370,7 +370,7 @@ public class Analyzer implements PlugInFilter, Measurements {
 			ip.setRoi(roi);
 		return ImageStatistics.getStatistics(ip, measurements, redirectImp.getCalibration());
 	}
-	
+
 	void measurePoint(Roi roi) {
 		if (rt.size()>0) {
 			if (!IJ.isResultsWindow())
@@ -419,7 +419,7 @@ public class Analyzer implements PlugInFilter, Measurements {
 				displayResults();
 		}
 	}
-	
+
 	void measureAngle(Roi roi) {
 		if (rt.size()>0) {
 			if (!IJ.isResultsWindow()) reset();
@@ -434,7 +434,7 @@ public class Analyzer implements PlugInFilter, Measurements {
 		ImageStatistics stats = new ImageStatistics();
 		saveResults(stats, roi);
 	}
-	
+
 	void measureLength(Roi roi) {
 		ImagePlus imp2 = isRedirectImage()?getRedirectImageOrStack(imp):null;
 		if (imp2!=null)
@@ -523,7 +523,7 @@ public class Analyzer implements PlugInFilter, Measurements {
 			imp2.setCalibration(localCal);
 		}
 	}
-	
+
 	private ImageProcessor convertToOriginalDepth(ImagePlus imp, ImageProcessor ip) {
 		if (imp.getBitDepth()==8)
 			ip = ip.convertToByte(false);
@@ -532,7 +532,7 @@ public class Analyzer implements PlugInFilter, Measurements {
 		return ip;
 	}
 
-	
+
 	/** Saves the measurements specified in the "Set Measurements" dialog,
 		or by calling setMeasurements(), in the default results table.
 	*/
@@ -570,7 +570,7 @@ public class Analyzer implements PlugInFilter, Measurements {
 				perimeter = roi.getLength();
 			else
 				perimeter = imp!=null?imp.getWidth()*2+imp.getHeight()*2:0.0;
-			if ((measurements&PERIMETER)!=0) 
+			if ((measurements&PERIMETER)!=0)
 				rt.addValue(ResultsTable.PERIMETER,perimeter);
 			if ((measurements&SHAPE_DESCRIPTORS)!=0) {
 				double circularity = perimeter==0.0?0.0:4.0*Math.PI*(stats.area/(perimeter*perimeter));
@@ -714,10 +714,10 @@ public class Analyzer implements PlugInFilter, Measurements {
 			rt.addValue("Group", group);
 			String name = Roi.getGroupName(group);
 			if (name!=null)
-				rt.addValue("GroupName", name);				
+				rt.addValue("GroupName", name);
 		}
 	}
-	
+
 	private void clearSummary() {
 		if (summarized && rt.size()>=4 && "Max".equals(rt.getLabel(rt.size()-1))) {
 			for (int i=0; i<4; i++)
@@ -726,7 +726,7 @@ public class Analyzer implements PlugInFilter, Measurements {
 			summarized = false;
 		}
 	}
-		
+
 	final double getArea(Polygon p) {
 		if (p==null) return Double.NaN;
 		int carea = 0;
@@ -738,7 +738,7 @@ public class Analyzer implements PlugInFilter, Measurements {
 		}
 		return (Math.abs(carea/2.0));
 	}
-		
+
 	void savePoints(PointRoi roi) {
 		if (imp==null) {
 			rt.addValue("X", 0.0);
@@ -810,12 +810,12 @@ public class Analyzer implements PlugInFilter, Measurements {
 			if (redirectTarget!=0) {
 				ImagePlus rImp = WindowManager.getImage(redirectTarget);
 				if (rImp==null) rImp = redirectImage;
-				if (rImp!=null) s = rImp.getTitle();				
+				if (rImp!=null) s = rImp.getTitle();
 			} else
 				s = imp.getTitle();
 			//int len = s.length();
 			//if (len>4 && s.charAt(len-4)=='.' && !Character.isDigit(s.charAt(len-1)))
-			//	s = s.substring(0,len-4); 
+			//	s = s.substring(0,len-4);
 			Roi roi = imp.getRoi();
 			String roiName = roi!=null?roi.getName():null;
 			if (roiName!=null && !roiName.contains(".")) {
@@ -836,7 +836,7 @@ public class Analyzer implements PlugInFilter, Measurements {
 		}
 		return s;
 	}
-	
+
 	/** Writes the last row in the system results table to the Results window. */
 	public void displayResults() {
 		if (rt.columnDeleted())
@@ -874,13 +874,13 @@ public class Analyzer implements PlugInFilter, Measurements {
 			s = ResultsTable.d2s(n,precision);
 		return s+"\t";
 	}
-		
+
 	void incrementCounter() {
 		if (rt==null) rt = systemRT;
 		rt.incrementCounter();
 		unsavedMeasurements = true;
 	}
-	
+
 	public void summarize() {
 		if (summarized)
 			return;
@@ -937,7 +937,7 @@ public class Analyzer implements PlugInFilter, Measurements {
 		int counter = systemRT.size();
 		int lineCount = tp!=null?IJ.getTextPanel().getLineCount():0;
 		ImageJ ij = IJ.getInstance();
-		boolean macro = (IJ.macroRunning()&&!switchingModes) || Interpreter.isBatchMode();
+		boolean macro = (IJMacro.macroRunning()&&!switchingModes) || Interpreter.isBatchMode();
 		switchingModes = false;
 		if (counter>0 && lineCount>0 && unsavedMeasurements && !macro && ij!=null && !ij.quitting()) {
 			YesNoCancelDialog d = new YesNoCancelDialog(ij, "ImageJ", "Save "+counter+" measurements?");
@@ -956,11 +956,11 @@ public class Analyzer implements PlugInFilter, Measurements {
 		summarized = false;
 		return true;
 	}
-	
+
 	public static void setUnsavedMeasurements(boolean b) {
 		unsavedMeasurements = b;
 	}
-	
+
 	// Returns the measurement options defined in the Set Measurements dialog. */
 	public static int getMeasurements() {
 		return systemMeasurements;
@@ -998,7 +998,7 @@ public class Analyzer implements PlugInFilter, Measurements {
 		systemRT.showRowNumbers(true);
 		return systemRT;
 	}
-	
+
 	/** Returns the number of digits displayed to the right of decimal point. */
 	public static int getPrecision() {
 		return precision;
@@ -1018,7 +1018,7 @@ public class Analyzer implements PlugInFilter, Measurements {
 			y = imageHeight-y-1;
 		return y;
 	}
-	
+
 	/** Returns an updated Y coordinate based on
 		the current "Invert Y Coordinates" flag. */
 	public static double updateY(double y, int imageHeight) {
@@ -1026,7 +1026,7 @@ public class Analyzer implements PlugInFilter, Measurements {
 			y = imageHeight-y-1;
 		return y;
 	}
-	
+
 	/** Sets the default headings ("Area", "Mean", etc.). */
 	public static void setDefaultHeadings() {
 		systemRT.setDefaultHeadings();
@@ -1038,11 +1038,11 @@ public class Analyzer implements PlugInFilter, Measurements {
 		else if (option.contains("angle"))
 			showAngle = b;
 	}
-	
+
 	public static boolean addToOverlay() {
 		return ((getMeasurements()&ADD_TO_OVERLAY)!=0);
 	}
-	
+
 	public static void setResultsTable(ResultsTable rt) {
 		TextPanel tp = IJ.isResultsWindow()?IJ.getTextPanel():null;
 		if (tp!=null)
@@ -1056,15 +1056,15 @@ public class Analyzer implements PlugInFilter, Measurements {
 		umeans = null;
 		unsavedMeasurements = false;
 	}
-	
+
 	public static void drawLabels(boolean b) {
 		drawLabels = b;
 	}
-	
+
 	/** Used by RoiManager.multiMeasure() to suppress save as dialogs. */
 	public void disableReset(boolean b) {
 		disableReset = b;
 	}
 
 }
-	
+

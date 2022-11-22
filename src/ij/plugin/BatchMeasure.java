@@ -4,7 +4,7 @@ import ij.measure.Measurements;
 import ij.plugin.filter.Analyzer;
 import java.io.*;
 
-/** This plugin implements the File/Batch/Measure command, 
+/** This plugin implements the File/Batch/Measure command,
 	which measures all the images in a user-specified folder. */
 	public class BatchMeasure implements PlugIn {
 
@@ -22,10 +22,10 @@ import java.io.*;
 			ImagePlus imp = !path.endsWith("/")?IJ.openImage(path):null;
 			IJ.redirectErrorMessages(false);
 			if (imp!=null) {
-				IJ.run(imp, "Measure", "");
+				IJPlugin.runimp, "Measure", "");
 				imp.close();
 			} else if (!path.endsWith("/"))
-				IJ.log("IJ.openImage() returned null: "+path);
+				IJMessage.log("IJ.openImage() returned null: "+path);
 		}
 	}
 

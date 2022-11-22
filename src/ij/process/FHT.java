@@ -2,14 +2,14 @@ package ij.process;
 import ij.*;
 import ij.plugin.FFT;
 import ij.plugin.ContrastEnhancer;
-import java.awt.image.ColorModel; 
+import java.awt.image.ColorModel;
 
 /**
 This class contains a Java implementation of the Fast Hartley
-Transform. It is based on Pascal code in NIH Image contributed 
+Transform. It is based on Pascal code in NIH Image contributed
 by Arlo Reeves (http://imagej.nih.gov/ij/docs/ImageFFT/).
-The Fast Hartley Transform was restricted by U.S. Patent No. 4,646,256, 
-but was placed in the public domain by Stanford University in 1995 
+The Fast Hartley Transform was restricted by U.S. Patent No. 4,646,256,
+but was placed in the public domain by Stanford University in 1995
 and is now freely available.
 */
 public class FHT extends FloatProcessor {
@@ -21,7 +21,7 @@ public class FHT extends FloatProcessor {
 	private float[] tempArr;
 	private boolean showProgress;
 
-	
+
 	/** Used by the FFT class. */
 	public boolean quadrantSwapNeeded;
 	/** Used by the FFT class. */
@@ -37,7 +37,7 @@ public class FHT extends FloatProcessor {
 	/** Used by the FFT class. */
 	public double powerSpectrumMean;
 
-	/** Constructs a FHT object from an ImageProcessor. Byte, short and RGB images 
+	/** Constructs a FHT object from an ImageProcessor. Byte, short and RGB images
 		are converted to float. Float images are duplicated. */
 	public FHT(ImageProcessor ip) {
 		this(ip, false);
@@ -61,18 +61,18 @@ public class FHT extends FloatProcessor {
 		return i==width && width==height;
 	}
 
-	/** Performs a forward transform, converting this image into the frequency domain. 
+	/** Performs a forward transform, converting this image into the frequency domain.
 		The image contained in this FHT must be square and its width must be a power of 2. */
 	public void transform() {
 		transform(false);
 	}
 
-	/** Performs an inverse transform, converting this image into the space domain. 
+	/** Performs an inverse transform, converting this image into the space domain.
 		The image contained in this FHT must be square and its width must be a power of 2. */
 	public void inverseTransform() {
 		transform(true);
 	}
-	
+
 	public static int NO_WINDOW=0, HAMMING=1, HANN=2, FLATTOP=3; // fourier1D window function types
 
 	/** Calculates the Fourier amplitudes of an array, based on a 1D Fast Hartley Transform.
@@ -199,7 +199,7 @@ public class FHT extends FloatProcessor {
 	 	rc2DFHT(fht, inverse, maxN);
 		isFrequencyDomain = !inverse;
 	}
-	
+
 	void initializeTables(int maxN) {
 	    if (maxN>0x40000000)
 	        throw new  IllegalArgumentException("Too large for FHT:  "+maxN+" >2^30");
@@ -220,7 +220,7 @@ public class FHT extends FloatProcessor {
 			theta += dTheta;
 		}
 	}
-	
+
 	void makeBitReverseTable(int maxN) {
 		bitrev = new int[maxN];
 		int nLog2 = log2(maxN);
@@ -232,11 +232,11 @@ public class FHT extends FloatProcessor {
 	public void rc2DFHT(float[] x, boolean inverse, int maxN) {
 		if (S==null) initializeTables(maxN);
 		for (int row=0; row<maxN; row++)
-			dfht3(x, row*maxN, inverse, maxN);		
+			dfht3(x, row*maxN, inverse, maxN);
 		progress(0.4);
 		transposeR(x, maxN);
 		progress(0.5);
-		for (int row=0; row<maxN; row++)		
+		for (int row=0; row<maxN; row++)
 			dfht3(x, row*maxN, inverse, maxN);
 		progress(0.7);
 		transposeR(x, maxN);
@@ -261,12 +261,12 @@ public class FHT extends FloatProcessor {
 		}
 		progress(0.95);
 	}
-	
+
 	void progress(double percent) {
 		if (showProgress)
 			IJ.showProgress(percent);
 	}
-	
+
 	/** Performs an optimized 1D FHT of an array or part of an array.
 	 *  @param x        Input array; will be overwritten by the output in the range given by base and maxN.
 	 *  @param base     First index from where data of the input array should be read.
@@ -363,7 +363,7 @@ public class FHT extends FloatProcessor {
 			}
 		}
 	}
-	
+
 	int log2 (int x) {
 		int count = 31;
 		while (!btst(x, count))
@@ -371,7 +371,7 @@ public class FHT extends FloatProcessor {
 		return count;
 	}
 
-	
+
 	private boolean btst (int  x, int bit) {
 		return ((x & (1<<bit)) != 0);
 	}
@@ -426,7 +426,7 @@ public class FHT extends FloatProcessor {
 		if (Float.isNaN(min) || max-min>50)
 			min = max - 50; //display range not more than approx e^50
 		scale = (float)(253.999/(max-min));
-		
+
 		//long t0 = System.currentTimeMillis();
 		for (int row=0; row<maxN; row++) {
 			base = row*maxN;
@@ -439,12 +439,12 @@ public class FHT extends FloatProcessor {
 			}
 		}
 		//long t1 = System.currentTimeMillis();
-		//IJ.log(""+(t1-t0));
+		//IJMessage.log(""+(t1-t0));
 		ImageProcessor ip = new ByteProcessor(maxN, maxN, ps);
 		swapQuadrants(ip);
 		return ip;
 	}
-	
+
 	/** Returns the unscaled 32-bit power spectrum. */
 	public FloatProcessor getRawPowerSpectrum() {
 		if (!isFrequencyDomain)
@@ -534,7 +534,7 @@ public class FHT extends FloatProcessor {
 		return x*x;
 	}
 
-	/**	Swap quadrants 1 and 3 and 2 and 4 of the specified ImageProcessor 
+	/**	Swap quadrants 1 and 3 and 2 and 4 of the specified ImageProcessor
 		so the power spectrum origin is at the center of the image.
 		<pre>
 		    2 1
@@ -550,7 +550,7 @@ public class FHT extends FloatProcessor {
  	public void swapQuadrants () {
  		swapQuadrants(this);
  	}
- 	
+
 	void changeValues(ImageProcessor ip, int v1, int v2, int v3) {
 		byte[] pixels = (byte[])ip.getPixels();
 		int v;
@@ -563,14 +563,14 @@ public class FHT extends FloatProcessor {
 
 	/** Returns the image resulting from the point by point Hartley multiplication
 		of this image and the specified image. Both images are assumed to be in
-		the frequency domain. Multiplication in the frequency domain is equivalent 
+		the frequency domain. Multiplication in the frequency domain is equivalent
 		to convolution in the space domain. */
 	public FHT multiply(FHT fht) {
 		return multiply(fht, false);
 	}
 
-	/** Returns the image resulting from the point by point Hartley conjugate 
-		multiplication of this image and the specified image. Both images are 
+	/** Returns the image resulting from the point by point Hartley conjugate
+		multiplication of this image and the specified image. Both images are
 		assumed to be in the frequency domain. Conjugate multiplication in
 		the frequency domain is equivalent to correlation in the space domain. */
 	public FHT conjugateMultiply(FHT fht) {
@@ -589,7 +589,7 @@ public class FHT extends FloatProcessor {
 				colMod = (maxN - c) % maxN;
 				h2e = (h2[r * maxN + c] + h2[rowMod * maxN + colMod]) / 2;
 				h2o = (h2[r * maxN + c] - h2[rowMod * maxN + colMod]) / 2;
-				if (conjugate) 
+				if (conjugate)
 					tmp[r * maxN + c] = (float)(h1[r * maxN + c] * h2e - h1[rowMod * maxN + colMod] * h2o);
 				else
 					tmp[r * maxN + c] = (float)(h1[r * maxN + c] * h2e + h1[rowMod * maxN + colMod] * h2o);
@@ -599,10 +599,10 @@ public class FHT extends FloatProcessor {
 		fht2.isFrequencyDomain = true;
 		return fht2;
 	}
-		
+
 	/** Returns the image resulting from the point by point Hartley division
 		of this image by the specified image. Both images are assumed to be in
-		the frequency domain. Division in the frequency domain is equivalent 
+		the frequency domain. Division in the frequency domain is equivalent
 		to deconvolution in the space domain. */
 	public FHT divide(FHT fht) {
 		int rowMod, cMod, colMod;
@@ -627,12 +627,12 @@ public class FHT extends FloatProcessor {
 		fht2.isFrequencyDomain = true;
 		return fht2;
 	}
-			
+
 	/** Enables/disables display of the progress bar during transforms. */
 	public void setShowProgress(boolean showProgress) {
 		this.showProgress = showProgress;
 	}
-	
+
 	/** Returns a clone of this FHT. */
 	public FHT getCopy() {
 		ImageProcessor ip = super.duplicate();
@@ -642,12 +642,12 @@ public class FHT extends FloatProcessor {
 		fht.rgb = rgb;
 		fht.originalWidth = originalWidth;
 		fht.originalHeight = originalHeight;
-		fht.originalBitDepth = originalBitDepth;		
-		fht.originalColorModel = originalColorModel;		
-		fht.powerSpectrumMean = powerSpectrumMean;		
+		fht.originalBitDepth = originalBitDepth;
+		fht.originalColorModel = originalColorModel;
+		fht.powerSpectrumMean = powerSpectrumMean;
 		return fht;
 	}
-		
+
 	public static boolean isPowerOf2(int n) {
 		int i=2;
 		while(i<n) i *= 2;
@@ -658,5 +658,5 @@ public class FHT extends FloatProcessor {
 	public String toString() {
 		return "FHT, " + getWidth() + "x"+getHeight() + ", fd=" + isFrequencyDomain;
 	}
-	
+
 }

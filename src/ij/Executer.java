@@ -72,7 +72,7 @@ public class Executer implements Runnable {
 			if (len>0 && command.charAt(len-1)!=']')
 				IJ.setKeyUp(IJ.ALL_KEYS);  // set keys up except for "<", ">", "+" and "-" shortcuts
 		} catch(Throwable e) {
-			IJ.showStatus("");
+			IJMessage.showStatus("");
 			IJ.showProgress(1, 1);
 			ImagePlus imp = WindowManager.getCurrentImage();
 			if (imp!=null) imp.unlock();
@@ -114,7 +114,7 @@ public class Executer implements Runnable {
 					s = IJ.getInstance().getInfo()+"\n \n"+s;
 					new TextWindow("Exception", s, w, h);
 				} else
-					IJ.log(s);
+					IJMessage.log(s);
 			}
 		} finally {
 			if (thread!=null)
@@ -141,7 +141,7 @@ public class Executer implements Runnable {
 				boolean imageLocked = imp!=null && imp.isLockedByAnotherThread();
 				if (imageLocked && !allowedWithLockedImage(className)) {
 					IJ.beep();
-					IJ.showStatus("\""+cmd + "\" blocked because \"" + imp.getTitle() + "\" is locked");
+					IJMessage.showStatus("\""+cmd + "\" blocked because \"" + imp.getTitle() + "\" is locked");
 					return;
 				}
 			}
@@ -149,7 +149,7 @@ public class Executer implements Runnable {
 			if (IJ.shiftKeyDown() && className.startsWith("ij.plugin.Macro_Runner") && !Menus.getShortcuts().contains("*"+cmd))
     			IJ.open(IJ.getDirectory("plugins")+arg);
     		else
-				IJ.runPlugIn(cmd, className, arg);
+				IJPlugin.runPlugIn(cmd, className, arg);
 		} else { // command is not a plugin
 			// is command in the Plugins>Macros menu?
 			if (MacroInstaller.runMacroCommand(cmd))
@@ -162,7 +162,7 @@ public class Executer implements Runnable {
 				return;
 			// is it an example in Help>Examples menu?
 			if (IJ.getInstance()!=null && !GraphicsEnvironment.isHeadless()) {
-				if (Editor.openExample(cmd))		
+				if (Editor.openExample(cmd))
 					return;
 			}
 			if ("Auto Threshold".equals(cmd)&&(String)table.get("Auto Threshold...")!=null)
@@ -171,27 +171,27 @@ public class Executer implements Runnable {
 				runCommand("CLAHE ");
 			else {
 				if ("Table...".equals(cmd))
-					IJ.runPlugIn("ij.plugin.NewPlugin", "table");
+					IJPlugin.runPlugIn("ij.plugin.NewPlugin", "table");
 				else {
 					if (repeatingCommand)
-						IJ.runMacro(previousCommand);
+						IJPlugin.runMacro(previousCommand);
 					else {
 						if (!extraCommand(cmd))
-							IJ.error("Unrecognized command: \"" + cmd+"\"");
+							IJMessage.error("Unrecognized command: \"" + cmd+"\"");
 					}
 				}
 			}
 	 	}
     }
-    
+
 	private boolean extraCommand(String cmd) {
 		if (cmd!=null && cmd.equals("Duplicate Image...")) {
 			ImagePlus imp = WindowManager.getCurrentImage();
 			if (imp!=null) {
 				Duplicator.ignoreNextSelection();
-				IJ.run(imp, "Duplicate...", "");
+				IJMacro.run(imp, "Duplicate...", "");
 			} else
-				IJ.noImage();
+				IJMacro.noImage();
 			return true;
 		} else
 			return false;

@@ -6,7 +6,7 @@ import ij.gui.ImageCanvas;
 import java.io.*;
 import java.awt.*;
 import ij.plugin.frame.Editor;
-																																																																																																																																																					   
+
 
 /** This class runs macros in a separate thread. */
 public class MacroRunner implements Runnable {
@@ -32,7 +32,7 @@ public class MacroRunner implements Runnable {
 	public MacroRunner(String macro, Editor editor) {
 		this.macro = macro;
 		this.editor = editor;
-		thread = new Thread(this, "Macro$"); 
+		thread = new Thread(this, "Macro$");
 		thread.setPriority(Math.max(thread.getPriority()-2, Thread.MIN_PRIORITY));
 		thread.start();
 	}
@@ -41,7 +41,7 @@ public class MacroRunner implements Runnable {
 	public MacroRunner(String macro, String argument) {
 		this.macro = macro;
 		this.argument = argument;
-		thread = new Thread(this, "Macro$"); 
+		thread = new Thread(this, "Macro$");
 		thread.setPriority(Math.max(thread.getPriority()-2, Thread.MIN_PRIORITY));
 		thread.start();
 	}
@@ -65,10 +65,10 @@ public class MacroRunner implements Runnable {
 			macro = new String(sb);
 		}
 		catch (Exception e) {
-			IJ.error(e.getMessage());
+			IJMessage.error(e.getMessage());
 			return;
 		}
-		thread = new Thread(this, "Macro$"); 
+		thread = new Thread(this, "Macro$");
 		thread.setPriority(Math.max(thread.getPriority()-2, Thread.MIN_PRIORITY));
 		thread.start();
 	}
@@ -114,7 +114,7 @@ public class MacroRunner implements Runnable {
 			thread.start();
 		}
 	}
-	
+
 	/** Runs a tokenized macro on the current thread. */
 	public void run(Program pgm, int address, String name) {
 		this.pgm = pgm;
@@ -153,7 +153,7 @@ public class MacroRunner implements Runnable {
 			}
 		} catch(Throwable e) {
 			interp.abortMacro();
-			IJ.showStatus("");
+			IJMessage.showStatus("");
 			IJ.showProgress(1.0);
 			ImagePlus imp = WindowManager.getCurrentImage();
 			if (imp!=null)

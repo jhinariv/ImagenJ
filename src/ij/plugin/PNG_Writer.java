@@ -18,7 +18,7 @@ public class PNG_Writer implements PlugIn {
     public void run(String path) {
         imp = WindowManager.getCurrentImage();
         if (imp==null) {
-        	IJ.noImage();
+        	IJMacro.noImage();
         	return;
         }
         if (path.equals("")) {
@@ -39,9 +39,9 @@ public class PNG_Writer implements PlugIn {
             if (msg.contains("NullPointerException"))
             	msg = "Incorrect file path:";
             msg += "\n \n"+path;
-            IJ.error("PNG Writer", msg);
+            IJMessage.error("PNG Writer", msg);
         }
-        IJ.showStatus("");
+        IJMessage.showStatus("");
     }
 
 	public void writeImage(ImagePlus imp, String path, int transparentIndex) throws Exception {
@@ -60,7 +60,7 @@ public class PNG_Writer implements PlugIn {
         else
 			ImageIO.write(imp.getBufferedImage(), "png", new File(path));
 	}
-	
+
 	private void writeFourChannelsWithAlpha(ImagePlus imp, String path) throws Exception {
 		ImageStack stack = imp.getStack();
 		int w=imp.getWidth(), h=imp.getHeight();
@@ -73,7 +73,7 @@ public class PNG_Writer implements PlugIn {
 		raster.setDataElements(0, 0, w, h, cp.getPixels());
 		ImageIO.write(bi, "png", new File(path));
 	}
-    
+
 	void writeImageWithTransparency(ImagePlus imp, String path, int transparentIndex) throws Exception {
 		int width = imp.getWidth();
 		int  height = imp.getHeight();
@@ -82,9 +82,9 @@ public class PNG_Writer implements PlugIn {
 		int size = cm.getMapSize();
 		byte[] reds = new byte[256];
 		byte[] greens = new byte[256];
-		byte[] blues = new byte[256];	
-		cm.getReds(reds); 
-		cm.getGreens(greens); 
+		byte[] blues = new byte[256];
+		cm.getReds(reds);
+		cm.getGreens(greens);
 		cm.getBlues(blues);
 		cm = new IndexColorModel(8, 256, reds, greens, blues, transparentIndex);
 		WritableRaster wr = cm.createCompatibleWritableRaster(width, height);

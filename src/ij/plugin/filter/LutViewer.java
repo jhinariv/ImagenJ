@@ -13,7 +13,7 @@ import java.util.ArrayList;
 public class LutViewer implements PlugInFilter {
 
 	ImagePlus imp;
-	
+
 	public int setup(String arg, ImagePlus imp) {
 		this.imp = imp;
 		return DOES_ALL+NO_UNDO+NO_CHANGES;
@@ -21,7 +21,7 @@ public class LutViewer implements PlugInFilter {
 
 	public void run(ImageProcessor ip) {
 		if (ip.getNChannels()==3) {
-			IJ.error("RGB images do not have LUTs.");
+			IJMessage.error("RGB images do not have LUTs.");
 			return;
 		}
 		int xMargin = 35;
@@ -96,14 +96,14 @@ public class LutViewer implements PlugInFilter {
 		x = xMargin;
 		y = yMargin + height + 2;
 		lut.drawColorBar(g, x, y, 256, barHeight);
-		
+
 		y += barHeight + 15;
 		g.setColor(Color.black);
 		g.drawString("0", x - 4, y);
 		g.drawString(""+(mapSize-1), x + width - 10, y);
 		g.drawString("255", 7, yMargin + 4);
 		g.dispose();
-		
+
         ImagePlus imp = new ImagePlus("Look-Up Table", img);
         //imp.show();
         new LutWindow(imp, new ImageCanvas(imp), ip);
@@ -131,7 +131,7 @@ class LutWindow extends ImageWindow implements ActionListener {
 		add(panel);
 		pack();
 	}
-	
+
 	public void actionPerformed(ActionEvent e) {
 		Object b = e.getSource();
 		if (b==button)
@@ -144,9 +144,9 @@ class LutWindow extends ImageWindow implements ActionListener {
 		byte[] r = new byte[size];
 		byte[] g = new byte[size];
 		byte[] b = new byte[size];
-		icm.getReds(r); 
-		icm.getGreens(g); 
-		icm.getBlues(b);		
+		icm.getReds(r);
+		icm.getGreens(g);
+		icm.getBlues(b);
 		ResultsTable rt = new ResultsTable();
 		for (int i=0; i<size; i++) {
       		rt.setValue("Index", i, i);

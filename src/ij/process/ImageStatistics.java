@@ -7,17 +7,17 @@ public class ImageStatistics implements Measurements {
 
 	/** Use the hIstogram() method to get the histogram as a double  array. */
 	public int[] histogram;
-	
+
 	/** Int pixel count (limited to 2^31-1) */
 	public int pixelCount;
 	/** Long pixel count */
-	public long longPixelCount;	
-	
+	public long longPixelCount;
+
 	/** Mode */
 	public double dmode;
-	/** Mode of 256 bin histogram (counts limited to 2^31-1) */	
+	/** Mode of 256 bin histogram (counts limited to 2^31-1) */
 	public int mode;
-		
+
 	public double area;
 	public double min;
 	public double max;
@@ -49,24 +49,24 @@ public class ImageStatistics implements Measurements {
 	/** Used by HistogramWindow */
 	public boolean stackStatistics;
 	/** Minimum threshold when "Limit to threshold" enabled */
-	public double lowerThreshold = Double.NaN;	
+	public double lowerThreshold = Double.NaN;
 	/** Maximum threshold when "Limit to threshold" enabled */
-	public double upperThreshold = Double.NaN;	
+	public double upperThreshold = Double.NaN;
 	public double histMin;
 	public double histMax;
 	public int histYMax;
 	public int maxCount;
 	public int nBins = 256;
 	public double binSize = 1.0;
-	
+
 	protected int width, height;
 	protected int rx, ry, rw, rh;
 	protected double pw, ph;
 	protected Calibration cal;
-	
+
 	EllipseFitter ef;
 
-	
+
 	/** Calculates and returns uncalibrated (raw) statistics for the
 	 * specified image, including histogram, area, mean, min and
 	 * max, standard deviation and mode.  Use ImageProcessor.setRoi(x,y,width,height)
@@ -119,7 +119,7 @@ public class ImageStatistics implements Measurements {
 		double value;
 		double sum = 0.0;
 		double sum2 = 0.0;
-		
+
 		for (int i=minThreshold; i<=maxThreshold; i++) {
 			count = histogram[i];
 			longPixelCount += count;
@@ -140,7 +140,7 @@ public class ImageStatistics implements Measurements {
 		histMin = 0.0;
 		histMax = 255.0;
 	}
-	
+
 	void calculateStdDev(double n, double sum, double sum2) {
 		if (n>0.0) {
 			stdDev = (n*sum2-sum*sum)/n;
@@ -151,7 +151,7 @@ public class ImageStatistics implements Measurements {
 		} else
 			stdDev = 0.0;
 	}
-		
+
 	void setup(ImageProcessor ip, Calibration cal) {
 		width = ip.getWidth();
 		height = ip.getHeight();
@@ -169,7 +169,7 @@ public class ImageStatistics implements Measurements {
 			rw = width;
 			rh = height;
 		}
-		
+
 		if (cal!=null) {
 			pw = cal.pixelWidth;
 			ph = cal.pixelHeight;
@@ -177,13 +177,13 @@ public class ImageStatistics implements Measurements {
 			pw = 1.0;
 			ph = 1.0;
 		}
-		
+
 		roiX = cal!=null?cal.getX(rx):rx;
 		roiY = cal!=null?cal.getY(ry, height):ry;
 		roiWidth = rw*pw;
 		roiHeight = rh*ph;
 	}
-	
+
 	void getCentroid(ImageProcessor ip) {
 		byte[] mask = ip.getMaskArray();
 		int count=0, mi;
@@ -205,7 +205,7 @@ public class ImageStatistics implements Measurements {
 			yCentroid = cal.getY(yCentroid, height);
 		}
 	}
-	
+
 	void fitEllipse(ImageProcessor ip, int mOptions) {
 		ImageProcessor originalMask = null;
 		boolean limitToThreshold = (mOptions&LIMIT)!=0 && ip.getMinThreshold()!=ImageProcessor.NO_THRESHOLD;
@@ -252,14 +252,14 @@ public class ImageStatistics implements Measurements {
 			yCentroid = cal.getY(yCentroid, height);
 		}
 	}
-	
+
 	public void drawEllipse(ImageProcessor ip) {
 		if (ef!=null)
 			ef.drawEllipse(ip);
 	}
-	
+
 	void calculateMedian(int[] hist, int first, int last, Calibration cal) {
-		//ij.IJ.log("calculateMedian: "+first+"  "+last+"  "+hist.length+"  "+pixelCount);
+		//ij.IJMessage.log("calculateMedian: "+first+"  "+last+"  "+hist.length+"  "+pixelCount);
 		if (pixelCount==0 || first<0 || last>hist.length) {
 			median = Double.NaN;
 			return;
@@ -272,7 +272,7 @@ public class ImageStatistics implements Measurements {
 		} while (sum<=halfCount && i<last);
 		median = cal!=null?cal.getCValue(i):i;
 	}
-	
+
 	void calculateAreaFraction(ImageProcessor ip, int[] hist) {
 		int sum = 0;
 		int total = 0;
@@ -291,7 +291,7 @@ public class ImageStatistics implements Measurements {
 		}
 		areaFraction = sum*100.0/total;
 	}
-	
+
 	/** Returns the histogram as an array of doubles. */
 	public double[] histogram() {
 		double[] hist = new double[histogram.length];
@@ -312,11 +312,11 @@ public class ImageStatistics implements Measurements {
 			hist2[i] = (long)hist[i];
 		return hist2;
 	}
-	
+
 	public String toString() {
 		return "stats[count="+pixelCount+", mean="+mean+", min="+min+", max="+max+"]";
 	}
-	
+
 	protected void saveThreshold(double minThreshold, double maxThreshold, Calibration cal) {
 		if (cal!=null) {
 			minThreshold = cal.getCValue(minThreshold);

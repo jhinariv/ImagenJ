@@ -20,7 +20,7 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
 	public static final int HGAP = 5;
 	public static final int VGAP = 5;
 	public static final String LOC_KEY = "image.loc";
-	
+
 	protected ImagePlus imp;
 	protected ImageJ ij;
 	protected ImageCanvas ic;
@@ -45,19 +45,19 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
 	private static int count;
 	private static boolean centerOnScreen;
 	private static Point nextLocation;
-	public static long setMenuBarTime;	
+	public static long setMenuBarTime;
 	private int textGap = centerOnScreen?0:TEXT_GAP;
 	private Point initialLoc;
 	private int screenHeight, screenWidth;
 
-	
+
 	/** This variable is set false if the user presses the escape key or closes the window. */
 	public boolean running;
-	
+
 	/** This variable is set false if the user clicks in this
 		window, presses the escape key, or closes the window. */
 	public boolean running2;
-	
+
 	public ImageWindow(String title) {
 		super(title);
 	}
@@ -101,7 +101,7 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
 		if (!(this instanceof StackWindow))
 			addMouseWheelListener(this);
 		setResizable(true);
-		if (!(this instanceof HistogramWindow&&IJ.isMacro()&&Interpreter.isBatchMode())) {
+		if (!(this instanceof HistogramWindow&&IJMacro.isMacro()&&Interpreter.isBatchMode())) {
 			WindowManager.addWindow(this);
 			imp.setWindow(this);
 		}
@@ -114,7 +114,7 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
 			setLocation(loc.x, loc.y);
 			if (!(this instanceof StackWindow || this instanceof PlotWindow)) { //layout now unless components will be added later
 				pack();
-				if (IJ.isMacro())
+				if (IJMacro.isMacro())
 					imp.setDeactivated(); //prepare for waitTillActivated (imp may have been activated before if it gets a new Window now)
 				show();
 			}
@@ -148,7 +148,7 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
 				WindowManager.setTempCurrentImage(imp);
 				Interpreter.addBatchModeImage(imp);
 			} else {
-				if (IJ.isMacro())
+				if (IJMacro.isMacro())
 					imp.setDeactivated(); //prepare for waitTillActivated (imp may have been activated previously and gets a new Window now)
 				show();
 			}
@@ -160,7 +160,7 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
 			return;
 		int width = imp.getWidth();
 		int height = imp.getHeight();
-		
+
 		// load prefernces file location
 		Point loc = Prefs.getLocation(LOC_KEY);
 		Rectangle bounds = null;
@@ -171,9 +171,9 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
 				loc = null;
 				bounds = null;
 			}
-		}		
+		}
 		// if loc not valid, use screen bounds of visible window (this) or of main window (ij) if not visible yet (updating == false)
-		Rectangle maxWindow = bounds!=null?bounds:GUI.getMaxWindowBounds(updating?this: ij);  
+		Rectangle maxWindow = bounds!=null?bounds:GUI.getMaxWindowBounds(updating?this: ij);
 
 		if (WindowManager.getWindowCount()<=1)
 			xbase = -1;
@@ -204,7 +204,7 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
 			}
 			xbase = Math.max(xbase, maxWindow.x);
 			ybase = Math.max(ybase, maxWindow.y);
-			//if (IJ.debugMode) IJ.log("ImageWindow.xbase: "+xbase);
+			//if (IJDebugMode.debugMode) IJMessage.log("ImageWindow.xbase: "+xbase);
 			xloc = xbase;
 			yloc = ybase;
 		}
@@ -228,7 +228,7 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
 				mag = mag2;
 			}
 		}
-		
+
 		if (mag<1.0) {
 			initialMagnification = mag;
 			ic.setSize((int)(width*mag), (int)(height*mag));
@@ -241,7 +241,7 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
 				ic.zoomIn(0, 0);
 			setSize(Math.min(width, screenWidth-x), Math.min(height, screenHeight-y));
 			validate();
-		} else 
+		} else
 			pack();
 		if (!updating) {
 			setLocation(x, y);
@@ -288,7 +288,7 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
 					g.setColor(c);
 				}
 			}
-			Java2.setAntialiasedText(g, true);			
+			Java2.setAntialiasedText(g, true);
 			if (SCALE>1.0) {
 				Font font = new Font("SansSerif", Font.PLAIN, (int)(12*SCALE));
 				g.setFont(font);
@@ -371,7 +371,7 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
 			s += " (inverting LUT)";
 	 	return s+"; "+getImageSize(imp);
 	}
-	
+
 	public static String getImageSize(ImagePlus imp) {
 		if (imp==null)
 			return null;
@@ -388,7 +388,7 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
 		if (s2.endsWith(".0")) s2 = s2.substring(0, s2.length()-2);
 		return s2+s3;
 	}
-    
+
     private String d2s(double n) {
 		int digits = Tools.getDecimalPlaces(n);
 		if (digits>2) digits=2;
@@ -403,7 +403,7 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
 		if (extraWidth<=0 && extraHeight<=0 && !Prefs.noBorder && !IJ.isLinux())
 			g.drawRect(r.x-1, r.y-1, r.width+1, r.height+1);
     }
-    
+
 	/** Removes this window from the window list and disposes of it.
 		Returns false if the user cancels the "save changes" dialog. */
 	public boolean close() {
@@ -417,7 +417,7 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
 		Roi roi = imp.getRoi();
 		if (roi!=null && (roi instanceof PointRoi) && ((PointRoi)roi).promptBeforeDeleting())
 			changes = true;
-		if (ij==null || ij.quittingViaMacro() || IJ.getApplet()!=null || Interpreter.isBatchMode() || IJ.macroRunning() || virtual)
+		if (ij==null || ij.quittingViaMacro() || IJ.getApplet()!=null || Interpreter.isBatchMode() || IJMacro.macroRunning() || virtual)
 			changes = false;
 		if (changes) {
 			String msg;
@@ -446,7 +446,7 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
 		if (ij!=null && ij.quitting())  // this may help avoid thread deadlocks
 			return true;
 		Rectangle bounds = getBounds();
-		if (initialLoc!=null && !bounds.equals(initialLoc) && !IJ.isMacro()
+		if (initialLoc!=null && !bounds.equals(initialLoc) && !IJMacro.isMacro()
 		&& bounds.y<screenHeight/3 && (bounds.y+bounds.height)<=screenHeight
 		&& (bounds.x+bounds.width)<=screenWidth) {
 			Prefs.saveLocation(LOC_KEY, new Point(bounds.x,bounds.y));
@@ -458,7 +458,7 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
 		imp = null;
 		return true;
 	}
-	
+
 	public ImagePlus getImagePlus() {
 		return imp;
 	}
@@ -474,7 +474,7 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
 		ic.repaint();
 		repaint();
 	}
-	
+
 	public void updateImage(ImagePlus imp) {
         if (imp!=this.imp)
             throw new IllegalArgumentException("imp!=this.imp");
@@ -500,12 +500,12 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
 	public ImageCanvas getCanvas() {
 		return ic;
 	}
-	
+
 
 	static ImagePlus getClipboard() {
 		return ImagePlus.getClipboard();
 	}
-	
+
 	public Rectangle getMaximumBounds() {
 		Rectangle maxWindow = GUI.getMaxWindowBounds(this);
 		if (imp==null)
@@ -539,7 +539,7 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
 		wHeight = Math.min(wHeight, maxWindow.height);
 		return new Rectangle(xloc, maxWindow.y, wWidth, wHeight);
 	}
-	
+
 	Dimension getExtraSize() {
 		Insets insets = getInsets();
 		int extraWidth = insets.left+insets.right + 10;
@@ -550,7 +550,7 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
 		    Component m = getComponent(i);
 		    Dimension d = m.getPreferredSize();
 			extraHeight += d.height + 5;
-			if (IJ.debugMode) IJ.log(i+"  "+d.height+" "+extraHeight);
+			if (IJDebugMode.debugMode) IJMessage.log(i+"  "+d.height+" "+extraHeight);
 		}
 		return new Dimension(extraWidth, extraHeight);
 	}
@@ -562,17 +562,17 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
 		setMaxBoundsTime = System.currentTimeMillis();
 		return comp;
 	}
-	
+
 	public void maximize() {
 		if (GenericDialog.getInstance()!=null && IJ.isMacOSX() && IJ.isJava18())
-			return; // workaround for OSX/Java 8 maximize bug 
+			return; // workaround for OSX/Java 8 maximize bug
 		Rectangle rect = getMaximumBounds();
-		if (IJ.debugMode) IJ.log("maximize: "+rect);
+		if (IJDebugMode.debugMode) IJMessage.log("maximize: "+rect);
 		setLocationAndSize(rect.x, rect.y, rect.width, rect.height);
 	}
-	
+
 	public void minimize() {
-		if (IJ.debugMode) IJ.log("minimize: "+unzoomWhenMinimizing);
+		if (IJDebugMode.debugMode) IJMessage.log("minimize: "+unzoomWhenMinimizing);
 		if (unzoomWhenMinimizing)
 			ic.unzoom();
 		unzoomWhenMinimizing = true;
@@ -582,16 +582,16 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
 	public boolean isClosed() {
 		return closed;
 	}
-	
+
 	public void focusGained(FocusEvent e) {
 		if (!Interpreter.isBatchMode() && ij!=null && !ij.quitting() && imp!=null) {
-			//if (IJ.debugMode) IJ.log("focusGained: "+imp);
+			//if (IJDebugMode.debugMode) IJMessage.log("focusGained: "+imp);
 			WindowManager.setCurrentWindow(this);
 		}
 	}
 
 	public void windowActivated(WindowEvent e) {
-		if (IJ.debugMode) IJ.log("windowActivated: "+imp.getTitle());
+		if (IJDebugMode.debugMode) IJMessage.log("windowActivated: "+imp.getTitle());
 		if (IJ.isMacOSX())
 			setImageJMenuBar(this);
 		if (imp==null)
@@ -606,7 +606,7 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
 			Channels.updateChannels();
 		imp.setActivated(); // notify ImagePlus that image has been activated
 	}
-	
+
 	public void windowClosing(WindowEvent e) {
 		if (closed)
 			return;
@@ -618,11 +618,11 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
 			WindowManager.removeWindow(this);
 		}
 	}
-	
+
 	public void windowStateChanged(WindowEvent e) {
 		int oldState = e.getOldState();
 		int newState = e.getNewState();
-		if (IJ.debugMode) IJ.log("windowStateChanged: "+oldState+" "+newState);
+		if (IJDebugMode.debugMode) IJMessage.log("windowStateChanged: "+oldState+" "+newState);
 		if ((oldState&Frame.MAXIMIZED_BOTH)==0 && (newState&Frame.MAXIMIZED_BOTH)!=0)
 			maximize();
 	}
@@ -631,19 +631,19 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
 	public void windowDeactivated(WindowEvent e) {}
 	public void focusLost(FocusEvent e) {}
 	public void windowDeiconified(WindowEvent e) {}
-	public void windowIconified(WindowEvent e) {}	
+	public void windowIconified(WindowEvent e) {}
 	public void windowOpened(WindowEvent e) {}
-	
+
 	public synchronized void mouseWheelMoved(MouseWheelEvent e) {
 		int rotation = e.getWheelRotation();
 		int amount = e.getScrollAmount();
 		boolean ctrl = (e.getModifiers()&Event.CTRL_MASK)!=0;
-		if (IJ.debugMode) {
-			IJ.log("mouseWheelMoved: "+e);
-			IJ.log("  type: "+e.getScrollType());
-			IJ.log("  ctrl: "+ctrl);
-			IJ.log("  rotation: "+rotation);
-			IJ.log("  amount: "+amount);
+		if (IJDebugMode.debugMode) {
+			IJMessage.log("mouseWheelMoved: "+e);
+			IJMessage.log("  type: "+e.getScrollType());
+			IJMessage.log("  ctrl: "+ctrl);
+			IJMessage.log("  rotation: "+rotation);
+			IJMessage.log("  amount: "+amount);
 		}
 		if (amount<1) amount=1;
 		if (rotation==0)
@@ -680,29 +680,29 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
 	public void copy(boolean cut) {
 		imp.copy(cut);
     }
-                
+
 
 	public void paste() {
 		imp.paste();
     }
-                
-    /** This method is called by ImageCanvas.mouseMoved(MouseEvent). 
+
+    /** This method is called by ImageCanvas.mouseMoved(MouseEvent).
     	@see ij.gui.ImageCanvas#mouseMoved
     */
     public void mouseMoved(int x, int y) {
     	imp.mouseMoved(x, y);
     }
-    
+
     public String toString() {
     	return imp!=null?imp.getTitle():"";
     }
-    
+
     /** Causes the next image to be opened to be centered on the screen
     	and displayed without informational text above the image. */
     public static void centerNextImage() {
     	centerOnScreen = true;
     }
-    
+
     /** Causes the next image to be displayed at the specified location. */
     public static void setNextLocation(Point loc) {
     	nextLocation = loc;
@@ -713,7 +713,7 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
     	nextLocation = new Point(x, y);
     }
 
-    /** Moves and resizes this window. Changes the 
+    /** Moves and resizes this window. Changes the
     	 magnification so the image fills the window. */
     public void setLocationAndSize(int x, int y, int width, int height) {
 		setBounds(x, y, width, height);
@@ -721,7 +721,7 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
 		initialLoc = null;
 		pack();
 	}
-	
+
     @Override
     public void setLocation(int x, int y) {
     	super.setLocation(x, y);
@@ -731,11 +731,11 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
 	public void setSliderHeight(int height) {
 		sliderHeight = height;
 	}
-	
+
 	public int getSliderHeight() {
 		return sliderHeight;
 	}
-	
+
 	public static void setImageJMenuBar(ImageWindow win) {
 		ImageJ ij = IJ.getInstance();
 		boolean setMenuBar = true;
@@ -753,11 +753,11 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
 			long time = System.currentTimeMillis()-t0;
 			setMenuBarTime = time;
 			Menus.setMenuBarCount++;
-			//if (IJ.debugMode) IJ.log("setMenuBar: "+time+"ms ("+Menus.setMenuBarCount+")");
+			//if (IJDebugMode.debugMode) IJMessage.log("setMenuBar: "+time+"ms ("+Menus.setMenuBarCount+")");
 			if (time>2000L)
 				Prefs.setIJMenuBar = false;
 		}
 		if (imp!=null) imp.setIJMenuBar(true);
 	}
-			
+
 } //class ImageWindow

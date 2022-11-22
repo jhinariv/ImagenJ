@@ -22,9 +22,9 @@ import javax.swing.SwingUtilities;
 /**
 This frame is the main ImageJ class.
 <p>
-ImageJ is a work of the United States Government. It is in the public domain 
+ImageJ is a work of the United States Government. It is in the public domain
 and open source. There is no copyright. You are free to do anything you want
-with this source but I like to get credit for my work and I would like you to 
+with this source but I like to get credit for my work and I would like you to
 offer your changes to me so I can possibly add them to the "official" version.
 
 <pre>
@@ -39,7 +39,7 @@ The following command line options are recognized by ImageJ:
   -macro path [arg]
      Runs a macro or script (JavaScript, BeanShell or Python), passing an
      optional string argument, which the macro or script can be retrieve
-     using the getArgument() function. The macro or script is assumed to 
+     using the getArgument() function. The macro or script is assumed to
      be in the ImageJ/macros folder if 'path' is not a full directory path.
      Example 1: -macro analyze.ijm
      Example 2: -macro script.js /Users/wayne/images/stack1
@@ -58,7 +58,7 @@ The following command line options are recognized by ImageJ:
   -run command
      Runs an ImageJ menu command
      Example: -run "About ImageJ..."
-     
+
   -ijpath path
      Specifies the path to the directory containing the plugins directory
      Example: -ijpath /Applications/ImageJ
@@ -74,7 +74,7 @@ The following command line options are recognized by ImageJ:
 </pre>
 @author Wayne Rasband (rasband@gmail.com)
 */
-public class ImageJ extends Frame implements ActionListener, 
+public class ImageJ extends Frame implements ActionListener,
 	MouseListener, KeyListener, WindowListener, ItemListener, Runnable {
 
 	/** Plugins should call IJ.getVersion() or IJ.getFullVersion() to get the version string. */
@@ -85,16 +85,16 @@ public class ImageJ extends Frame implements ActionListener,
 	public static final Font SansSerif12 = new Font("SansSerif", Font.PLAIN, 12);
 	/** Address of socket where Image accepts commands */
 	public static final int DEFAULT_PORT = 57294;
-	
+
 	/** Run as normal application. */
 	public static final int STANDALONE = 0;
-	
+
 	/** Run embedded in another application. */
 	public static final int EMBEDDED = 1;
-	
+
 	/** Run embedded and invisible in another application. */
 	public static final int NO_SHOW = 2;
-	
+
 	/** Run as the ImageJ application. */
 	public static final int IMAGEJ_APP = 3;
 
@@ -104,7 +104,7 @@ public class ImageJ extends Frame implements ActionListener,
 	private static final String IJ_X="ij.x",IJ_Y="ij.y";
 	private static int port = DEFAULT_PORT;
 	private static String[] arguments;
-	
+
 	private Toolbar toolbar;
 	private Panel statusBar;
 	private ProgressBar progressBar;
@@ -121,14 +121,14 @@ public class ImageJ extends Frame implements ActionListener,
 	private boolean windowClosed;
 	private static String commandName;
 	private static boolean batchMode;
-		
+
 	boolean hotkey;
-	
+
 	/** Creates a new ImageJ frame that runs as an application. */
 	public ImageJ() {
 		this(null, STANDALONE);
 	}
-	
+
 	/** Creates a new ImageJ frame that runs as an application in the specified mode. */
 	public ImageJ(int mode) {
 		this(null, mode);
@@ -140,7 +140,7 @@ public class ImageJ extends Frame implements ActionListener,
 	}
 
 	/** If 'applet' is not null, creates a new ImageJ frame that runs as an applet.
-		If  'mode' is ImageJ.EMBEDDED and 'applet is null, creates an embedded 
+		If  'mode' is ImageJ.EMBEDDED and 'applet is null, creates an embedded
 		(non-standalone) version of ImageJ. */
 	public ImageJ(java.applet.Applet applet, int mode) {
 		super("ImageJ");
@@ -152,7 +152,7 @@ public class ImageJ extends Frame implements ActionListener,
 			mode = STANDALONE;
 			useExceptionHandler = true;
 		}
-		if (IJ.debugMode) IJ.log("ImageJ starting in debug mode: "+mode);
+		if (IJDebugMode.debugMode) IJMessage.log("ImageJ starting in debug mode: "+mode);
 		embedded = applet==null && (mode==EMBEDDED||mode==NO_SHOW);
 		this.applet = applet;
 		String err1 = Prefs.load(this, applet);
@@ -161,7 +161,7 @@ public class ImageJ extends Frame implements ActionListener,
 		String err2 = m.addMenuBar();
 		m.installPopupMenu(this);
 		setLayout(new BorderLayout());
-		
+
 		// Tool bar
 		toolbar = new Toolbar();
 		toolbar.addKeyListener(this);
@@ -189,7 +189,7 @@ public class ImageJ extends Frame implements ActionListener,
 		addWindowListener(this);
 		setFocusTraversalKeysEnabled(false);
 		m.installStartupMacroSet(); //add custom tools
- 		
+
 		Point loc = getPreferredLocation();
 		Dimension tbSize = toolbar.getPreferredSize();
 		setCursor(Cursor.getDefaultCursor()); // work-around for JDK 1.1.8 bug
@@ -202,12 +202,12 @@ public class ImageJ extends Frame implements ActionListener,
 			setVisible(true);
 			Dimension size = getSize();
 			if (size!=null) {
-				if (IJ.debugMode) IJ.log("size: "+size);
+				if (IJDebugMode.debugMode) IJMessage.log("size: "+size);
 				if (IJ.isWindows() && (size.height>108||IJ.javaVersion()>=10)) {
 					// workaround for IJ window layout and FileDialog freeze problems with Windows 10 Creators Update
 					IJ.wait(10);
 					pack();
-					if (IJ.debugMode) IJ.log("pack()");
+					if (IJDebugMode.debugMode) IJMessage.log("pack()");
 					if (!Prefs.jFileChooserSettingChanged)
 						Prefs.useJFileChooser = true;
 				} else if (IJ.isMacOSX()) {
@@ -218,21 +218,21 @@ public class ImageJ extends Frame implements ActionListener,
 			}
 		}
 		if (err1!=null)
-			IJ.error(err1);
+			IJMessage.error(err1);
 		if (err2!=null) {
-			IJ.error(err2);
-			//IJ.runPlugIn("ij.plugin.ClassChecker", "");
+			IJMessage.error(err2);
+			//IJPlugin.runPlugIn(("ij.plugin.ClassChecker", "");
 		}
 		if (IJ.isMacintosh()&&applet==null) {
 			try {
 				if (IJ.javaVersion()>8) // newer JREs use different drag-drop, about mechanism
-					IJ.runPlugIn("ij.plugin.MacAdapter9", "");
+					IJPlugin.runPlugIn(("ij.plugin.MacAdapter9", "");
 				else
-					IJ.runPlugIn("ij.plugin.MacAdapter", "");
+					IJPlugin.runPlugIn(("ij.plugin.MacAdapter", "");
 			} catch(Throwable e) {}
-		} 
+		}
 		if (applet==null)
-			IJ.runPlugIn("ij.plugin.DragAndDrop", "");
+			IJPlugin.runPlugIn(("ij.plugin.DragAndDrop", "");
 		if (!getTitle().contains("Fiji") && useExceptionHandler) {
 			Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler());
 			System.setProperty("sun.awt.exception.handler",ExceptionHandler.class.getName());
@@ -242,9 +242,9 @@ public class ImageJ extends Frame implements ActionListener,
 		if (applet==null)
 			loadCursors();
 		(new ij.macro.StartupRunner()).run(batchMode); // run RunAtStartup and AutoRun macros
-		IJ.showStatus(version()+ m.getPluginCount() + " commands; " + m.getMacroCount() + str);
+		IJMessage.showStatus(version()+ m.getPluginCount() + " commands; " + m.getMacroCount() + str);
  	}
- 	
+
  	private void loadCursors() {
 		Toolkit toolkit = Toolkit.getDefaultToolkit();
 		String path = Prefs.getImageJDir()+"images/crosshair-cursor.gif";
@@ -262,7 +262,7 @@ public class ImageJ extends Frame implements ActionListener,
 		Cursor crosshairCursor = toolkit.createCustomCursor(image, hotSpot, "crosshair-cursor.gif");
 		ImageCanvas.setCursor(crosshairCursor, 0);
 	}
-    	
+
 	void configureProxy() {
 		if (Prefs.useSystemProxies) {
 			try {
@@ -283,14 +283,14 @@ public class ImageJ extends Frame implements ActionListener,
 		}
 		//new ProxySettings().logProperties();
 	}
-	
+
     void setIcon() throws Exception {
 		URL url = this.getClass().getResource("/microscope.gif");
 		if (url==null) return;
 		Image img = createImage((ImageProducer)url.getContent());
 		if (img!=null) setIconImage(img);
 	}
-	
+
 	public Point getPreferredLocation() {
 		int ijX = Prefs.getInt(IJ_X,-99);
 		int ijY = Prefs.getInt(IJ_Y,-99);
@@ -306,7 +306,7 @@ public class ImageJ extends Frame implements ActionListener,
 		if (ijX<10) ijX = 10;
 		return new Point(ijX, maxBounds.y);
 	}
-	
+
 	void showStatus(String s) {
         statusLine.setText(s);
 	}
@@ -318,7 +318,7 @@ public class ImageJ extends Frame implements ActionListener,
 	public Panel getStatusBar() {
         return statusBar;
 	}
-	
+
 	public static String getStatusBarText() {
 		ImageJ ij = IJ.getInstance();
 		return ij!=null?ij.statusLine.getText():"";
@@ -328,15 +328,15 @@ public class ImageJ extends Frame implements ActionListener,
     void doCommand(String name) {
 		new Executer(name, null);
     }
-        
+
 	public void runFilterPlugIn(Object theFilter, String cmd, String arg) {
 		new PlugInFilterRunner(theFilter, cmd, arg);
 	}
-        
+
 	public Object runUserPlugIn(String commandName, String className, String arg, boolean createNewLoader) {
-		return IJ.runUserPlugIn(commandName, className, arg, createNewLoader);	
-	} 
-	
+		return IJ.runUserPlugIn(commandName, className, arg, createNewLoader);
+	}
+
 	/** Return the current list of modifier keys. */
 	public static String modifiers(int flags) { //?? needs to be moved
 		String s = " [ ";
@@ -381,7 +381,7 @@ public class ImageJ extends Frame implements ActionListener,
 				new Executer(cmd, imp);
 			}
 			lastKeyCommand = null;
-			if (IJ.debugMode) IJ.log("actionPerformed: time="+ellapsedTime+", "+e);
+			if (IJDebugMode.debugMode) IJMessage.log("actionPerformed: time="+ellapsedTime+", "+e);
 		}
 	}
 
@@ -402,11 +402,11 @@ public class ImageJ extends Frame implements ActionListener,
 		Undo.reset();
 		if (!Prefs.noClickToGC)
 			System.gc();
-		IJ.showStatus(version()+IJ.freeMemory());
-		if (IJ.debugMode)
-			IJ.log("Windows: "+WindowManager.getWindowCount());
+		IJMessage.showStatus(version()+IJ.freeMemory());
+		if (IJDebugMode.debugMode)
+			IJMessage.log("Windows: "+WindowManager.getWindowCount());
 	}
-	
+
 	public String getInfo() {
 		return version()+System.getProperty("os.name")+" "+System.getProperty("os.version")+"; "+IJ.freeMemory();
 	}
@@ -414,7 +414,7 @@ public class ImageJ extends Frame implements ActionListener,
 	private String version() {
 		return "ImageJ "+VERSION+BUILD + "; "+"Java "+System.getProperty("java.version")+(IJ.is64Bit()?" [64-bit]; ":" [32-bit]; ");
 	}
-	
+
 	public void mouseReleased(MouseEvent e) {}
 	public void mouseExited(MouseEvent e) {}
 	public void mouseClicked(MouseEvent e) {}
@@ -430,7 +430,7 @@ public class ImageJ extends Frame implements ActionListener,
 			return;
 		char keyChar = e.getKeyChar();
 		int flags = e.getModifiers();
-		if (IJ.debugMode) IJ.log("keyPressed: code=" + keyCode + " (" + KeyEvent.getKeyText(keyCode)
+		if (IJDebugMode.debugMode) IJMessage.log("keyPressed: code=" + keyCode + " (" + KeyEvent.getKeyText(keyCode)
 			+ "), char=\"" + keyChar + "\" (" + (int)keyChar + "), flags="
 			+ KeyEvent.getKeyModifiersText(flags));
 		boolean shift = (flags & KeyEvent.SHIFT_MASK) != 0;
@@ -442,7 +442,7 @@ public class ImageJ extends Frame implements ActionListener,
 		String cmd = null;
 		ImagePlus imp = WindowManager.getCurrentImage();
 		boolean isStack = (imp!=null) && (imp.getStackSize()>1);
-		
+
 		if (imp!=null && !meta && ((keyChar>=32 && keyChar<=255) || keyChar=='\b' || keyChar=='\n')) {
 			Roi roi = imp.getRoi();
 			if (roi!=null && roi instanceof TextRoi) {
@@ -464,7 +464,7 @@ public class ImageJ extends Frame implements ActionListener,
 				return;
 			}
 		}
-        		
+
 		// Handle one character macro shortcuts
 		if (!control && !meta) {
 			Hashtable macroShortcuts = Menus.getMacroShortcuts();
@@ -486,7 +486,7 @@ public class ImageJ extends Frame implements ActionListener,
 		boolean functionKey = keyCode>=KeyEvent.VK_F1 && keyCode<=KeyEvent.VK_F12;
 		boolean numPad = keyCode==KeyEvent.VK_DIVIDE || keyCode==KeyEvent.VK_MULTIPLY
 			|| keyCode==KeyEvent.VK_DECIMAL
-			|| (keyCode>=KeyEvent.VK_NUMPAD0 && keyCode<=KeyEvent.VK_NUMPAD9);			
+			|| (keyCode>=KeyEvent.VK_NUMPAD0 && keyCode<=KeyEvent.VK_NUMPAD9);
 		if ((!Prefs.requireControlKey||control||meta||functionKey||numPad) && keyChar!='+') {
 			Hashtable shortcuts = Menus.getShortcuts();
 			if (shift && !functionKey)
@@ -494,7 +494,7 @@ public class ImageJ extends Frame implements ActionListener,
 			else
 				cmd = (String)shortcuts.get(Integer.valueOf(keyCode));
 		}
-		
+
 		if (cmd==null) {
 			switch (keyChar) {
 				case '<': case ',': if (isStack) cmd="Previous Slice [<]"; break;
@@ -508,7 +508,7 @@ public class ImageJ extends Frame implements ActionListener,
 
 		if (cmd==null) {
 			switch (keyCode) {
-				case KeyEvent.VK_TAB: WindowManager.putBehind(); return;				
+				case KeyEvent.VK_TAB: WindowManager.putBehind(); return;
 				case KeyEvent.VK_BACK_SPACE: case KeyEvent.VK_DELETE:
 					if (!(shift||control||alt||meta)) {
 						if (deleteOverlayRoi(imp))
@@ -561,7 +561,7 @@ public class ImageJ extends Frame implements ActionListener,
 				default: break;
 			}
 		}
-		
+
 		if (cmd!=null && !cmd.equals("")) {
 			commandName = cmd;
 			if (!control && !meta && (cmd.equals("Fill")||cmd.equals("Draw")))
@@ -575,7 +575,7 @@ public class ImageJ extends Frame implements ActionListener,
 			}
 		}
 	}
-	
+
 	private boolean deleteOverlayRoi(ImagePlus imp) {
 		if (imp==null)
 			return false;
@@ -601,7 +601,7 @@ public class ImageJ extends Frame implements ActionListener,
 		}
 		return false;
 	}
-	
+
 	private boolean ignoreArrowKeys(ImagePlus imp) {
 		Frame frame = WindowManager.getFrontWindow();
 		String title = frame!=null?frame.getTitle():null;
@@ -621,11 +621,11 @@ public class ImageJ extends Frame implements ActionListener,
 			return true;
 		return false;
 	}
-	
+
 	public void keyTyped(KeyEvent e) {
 		char keyChar = e.getKeyChar();
 		int flags = e.getModifiers();
-		//if (IJ.debugMode) IJ.log("keyTyped: char=\"" + keyChar + "\" (" + (int)keyChar 
+		//if (IJDebugMode.debugMode) IJMessage.log("keyTyped: char=\"" + keyChar + "\" (" + (int)keyChar
 		//	+ "), flags= "+Integer.toHexString(flags)+ " ("+KeyEvent.getKeyModifiersText(flags)+")");
 		if (keyChar=='\\' || keyChar==171 || keyChar==223) {
 			if (((flags&Event.ALT_MASK)!=0))
@@ -638,7 +638,7 @@ public class ImageJ extends Frame implements ActionListener,
 	public void keyReleased(KeyEvent e) {
 		IJ.setKeyUp(e.getKeyCode());
 	}
-			
+
 	/** called when escape pressed */
 	void abortPluginOrMacro(ImagePlus imp) {
 		if (imp!=null) {
@@ -676,17 +676,17 @@ public class ImageJ extends Frame implements ActionListener,
 			if (mb!=null && mb!=getMenuBar()) {
 				setMenuBar(mb);
 				Menus.setMenuBarCount++;
-				//if (IJ.debugMode) IJ.log("setMenuBar: "+Menus.setMenuBarCount);
+				//if (IJDebugMode.debugMode) IJMessage.log("setMenuBar: "+Menus.setMenuBarCount);
 			}
 		}
 	}
-	
+
 	public void windowClosed(WindowEvent e) {}
 	public void windowDeactivated(WindowEvent e) {}
 	public void windowDeiconified(WindowEvent e) {}
 	public void windowIconified(WindowEvent e) {}
 	public void windowOpened(WindowEvent e) {}
-	
+
 	/** Adds the specified class to a Vector to keep it from being
 		garbage collected, causing static fields to be reset. */
 	public void register(Class c) {
@@ -696,18 +696,18 @@ public class ImageJ extends Frame implements ActionListener,
 
 	/** Called by ImageJ when the user selects Quit. */
 	public void quit() {
-		quitMacro = IJ.macroRunning();
+		quitMacro = IJMacro.macroRunning();
 		Thread thread = new Thread(this, "Quit");
 		thread.setPriority(Thread.NORM_PRIORITY);
 		thread.start();
 		IJ.wait(10);
 	}
-	
+
 	/** Returns true if ImageJ is exiting. */
 	public boolean quitting() {
 		return quitting;
 	}
-	
+
 	/** Returns true if ImageJ is quitting as a result of a run("Quit") macro call. */
 	public boolean quittingViaMacro() {
 		return quitting && quitMacro;
@@ -737,7 +737,7 @@ public class ImageJ extends Frame implements ActionListener,
 			else if (arg.startsWith("-debug"))
 				IJ.setDebugMode(true);
 			else if (arg.startsWith("-ijpath") && i+1<nArgs) {
-				if (IJ.debugMode) IJ.log("-ijpath: "+args[i+1]);
+				if (IJDebugMode.debugMode) IJMessage.log("-ijpath: "+args[i+1]);
 				Prefs.setHomeDir(args[i+1]);
 				commandLine = true;
 				args[i+1] = null;
@@ -748,15 +748,15 @@ public class ImageJ extends Frame implements ActionListener,
 					mode = EMBEDDED;
 				else if (delta>0 && DEFAULT_PORT+delta<65536)
 					port = DEFAULT_PORT+delta;
-			} 
+			}
 		}
   		// If existing ImageJ instance, pass arguments to it and quit.
   		boolean passArgs = (mode==IMAGEJ_APP||mode==STANDALONE) && !noGUI;
 		if (IJ.isMacOSX() && !commandLine)
 			passArgs = false;
-		if (passArgs && isRunning(args)) 
+		if (passArgs && isRunning(args))
   			return;
- 		ImageJ ij = IJ.getInstance();    	
+ 		ImageJ ij = IJ.getInstance();
 		if (!noGUI && (ij==null || (ij!=null && !ij.isShowing()))) {
 			ij = new ImageJ(null, mode);
 			ij.exitWhenQuitting = true;
@@ -775,12 +775,12 @@ public class ImageJ extends Frame implements ActionListener,
 					IJ.runMacroFile(args[i+1], arg2);
 					break;
 				} else if (arg.startsWith("-eval") && i+1<nArgs) {
-					String rtn = IJ.runMacro(args[i+1]);
+					String rtn = IJPlugin.runMacro(args[i+1]);
 					if (rtn!=null)
 						System.out.print(rtn);
 					args[i+1] = null;
 				} else if (arg.startsWith("-run") && i+1<nArgs) {
-					IJ.run(args[i+1]);
+					IJPlugin.runargs[i+1]);
 					args[i+1] = null;
 				}
 			} else if (macros==0 && (arg.endsWith(".ijm") || arg.endsWith(".txt"))) {
@@ -791,11 +791,11 @@ public class ImageJ extends Frame implements ActionListener,
 				IJ.open(file.getAbsolutePath());
 			}
 		}
-		if (IJ.debugMode && IJ.getInstance()==null)
+		if (IJDebugMode.debugMode && IJ.getInstance()==null)
 			new JavaProperties().run("");
 		if (noGUI) System.exit(0);
 	}
-		
+
 	// Is there another instance of ImageJ? If so, send it the arguments and quit.
 	static boolean isRunning(String args[]) {
 		return OtherInstance.sendArguments(args);
@@ -807,7 +807,7 @@ public class ImageJ extends Frame implements ActionListener,
 	public static int getPort() {
 		return port;
 	}
-	
+
 	/** Returns the command line arguments passed to ImageJ. */
 	public static String[] getArgs() {
 		return arguments;
@@ -817,7 +817,7 @@ public class ImageJ extends Frame implements ActionListener,
 	public void exitWhenQuitting(boolean ewq) {
 		exitWhenQuitting = ewq;
 	}
-	
+
 	/** Quit using a separate thread, hopefully avoiding thread deadlocks. */
 	public void run() {
 		quitting = true;
@@ -843,7 +843,7 @@ public class ImageJ extends Frame implements ActionListener,
 				}
 			}
 		}
-		if (windowClosed && !changes && Menus.window.getItemCount()>Menus.WINDOW_MENU_ITEMS && !(IJ.macroRunning()&&WindowManager.getImageCount()==0)) {
+		if (windowClosed && !changes && Menus.window.getItemCount()>Menus.WINDOW_MENU_ITEMS && !(IJMacro.macroRunning()&&WindowManager.getImageCount()==0)) {
 			GenericDialog gd = new GenericDialog("ImageJ", this);
 			gd.addMessage("Are you sure you want to quit ImageJ?");
 			gd.showDialog();
@@ -866,7 +866,7 @@ public class ImageJ extends Frame implements ActionListener,
 		if (exitWhenQuitting)
 			System.exit(0);
 	}
-	
+
 	void saveWindowLocations() {
 		Window win = WindowManager.getWindow("B&C");
 		if (win!=null)
@@ -892,15 +892,15 @@ public class ImageJ extends Frame implements ActionListener,
 		if (win!=null)
 			Prefs.saveLocation(RoiManager.LOC_KEY, win.getLocation());
 	}
-	
+
 	public static String getCommandName() {
 		return commandName!=null?commandName:"null";
 	}
-	
+
 	public static void setCommandName(String name) {
 		commandName = name;
 	}
-	
+
 	public void resize() {
 		double scale = Prefs.getGuiScale();
 		toolbar.init();
@@ -908,7 +908,7 @@ public class ImageJ extends Frame implements ActionListener,
 		progressBar.init((int)(ProgressBar.WIDTH*scale), (int)(ProgressBar.HEIGHT*scale));
 		pack();
 	}
-	
+
   /** Handles exceptions on the EDT. */
   public static class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 
@@ -932,10 +932,10 @@ public class ImageJ extends Frame implements ActionListener,
 		if (s!=null && s.contains("ij.")) {
 			if (IJ.getInstance()!=null)
 				s = IJ.getInstance().getInfo()+"\n"+s;
-			IJ.log(s);
+			IJMessage.log(s);
 		}
     }
-    
+
   } // inner class ExceptionHandler
 
 }

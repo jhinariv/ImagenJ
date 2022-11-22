@@ -9,9 +9,9 @@ public class My_Plugin implements PlugIn {
 
     public void run(String arg) {
         ImagePlus imp = IJ.getImage();
-        IJ.run(imp, "Invert", "");
+        IJPlugin.runimp, "Invert", "");
         IJ.wait(1000);
-        IJ.run(imp, "Invert", "");
+        IJPlugin.runimp, "Invert", "");
     }
 
 }

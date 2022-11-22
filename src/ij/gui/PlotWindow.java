@@ -690,7 +690,7 @@ public class PlotWindow extends ImageWindow implements ActionListener, ItemListe
 	/** Saves the data of the plot in a text file */
 	void saveAsText() {
 		if (plot.getXValues() == null) {
-			IJ.error("Plot has no data");
+			IJMessage.error("Plot has no data");
 			return;
 		}
 		SaveDialog sd = new SaveDialog("Save as Text", "Values", Prefs.defaultResultsExtension());
@@ -698,12 +698,12 @@ public class PlotWindow extends ImageWindow implements ActionListener, ItemListe
 		if (name==null) return;
 		String directory = sd.getDirectory();
 		IJ.wait(250);  // give system time to redraw ImageJ window
-		IJ.showStatus("Saving plot values...");
+		IJMessage.showStatus("Saving plot values...");
 		ResultsTable rt = plot.getResultsTable(/*writeFirstXColumn=*/saveXValues, /*useLabels=*/true);
 		try {
 			rt.saveAs(directory+name);
 		} catch (IOException e) {
-			IJ.error("" + e);
+			IJMessage.error("" + e);
 			return;
 		}
 		if (autoClose)
@@ -719,8 +719,8 @@ public class PlotWindow extends ImageWindow implements ActionListener, ItemListe
 		try {systemClipboard = getToolkit().getSystemClipboard();}
 		catch (Exception e) {systemClipboard = null; }
 		if (systemClipboard==null)
-			{IJ.error("Unable to copy to Clipboard."); return;}
-		IJ.showStatus("Copying plot values...");
+			{IJMessage.error("Unable to copy to Clipboard."); return;}
+		IJMessage.showStatus("Copying plot values...");
 		CharArrayWriter aw = new CharArrayWriter(10*xValues.length);
 		PrintWriter pw = new PrintWriter(aw); //uses platform's line termination characters
 
@@ -748,7 +748,7 @@ public class PlotWindow extends ImageWindow implements ActionListener, ItemListe
 		pw.close();
 		StringSelection contents = new StringSelection(text);
 		systemClipboard.setContents(contents, this);
-		IJ.showStatus(text.length() + " characters copied to Clipboard");
+		IJMessage.showStatus(text.length() + " characters copied to Clipboard");
 		if (autoClose)
 			{imp.changes=false; close();}
 	}
@@ -809,7 +809,7 @@ public class PlotWindow extends ImageWindow implements ActionListener, ItemListe
 			doUpdate = true;
 			bgThread.start();
 		}
-		if (IJ.debugMode) IJ.log("PlotWindow.createListeners");
+		if (IJDebugMode.debugMode) IJMessage.log("PlotWindow.createListeners");
 		ImagePlus.addImageListener(this);
 		Roi.addRoiListener(this);
 		Font font = live.getFont();
@@ -818,7 +818,7 @@ public class PlotWindow extends ImageWindow implements ActionListener, ItemListe
 	}
 
 	private void disableLivePlot() {
-		if (IJ.debugMode) IJ.log("PlotWindow.disableLivePlot: "+srcImp);
+		if (IJDebugMode.debugMode) IJMessage.log("PlotWindow.disableLivePlot: "+srcImp);
 		if (srcImp==null)
 			return;
 		if (bgThread!=null)
@@ -836,7 +836,7 @@ public class PlotWindow extends ImageWindow implements ActionListener, ItemListe
 
 	/** For live plots, update the plot if the ROI of the source image changes */
 	public synchronized void roiModified(ImagePlus img, int id) {
-		if (IJ.debugMode) IJ.log("PlotWindow.roiModified: "+img+"  "+id);
+		if (IJDebugMode.debugMode) IJMessage.log("PlotWindow.roiModified: "+img+"  "+id);
 		if (img==srcImp) {
 			doUpdate=true;
 			notify();
@@ -906,7 +906,7 @@ public class PlotWindow extends ImageWindow implements ActionListener, ItemListe
 		if (win!=null && (win instanceof PlotWindow))
 			((PlotWindow)win).getPlot().setFrozen(true);
 	}
-	
+
 	public static void setDefaultFontSize(int size) {
 		if (size < 9) size = 9;
 		defaultFontSize = size;

@@ -8,7 +8,7 @@ import java.util.Vector;
 	an InputStream. Based on the JAI MemoryCacheSeekableStream class.
 	Can also be constructed from a RandomAccessFile, which uses less
 	memory since the memory cache is not required.
-*/ 
+*/
 public final class RandomAccessStream extends InputStream {
 
     private static final int BLOCK_SIZE = 1024;
@@ -21,7 +21,7 @@ public final class RandomAccessStream extends InputStream {
     private Vector data;
     private long length;
     private boolean foundEOS;
-    
+
     /** Constructs a RandomAccessStream from an InputStream. Seeking
 		backwards is supported using a memory cache. */
 	public RandomAccessStream(InputStream inputstream) {
@@ -124,7 +124,7 @@ public final class RandomAccessStream extends InputStream {
     }
 
     public void seek(long loc) throws IOException {
-		//IJ.log("seek (long): "+loc+"  "+(ras!=null));
+		//IJMessage.log("seek (long): "+loc+"  "+(ras!=null));
     	if (ras!=null)
     		{ras.seek(loc); return;}
         if (loc<0L)
@@ -135,7 +135,7 @@ public final class RandomAccessStream extends InputStream {
 
 	public void seek(int loc) throws IOException {
 		long lloc = ((long)loc)&0xffffffffL;
-		//IJ.log("seek (int): "+lloc+"  "+(ras!=null));
+		//IJMessage.log("seek (int): "+lloc+"  "+(ras!=null));
 		if (ras!=null) {
 			ras.seek(lloc);
 			return;
@@ -177,9 +177,9 @@ public final class RandomAccessStream extends InputStream {
     public final float readFloat() throws IOException {
         return Float.intBitsToFloat(readInt());
     }
-    
+
     public void close() throws IOException {
-		//ij.IJ.log("close: "+(data!=null?""+data.size():""));
+		//ij.IJMessage.log("close: "+(data!=null?""+data.size():""));
  		if (ras!=null)
  			ras.close();
  		else {
@@ -187,6 +187,6 @@ public final class RandomAccessStream extends InputStream {
     		src.close();
     	}
     }
-    
- 
+
+
 }

@@ -15,7 +15,7 @@ import org.w3c.dom.NodeList;
 import javax.imageio.metadata.IIOMetadata;
 
 
-/** The File/Save As/Jpeg command (FileSaver.saveAsJpeg() method) 
+/** The File/Save As/Jpeg command (FileSaver.saveAsJpeg() method)
       uses this plugin to save images in JPEG format. */
 public class JpegWriter implements PlugIn {
 	public static final int DEFAULT_QUALITY = 75;
@@ -58,7 +58,7 @@ public class JpegWriter implements PlugIn {
 			if (overlay && !imp.tempOverlay())
 				img = imp.flatten().getImage();
 			g.drawImage(img, 0, 0, null);
-			g.dispose();            
+			g.dispose();
 			Iterator iter = ImageIO.getImageWritersByFormatName("jpeg");
 			ImageWriter writer = (ImageWriter)iter.next();
 			File f = new File(path);
@@ -75,7 +75,7 @@ public class JpegWriter implements PlugIn {
 			param.setCompressionMode(param.MODE_EXPLICIT);
 			param.setCompressionQuality(quality/100f);
 			if (quality == 100)
-				param.setSourceSubsampling(1, 1, 0, 0);						
+				param.setSourceSubsampling(1, 1, 0, 0);
 			IIOImage iioImage = null;
 			boolean disableSubsampling = quality>=90;
 			if (chromaSubsamplingSet)
@@ -87,8 +87,8 @@ public class JpegWriter implements PlugIn {
 				// http://svn.apache.org/repos/asf/shindig/trunk/java/gadgets/src/main/java/org/apache/shindig/gadgets/rewrite/image/BaseOptimizer.java
 				// http://svn.apache.org/repos/asf/shindig/trunk/java/gadgets/src/main/java/org/apache/shindig/gadgets/rewrite/image/JpegImageUtils.java
 				// Peter Haub, Okt. 2019
-				IIOMetadata metadata = writer.getDefaultImageMetadata(new ImageTypeSpecifier(bi.getColorModel(), bi.getSampleModel()), param);			
-				Node rootNode = metadata!=null ? metadata.getAsTree("javax_imageio_jpeg_image_1.0") : null;				
+				IIOMetadata metadata = writer.getDefaultImageMetadata(new ImageTypeSpecifier(bi.getColorModel(), bi.getSampleModel()), param);
+				Node rootNode = metadata!=null ? metadata.getAsTree("javax_imageio_jpeg_image_1.0") : null;
 				boolean metadataUpdated = false;
 				// The top level root node has two children, out of which the second one will
 				// contain all the information related to image markers.
@@ -107,7 +107,7 @@ public class JpegWriter implements PlugIn {
 							// In 'SOF' marker, first child corresponds to the luminance channel, and setting
 							// the HsamplingFactor and VsamplingFactor to 1, will imply 4:4:4 chroma subsampling.
 							NamedNodeMap attrMap = node.getFirstChild().getAttributes();
-							// SamplingModes: UNKNOWN(-2), DEFAULT(-1), YUV444(17), YUV422(33), YUV420(34), YUV411(65)					
+							// SamplingModes: UNKNOWN(-2), DEFAULT(-1), YUV444(17), YUV422(33), YUV420(34), YUV411(65)
 							int samplingmode = 17;   // YUV444
 							attrMap.getNamedItem("HsamplingFactor").setNodeValue((samplingmode & 0xf) + "");
 							attrMap.getNamedItem("VsamplingFactor").setNodeValue(((samplingmode >> 4) & 0xf) + "");
@@ -118,9 +118,9 @@ public class JpegWriter implements PlugIn {
 				}
 				// Read the updated metadata from the metadata node tree.
 				if (metadataUpdated)
-					metadata.setFromTree("javax_imageio_jpeg_image_1.0", rootNode);					
-				iioImage = new IIOImage(bi, null, metadata);				
-			} // end of code adaption (Disable JPEG chroma subsampling)			
+					metadata.setFromTree("javax_imageio_jpeg_image_1.0", rootNode);
+				iioImage = new IIOImage(bi, null, metadata);
+			} // end of code adaption (Disable JPEG chroma subsampling)
 			writer.write(null, iioImage, param);
 			ios.close();
 			writer.dispose();
@@ -133,11 +133,11 @@ public class JpegWriter implements PlugIn {
 			error = ""+e;
 			if (error.contains("Output has not been set!"))
 				error = "Incorrect file path: \""+path+"\"";
-			IJ.error("JPEG Writer", error);
+			IJMessage.error("JPEG Writer", error);
 		}
 		return error;
 	}
-	
+
 	public static void setQuality(int jpegQuality) {
 		FileSaver.setJpegQuality(jpegQuality);
 	}
@@ -145,10 +145,10 @@ public class JpegWriter implements PlugIn {
 	public static int getQuality() {
 		return FileSaver.getJpegQuality();
 	}
-	
-	/** Enhance quality of JPEGs by disabing chroma subsampling. 
+
+	/** Enhance quality of JPEGs by disabing chroma subsampling.
 		By default, enhanced quality is automatically used
-		when the Quality setting is 90 or greater. */		
+		when the Quality setting is 90 or greater. */
 	public static void enhanceQuality(boolean enhance) {
 		disableChromaSubsampling = enhance;
 		chromaSubsamplingSet = true;

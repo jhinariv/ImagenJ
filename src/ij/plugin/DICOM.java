@@ -9,10 +9,10 @@ import ij.util.Tools;
 import ij.measure.Calibration;
 
 /** This plugin decodes DICOM files. If 'arg' is empty, it
-	displays a file open dialog and opens and displays the 
-	image selected by the user. If 'arg' is a path, it opens the 
+	displays a file open dialog and opens and displays the
+	image selected by the user. If 'arg' is a path, it opens the
 	specified image and the calling routine can display it using
-	"((ImagePlus)IJ.runPlugIn("ij.plugin.DICOM", path)).show()".
+	"((ImagePlus)IJPlugin.runPlugIn(("ij.plugin.DICOM", path)).show()".
 	*/
 
 /* RAK (Richard Kirk, rak@cre.canon.co.uk) changes 14/7/99
@@ -56,12 +56,12 @@ public class DICOM extends ImagePlus implements PlugIn {
 	private boolean gettingInfo;
 	private BufferedInputStream inputStream;
 	private String info;
-	
+
 	/** Default constructor. */
 	public DICOM() {
 	}
 
-	/** Constructs a DICOM reader that using an InputStream. Here 
+	/** Constructs a DICOM reader that using an InputStream. Here
 		is an example that shows how to open and display a DICOM:
 		<pre>
 		DICOM dcm = new DICOM(is);
@@ -91,15 +91,15 @@ public class DICOM extends ImagePlus implements PlugIn {
 			fi = dd.getFileInfo();
 		} catch (IOException e) {
 			String msg = e.getMessage();
-			IJ.showStatus("");
+			IJMessage.showStatus("");
 			if (msg.indexOf("EOF")<0&&showErrors) {
-				IJ.error("DICOM Reader", e.getClass().getName()+"\n \n"+msg);
+				IJMessage.error("DICOM Reader", e.getClass().getName()+"\n \n"+msg);
 				return;
 			} else if (!dd.dicmFound()&&showErrors) {
 				msg = "This does not appear to be a valid\n"
 				+ "DICOM file. It does not have the\n"
 				+ "characters 'DICM' at offset 128.";
-				IJ.error("DICOM Reader", msg);
+				IJMessage.error("DICOM Reader", msg);
 				return;
 			}
 		}
@@ -112,15 +112,15 @@ public class DICOM extends ImagePlus implements PlugIn {
 			ImagePlus imp = fo.openImage();
 			// Avoid opening as float even if slope != 1.0 in case ignoreRescaleSlope or fixedDicomScaling
 			// were checked in the DICOM preferences.
-			boolean openAsFloat = (dd.rescaleSlope!=1.0 && !(Prefs.ignoreRescaleSlope || Prefs.fixedDicomScaling)) 
+			boolean openAsFloat = (dd.rescaleSlope!=1.0 && !(Prefs.ignoreRescaleSlope || Prefs.fixedDicomScaling))
 				|| Prefs.openDicomsAsFloat;
 			String options = Macro.getOptions();
 			if (openAsFloat) {
-				IJ.run(imp, "32-bit", "");
+				IJPlugin.runimp, "32-bit", "");
 				if (dd.rescaleSlope!=1.0)
-					IJ.run(imp, "Multiply...", "value="+dd.rescaleSlope+" stack");
+					IJPlugin.runimp, "Multiply...", "value="+dd.rescaleSlope+" stack");
 				if (dd.rescaleIntercept!=0.0)
-					IJ.run(imp, "Add...", "value="+dd.rescaleIntercept+" stack");
+					IJPlugin.runimp, "Add...", "value="+dd.rescaleIntercept+" stack");
 				if (imp.getStackSize()>1) {
 				    imp.setSlice(imp.getStackSize()/2);
 					ImageStatistics stats = imp.getRawStatistics();
@@ -133,7 +133,7 @@ public class DICOM extends ImagePlus implements PlugIn {
 					coeff[1] = dd.rescaleSlope;
 					imp.getCalibration().setFunction(Calibration.STRAIGHT_LINE, coeff, "Gray Value");
 				}
-			} else if (dd.rescaleIntercept!=0.0 && 
+			} else if (dd.rescaleIntercept!=0.0 &&
 					  (dd.rescaleSlope==1.0||Prefs.fixedDicomScaling||fi.fileType==FileInfo.GRAY8)) {
 				double[] coeff = new double[2];
 				coeff[0] = dd.rescaleIntercept;
@@ -151,7 +151,7 @@ public class DICOM extends ImagePlus implements PlugIn {
 				}
 				ImageProcessor ip = imp.getProcessor();
 				ip.setMinAndMax(min, max);
-				if (IJ.debugMode) IJ.log("window: "+min+"-"+max);
+				if (IJDebugMode.debugMode) IJMessage.log("window: "+min+"-"+max);
 			}
 			if (imp.getStackSize()>1)
 				setStack(fileName, imp.getStack());
@@ -162,18 +162,18 @@ public class DICOM extends ImagePlus implements PlugIn {
 			setFileInfo(fi); // needed for revert
 			if (arg.equals("")) show();
 		} else if (showErrors)
-			IJ.error("DICOM Reader","Unable to decode DICOM header.");
-		IJ.showStatus("");
+			IJMessage.error("DICOM Reader","Unable to decode DICOM header.");
+		IJMessage.showStatus("");
 	}
 
-	/** Opens the specified file as a DICOM. Does not 
+	/** Opens the specified file as a DICOM. Does not
 		display a message if there is an error.
 		Here is an example:
 		<pre>
 		DICOM dcm = new DICOM();
 		dcm.open(path);
 		if (dcm.getWidth()==0)
-			IJ.log("Error opening '"+path+"'");
+			IJMessage.log("Error opening '"+path+"'");
 		else
 			dcm.show();
 		</pre>
@@ -182,8 +182,8 @@ public class DICOM extends ImagePlus implements PlugIn {
 		showErrors = false;
 		run(path);
 	}
-	
-	/** Returns the DICOM tags of the specified file as a string. */ 
+
+	/** Returns the DICOM tags of the specified file as a string. */
 	public String getInfo(String path) {
 		showErrors = false;
 		gettingInfo = true;
@@ -202,7 +202,7 @@ public class DICOM extends ImagePlus implements PlugIn {
 			if (value<min)
 				min = value;
 		}
-		if (IJ.debugMode) IJ.log("min: "+(min-32768));
+		if (IJDebugMode.debugMode) IJMessage.log("min: "+(min-32768));
 		if (min>=32768) {
 			for (int i=0; i<pixels.length; i++)
 				pixels[i] = (short)(pixels[i]-32768);
@@ -212,7 +212,7 @@ public class DICOM extends ImagePlus implements PlugIn {
 			fi.fileType = FileInfo.GRAY16_UNSIGNED;
 		}
 	}
-	
+
 	/** Returns the name of the specified DICOM tag id. */
 	public static String getTagName(String id) {
 		id = id.replaceAll(",", "");
@@ -244,7 +244,7 @@ class DicomDecoder {
 	private static final int PIXEL_SPACING = 0x00280030;
 	private static final int BITS_ALLOCATED = 0x00280100;
 	private static final int WINDOW_CENTER = 0x00281050;
-	private static final int WINDOW_WIDTH = 0x00281051;	
+	private static final int WINDOW_WIDTH = 0x00281051;
 	private static final int RESCALE_INTERCEPT = 0x00281052;
 	private static final int RESCALE_SLOPE = 0x00281053;
 	private static final int RED_PALETTE = 0x00281201;
@@ -260,25 +260,25 @@ class DicomDecoder {
 	private static final int PIXEL_DATA = 0x7FE00010;
 
 	private static final int AE=0x4145, AS=0x4153, AT=0x4154, CS=0x4353, DA=0x4441, DS=0x4453, DT=0x4454,
-		FD=0x4644, FL=0x464C, IS=0x4953, LO=0x4C4F, LT=0x4C54, PN=0x504E, SH=0x5348, SL=0x534C, 
+		FD=0x4644, FL=0x464C, IS=0x4953, LO=0x4C4F, LT=0x4C54, PN=0x504E, SH=0x5348, SL=0x534C,
 		SS=0x5353, ST=0x5354, TM=0x544D, UI=0x5549, UL=0x554C, US=0x5553, UT=0x5554,
 		OB=0x4F42, OW=0x4F57, SQ=0x5351, UN=0x554E, QQ=0x3F3F,
 		OF=0x4F46, OL=0x4F4C, OD=0x4F44, UC=0x5543, UR=0x5552, OV=0x4F56, SV=0x5356, UV=0x5556;
-		
-		
+
+
 	private static Properties dictionary;
 
 	private String directory, fileName;
 	private static final int ID_OFFSET = 128;  //location of "DICM"
 	private static final String DICM = "DICM";
-	
+
 	private BufferedInputStream f;
 	private int location = 0;
 	private boolean littleEndian = true;
-	
+
 	private int elementLength;
 	private int vr;  // Value Representation
-	private static final int IMPLICIT_VR = 0x2D2D; // '--' 
+	private static final int IMPLICIT_VR = 0x2D2D; // '--'
 	private byte[] vrLetters = new byte[2];
  	private int previousGroup;
  	private String previousInfo;
@@ -305,7 +305,7 @@ class DicomDecoder {
 				InputStream is = new BufferedInputStream(new FileInputStream(f));
 				dictionary.load(is);
 				is.close();
-				if (IJ.debugMode) IJ.log("DicomDecoder: using "+dictionary.size()+" tag dictionary at "+path);
+				if (IJDebugMode.debugMode) IJMessage.log("DicomDecoder: using "+dictionary.size()+" tag dictionary at "+path);
 			} catch (Exception e) {
 				dictionary = null;
 			}
@@ -313,10 +313,10 @@ class DicomDecoder {
 		if (dictionary==null) {
 			DicomDictionary d = new DicomDictionary();
 			dictionary = d.getDictionary();
-			if (IJ.debugMode) IJ.log("DicomDecoder: "+path+" not found; using "+dictionary.size()+" tag built in dictionary");
+			if (IJDebugMode.debugMode) IJMessage.log("DicomDecoder: "+path+" not found; using "+dictionary.size()+" tag built in dictionary");
 		}
 	}
-  
+
 	String getString(int length) throws IOException {
 		byte[] buf = new byte[length];
 		int pos = 0;
@@ -329,7 +329,7 @@ class DicomDecoder {
 		location += length;
 		return new String(buf);
 	}
-  
+
 	String getUNString(int length) throws IOException {
 		String s = getString(length);
 		if (s!=null && s.length()>60)
@@ -353,7 +353,7 @@ class DicomDecoder {
 		else
 			return ((b0 << 8) + b1);
 	}
-	
+
 	int getSShort() throws IOException {
 		short b0 = (short)getByte();
 		short b1 = (short)getByte();
@@ -362,7 +362,7 @@ class DicomDecoder {
 		else
 			return ((b0 << 8) + b1);
 	}
-  
+
 	final int getInt() throws IOException {
 		int b0 = getByte();
 		int b1 = getByte();
@@ -373,7 +373,7 @@ class DicomDecoder {
 		else
 			return ((b0<<24) + (b1<<16) + (b2<<8) + b3);
 	}
-	
+
 	long getUInt() throws IOException {
 		long b0 = getByte();
 		long b1 = getByte();
@@ -403,7 +403,7 @@ class DicomDecoder {
 			res += ( ((long)b4) << 32);
 			res += ( ((long)b5) << 40);
 			res += ( ((long)b6) << 48);
-			res += ( ((long)b7) << 56);         
+			res += ( ((long)b7) << 56);
 		} else {
 			res += b7;
 			res += ( ((long)b6) << 8);
@@ -416,7 +416,7 @@ class DicomDecoder {
 		}
 		return Double.longBitsToDouble(res);
 	}
-    
+
 	float getFloat() throws IOException {
 		int b0 = getByte();
 		int b1 = getByte();
@@ -427,7 +427,7 @@ class DicomDecoder {
 			res += b0;
 			res += ( ((long)b1) << 8);
 			res += ( ((long)b2) << 16);
-			res += ( ((long)b3) << 24);     
+			res += ( ((long)b3) << 24);
 		} else {
 			res += b3;
 			res += ( ((long)b2) << 8);
@@ -436,7 +436,7 @@ class DicomDecoder {
 		}
 		return Float.intBitsToFloat(res);
 	}
-  
+
 	byte[] getLut(int length) throws IOException {
 		if ((length&1)!=0) { // odd
 			String dummy = getString(length);
@@ -448,26 +448,26 @@ class DicomDecoder {
 			lut[i] = (byte)(getShort()>>>8);
 		return lut;
 	}
-  
+
   	int getLength() throws IOException {
 		int b0 = getByte();
 		int b1 = getByte();
 		int b2 = getByte();
 		int b3 = getByte();
-		
+
 		// We cannot know whether the VR is implicit or explicit
 		// without the full DICOM Data Dictionary for public and
 		// private groups.
-		
+
 		// We will assume the VR is explicit if the two bytes
 		// match the known codes. It is possible that these two
 		// bytes are part of a 32-bit length for an implicit VR.
-		
+
 		vr = (b0<<8) + b1;
-		
+
 		switch (vr) {
 			case OB: case OW: case SQ: case UN: case UT:
-			case OF: case OL: case OD: case UC: case UR: 
+			case OF: case OL: case OD: case UC: case UR:
 			case OV: case SV: case UV:
 				// Explicit VR with 32-bit length if other two bytes are zero
 				if ( (b2 == 0) || (b3 == 0) ) return getInt();
@@ -504,21 +504,21 @@ class DicomDecoder {
 		int elementWord = getShort();
 		int tag = groupWord<<16 | elementWord;
 		elementLength = getLength();
-		
+
 		// hack needed to read some GE files
 		// The element length must be even!
-		if (elementLength==13 && !oddLocations) elementLength = 10; 
-		
+		if (elementLength==13 && !oddLocations) elementLength = 10;
+
 		// "Undefined" element length.
 		// This is a sort of bracket that encloses a sequence of elements.
 		if (elementLength==-1) {
 			elementLength = 0;
 			inSequence = true;
 		}
- 		//IJ.log("getNextTag: "+tag+" "+elementLength);
+ 		//IJMessage.log("getNextTag: "+tag+" "+elementLength);
 		return tag;
 	}
-  
+
 	FileInfo getFileInfo() throws IOException {
 		long skipCount;
 		FileInfo fi = new FileInfo();
@@ -542,22 +542,22 @@ class DicomDecoder {
 		int samplesPerPixel = 1;
 		int planarConfiguration = 0;
 		String photoInterpretation = "";
-				
+
 		if (inputStream!=null) {
 			// Use large buffer to allow URL stream to be reset after reading header
 			f = inputStream;
 			f.mark(400000);
 		} else
 			f = new BufferedInputStream(new FileInputStream(directory + fileName));
-		if (IJ.debugMode) {
-			IJ.log("");
-			IJ.log("DicomDecoder: decoding "+fileName);
+		if (IJDebugMode.debugMode) {
+			IJMessage.log("");
+			IJMessage.log("DicomDecoder: decoding "+fileName);
 		}
-		
+
 		int[] bytes = new int[ID_OFFSET];
 		for (int i=0; i<ID_OFFSET; i++)
 			bytes[i] = getByte();
-		
+
 		if (!getString(4).equals(DICM)) {
 			if (!((bytes[0]==8||bytes[0]==2) && bytes[1]==0 && bytes[3]==0))
 				throw new IOException("This is not a DICOM or ACR/NEMA file");
@@ -567,15 +567,15 @@ class DicomDecoder {
 			else
 				f = new BufferedInputStream(new FileInputStream(directory + fileName));
 			location = 0;
-			if (IJ.debugMode) IJ.log(DICM + " not found at offset "+ID_OFFSET+"; reseting to offset 0");
+			if (IJDebugMode.debugMode) IJMessage.log(DICM + " not found at offset "+ID_OFFSET+"; reseting to offset 0");
 		} else {
 			dicmFound = true;
-			if (IJ.debugMode) IJ.log(DICM + " found at offset " + ID_OFFSET);
+			if (IJDebugMode.debugMode) IJMessage.log(DICM + " found at offset " + ID_OFFSET);
 		}
-		
+
 		boolean decodingTags = true;
 		boolean signed = false;
-		
+
 		while (decodingTags) {
 			int tag = getNextTag();
 			if ((location&1)!=0) // DICOM tags must be at even locations
@@ -715,17 +715,17 @@ class DicomDecoder {
 					addInfo(tag, null);
 			}
 		} // while(decodingTags)
-		
+
 		if (fi.fileType==FileInfo.GRAY8) {
 			if (fi.reds!=null && fi.greens!=null && fi.blues!=null
 			&& fi.reds.length==fi.greens.length
 			&& fi.reds.length==fi.blues.length) {
 				fi.fileType = FileInfo.COLOR8;
 				fi.lutSize = fi.reds.length;
-				
+
 			}
 		}
-				
+
 		if (fi.fileType==FileInfo.GRAY32_UNSIGNED && signed)
 			fi.fileType = FileInfo.GRAY32_INT;
 
@@ -736,25 +736,25 @@ class DicomDecoder {
 				fi.fileType = FileInfo.RGB_PLANAR;
 		} else if (photoInterpretation.endsWith("1 "))
 				fi.whiteIsZero = true;
-				
+
 		if (!littleEndian)
 			fi.intelByteOrder = false;
-		
-		if (IJ.debugMode) {
-			IJ.log("width: " + fi.width);
-			IJ.log("height: " + fi.height);
-			IJ.log("images: " + fi.nImages);
-			IJ.log("bits allocated: " + bitsAllocated);
-			IJ.log("offset: " + fi.offset);
+
+		if (IJDebugMode.debugMode) {
+			IJMessage.log("width: " + fi.width);
+			IJMessage.log("height: " + fi.height);
+			IJMessage.log("images: " + fi.nImages);
+			IJMessage.log("bits allocated: " + bitsAllocated);
+			IJMessage.log("offset: " + fi.offset);
 		}
-	
+
 		if (inputStream!=null)
 			f.reset();
 		else
 			f.close();
 		return fi;
 	}
-	
+
 	String getDicomInfo() {
 		String s = new String(dicomInfo);
 		char[] chars = new char[s.length()];
@@ -776,12 +776,12 @@ class DicomDecoder {
 			previousInfo = info;
 			dicomInfo.append(tag2hex(tag)+info+"\n");
 		}
-		if (IJ.debugMode) {
+		if (IJDebugMode.debugMode) {
 			if (info==null) info = "";
 			vrLetters[0] = (byte)(vr >> 8);
 			vrLetters[1] = (byte)(vr & 0xFF);
 			String VR = new String(vrLetters);
-			IJ.log("(" + tag2hex(tag) + VR
+			IJMessage.log("(" + tag2hex(tag) + VR
 			+ " " + elementLength
 			+ " bytes from "
 			+ (location-elementLength)+") "
@@ -796,7 +796,7 @@ class DicomDecoder {
 	String getHeaderInfo(int tag, String value) throws IOException {
 		if (tag==ITEM_DELIMINATION || tag==SEQUENCE_DELIMINATION) {
 			inSequence = false;
-			if (!IJ.debugMode) return null;
+			if (!IJDebugMode.debugMode) return null;
 		}
 		String key = i2hex(tag);
 		//while (key.length()<8)
@@ -826,7 +826,7 @@ class DicomDecoder {
 				break;
 			//case UT:
 				//throw new IOException("ImageJ cannot read UT (unlimited text) DICOMs");
-			case AE: case AS: case AT: case CS: case DA: case DS: case DT:  case IS: case LO: 
+			case AE: case AS: case AT: case CS: case DA: case DS: case DT:  case IS: case LO:
 			case LT: case PN: case SH: case ST: case TM: case UI:
 				value = getString(elementLength);
 				break;
@@ -914,7 +914,7 @@ class DicomDecoder {
 	}
 
 	static char[] buf8 = new char[8];
-	
+
 	/** Converts an int to an 8 byte hex string. */
 	String i2hex(int i) {
 		for (int pos=7; pos>=0; pos--) {
@@ -925,7 +925,7 @@ class DicomDecoder {
 	}
 
 	char[] buf10;
-	
+
 	String tag2hex(int tag) {
 		if (buf10==null) {
 			buf10 = new char[11];
@@ -941,7 +941,7 @@ class DicomDecoder {
 		}
 		return new String(buf10);
 	}
-	
+
  	double s2d(String s) {
  		if (s==null) return 0.0;
  		if (s.startsWith("\\"))
@@ -954,7 +954,7 @@ class DicomDecoder {
 		else
 			return(0.0);
 	}
-  
+
 	void getSpatialScale(FileInfo fi, String scale) {
 		double xscale=0, yscale=0;
 		int i = scale.indexOf('\\');
@@ -968,7 +968,7 @@ class DicomDecoder {
 			fi.unit = "mm";
 		}
 	}
-	
+
 	boolean dicmFound() {
 		return dicmFound;
 	}
@@ -987,13 +987,13 @@ class DicomDictionary {
 	}
 
 	String[] dict = {
-		"00020002=UIMedia Storage SOP Class UID", 
+		"00020002=UIMedia Storage SOP Class UID",
 		"00020003=UIMedia Storage SOP Inst UID",
 		"00020010=UITransfer Syntax UID",
 		"00020012=UIImplementation Class UID",
 		"00020013=SHImplementation Version Name",
 		"00020016=AESource Application Entity Title",
-		
+
 		"00080005=CSSpecific Character Set",
 		"00080008=CSImage Type",
 		"00080010=CSRecognition Code",
@@ -1074,7 +1074,7 @@ class DicomDictionary {
 		"00082200=CSTransducer Position",
 		"00082204=CSTransducer Orientation",
 		"00082208=CSAnatomic Structure",
-		
+
 		"00100010=PNPatient's Name",
 		"00100020=LOPatient ID",
 		"00100021=LOIssuer of Patient ID",
@@ -1094,7 +1094,7 @@ class DicomDictionary {
 		"001021A0=CSSmoking Status",
 		"001021B0=LTAdditional Patient History",
 		"00104000=LTPatient Comments",
-		
+
 		"00180010=LOContrast/Bolus Agent",
 		"00180015=CSBody Part Examined",
 		"00180020=CSScanning Sequence",
@@ -1358,7 +1358,7 @@ class DicomDictionary {
 		"00187062=LTExposure Control Mode Description",
 		"00187064=CSExposure Status",
 		"00187065=DSPhototimer Setting",
-		
+
 		"0020000D=UIStudy Instance UID",
 		"0020000E=UISeries Instance UID",
 		"00200010=SHStudy ID",
@@ -1396,7 +1396,7 @@ class DicomDictionary {
 		"00201206=ISNumber of Study Related Series",
 		"00201208=ISNumber of Study Related Images",
 		"00204000=LTImage Comments",
-		
+
 		"00280002=USSamples per Pixel",
 		"00280004=CSPhotometric Interpretation",
 		"00280006=USPlanar Configuration",
@@ -1441,11 +1441,11 @@ class DicomDictionary {
 		"00283004=LOMadality LUT Type",
 		"00283006=USLUT Data",
 		"00283010=SQVOI LUT Sequence",
-		
+
 		"30020011=DSImage Plane Pixel Spacing",
 		"30020022=DSRadiation Machine SAD",
 		"30020026=DSRT IMAGE SID",
-		
+
 		"0032000A=CSStudy Status ID",
 		"0032000C=CSStudy Priority ID",
 		"00320012=LOStudy ID Issuer",
@@ -1471,7 +1471,7 @@ class DicomDictionary {
 		"00321064=SQRequested Procedure Code Sequence",
 		"00321070=LORequested Contrast Agent",
 		"00324000=LTStudy Comments",
-		
+
 		"00400001=AEScheduled Station AE Title",
 		"00400002=DAScheduled Procedure Step Start Date",
 		"00400003=TMScheduled Procedure Step Start Time",
@@ -1607,7 +1607,7 @@ class DicomDictionary {
 		"0040DB0C=UITemplate Extension Organization UID",
 		"0040DB0D=UITemplate Extension Creator UID",
 		"0040DB73=ULReferenced Content Item Identifier",
-		
+
 		"00540011=USNumber of Energy Windows",
 		"00540012=SQEnergy Window Information Sequence",
 		"00540013=SQEnergy Window Range Sequence",
@@ -1686,7 +1686,7 @@ class DicomDictionary {
 		"00541330=USImage Index",
 		"00541400=CSCounts Included",
 		"00541401=CSDead Time Correction Flag",
-		
+
 		"30020002=SHRT Image Label",
 		"30020003=LORT Image Name",
 		"30020004=STRT Image Description",
@@ -1702,7 +1702,7 @@ class DicomDictionary {
 		"30020029=ISFraction Number",
 		"30020030=SQExposure Sequence",
 		"30020032=DSMeterset Exposure",
-		
+
 		"300A011E=DSGantry Angle",
 		"300A0120=DSBeam Limiting Device Angle",
 		"300A0122=DSPatient Support Angle",
@@ -1711,14 +1711,14 @@ class DicomDictionary {
 		"300A012A=DSTable Top Lateral Position",
 		"300A00B3=CSPrimary Dosimeter Unit",
 		"300A00F0=ISNumber of Blocks",
-		
+
 		"300C0006=ISReferenced Beam Number",
 		"300C0008=DSStart Cumulative Meterset Weight",
 		"300C0022=ISReferenced Fraction Group Number",
 
 		"7FE00008=OXFloat Pixel Data",
 		"7FE00010=OXPixel Data",
-		
+
 		"FFFEE000=DLItem",
 		"FFFEE00D=DLItem Delimitation Item",
 		"FFFEE0DD=DLSequence Delimitation Item"

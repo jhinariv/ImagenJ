@@ -48,7 +48,7 @@ public class RoiProperties implements TextListener, WindowListener {
 		}
 		this.roi = roi;
 	}
-	
+
 	/** Displays the dialog box and returns 'false' if the user cancels it. */
 	public boolean showDialog() {
 		String name= roi.getName();
@@ -86,7 +86,7 @@ public class RoiProperties implements TextListener, WindowListener {
 			group = "none";
 		String linec = Colors.colorToString(strokeColor);
 		String fillc = Colors.colorToString(fillColor);
-		if (IJ.isMacro()) {
+		if (IJMacro.isMacro()) {
 			fillc = "none";
 			setPositions = false;
 		}
@@ -118,7 +118,7 @@ public class RoiProperties implements TextListener, WindowListener {
 			}
 		}
 		groupName = (Label)gd.getMessage();
-		if (showName && !IJ.isMacro()) {
+		if (showName && !IJMacro.isMacro()) {
 			Vector v = gd.getStringFields();
 			groupField = (TextField)v.elementAt(v.size()-2);
 			groupField.addTextListener(this);
@@ -284,7 +284,7 @@ public class RoiProperties implements TextListener, WindowListener {
 			listProperties(roi);
 		return true;
 	}
-	
+
 	private void setPosition(Roi roi, String pos1, String pos2) {
 		if (pos1.equals(pos2))
 			return;
@@ -312,7 +312,7 @@ public class RoiProperties implements TextListener, WindowListener {
 			return;
 		}
 	}
-	
+
 	private void setGroup(Roi roi, String group1, String group2) {
 		if (group1.equals(group2))
 			return;
@@ -324,7 +324,7 @@ public class RoiProperties implements TextListener, WindowListener {
 		if (!Double.isNaN(group))
 			roi.setGroup((int)group);
 	}
-		
+
 	public boolean showImageDialog(String name) {
 		ImageRoi iRoi = (ImageRoi)roi;
 		boolean zeroTransparent =  iRoi.getZeroTransparent();
@@ -348,7 +348,7 @@ public class RoiProperties implements TextListener, WindowListener {
 		if (newOverlay) roi.setName("new-overlay");
 		return true;
 	}
-	
+
 	void listCoordinates(Roi roi) {
 		if (roi==null) return;
 		boolean allIntegers = true;
@@ -383,14 +383,14 @@ public class RoiProperties implements TextListener, WindowListener {
 		}
 		rt.show("XY_"+title);
 	}
-	
+
 	void listProperties(Roi roi) {
 		String props = roi.getProperties();
 		if (props==null) return;
 		props = props.replaceAll(": ", "\t");
 		new TextWindow("Properties", "Key\tValue", props, 300, 300);
 	}
-	
+
 	public void textValueChanged(TextEvent e) {
 		if (groupName==null)
 			return;
@@ -410,19 +410,19 @@ public class RoiProperties implements TextListener, WindowListener {
 		} else
 			groupName.setText("");
 	}
-	
+
 	public void windowActivated(WindowEvent e) {
 		if (groupName!=null) {
 			String gname = Roi.getGroupName(roi.getGroup());
 			groupName.setText(gname!=null?" "+gname:"");  // add space to separate label from field
 		}
 	}
-	
+
 	public void windowClosing(WindowEvent e) {}
 	public void windowOpened(WindowEvent e) {}
 	public void windowClosed(WindowEvent e) {}
 	public void windowIconified(WindowEvent e) {}
 	public void windowDeiconified(WindowEvent e) {}
 	public void windowDeactivated(WindowEvent e) {}
-    
+
 }

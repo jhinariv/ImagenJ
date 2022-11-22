@@ -418,7 +418,7 @@ public class Line extends Roi {
 	}
 
 	public void showStatus() {
-		IJ.showStatus(imp.getLocationAsString((int)Math.round(x2d),(int)Math.round(y2d))+
+		IJMessage.showStatus(imp.getLocationAsString((int)Math.round(x2d),(int)Math.round(y2d))+
 				", angle=" + IJ.d2s(getAngle()) + ", length=" + IJ.d2s(getLength()));
 	}
 

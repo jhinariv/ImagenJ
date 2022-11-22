@@ -23,19 +23,19 @@ public class ThresholdToSelection implements PlugInFilter {
 	int w, h;
 	boolean showStatus;
 	final static double PROGRESS_FRACTION_OUTLINING = 0.9;  //fraction of progress bar for the first phase (tracing outlines)
-	
+
 	public void run(ImageProcessor ip) {
 		showStatus = true;
 		image.setRoi(convert(ip));
 	}
-	
+
 	/** Returns a selection created from the thresholded pixels in the
 		specified image, or null if there are no thresholded pixels. */
 	public static Roi run(ImagePlus imp) {
 		ThresholdToSelection tts = new ThresholdToSelection();
 		return tts.convert(imp.getProcessor());
 	}
-	
+
 	/** Returns a selection created from the thresholded pixels in the
 		specified image, or null if there are no thresholded pixels. */
 	public Roi convert(ImageProcessor ip) {
@@ -232,7 +232,7 @@ public class ThresholdToSelection implements PlugInFilter {
 	 */
 	Roi getRoi() {
 		if (showStatus)
-			IJ.showStatus("Converting threshold to selection");
+			IJMessage.showStatus("Converting threshold to selection");
 		boolean[] prevRow, thisRow;
 		ArrayList polygons = new ArrayList();
 		Outline[] outline;
@@ -252,7 +252,7 @@ public class ThresholdToSelection implements PlugInFilter {
 					thisRow[x + 2] = selected(x + 1, y);  //we need to read one pixel ahead
 				else if (x < w - 1)
 					thisRow[x + 2] = false;
-				//IJ.log(x+","+y+": "+thisRow[x + 1]+(x==xAfterLowerRightCorner ? " Corner" : "")+" left="+outline[x]+(x < w ? " right="+outline[x+1] : ""));
+				//IJMessage.log(x+","+y+": "+thisRow[x + 1]+(x==xAfterLowerRightCorner ? " Corner" : "")+" left="+outline[x]+(x < w ? " right="+outline[x+1] : ""));
 				if (thisRow[x + 1]) {  // i.e., pixel (x,y) is selected
 					if (!prevRow[x + 1]) {
 						// Upper edge of selected area:
@@ -306,7 +306,7 @@ public class ThresholdToSelection implements PlugInFilter {
 									break;
 								}
 							if (outline[x + 1] != null)
-								throw new RuntimeException("assertion failed");							
+								throw new RuntimeException("assertion failed");
 						}
 					}
 					if (!thisRow[x]) {
@@ -395,10 +395,10 @@ public class ThresholdToSelection implements PlugInFilter {
 					IJ.showProgress(y*(PROGRESS_FRACTION_OUTLINING/h));
 			}
 		}
-		
+
 		if (polygons.size()==0)
 			return null;
-		if (showStatus) IJ.showStatus("Converting threshold to selection...");
+		if (showStatus) IJMessage.showStatus("Converting threshold to selection...");
 		GeneralPath path = new GeneralPath(GeneralPath.WIND_EVEN_ODD);
 		progressInc = Math.max(polygons.size()/10, 1);
 		for (int i = 0; i < polygons.size(); i++) {

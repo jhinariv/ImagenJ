@@ -20,7 +20,7 @@ public class OvalRoi extends Roi {
 		super(x, y, width, height);
 		type = OVAL;
 	}
-	
+
 	/** Creates an OvalRoi. */
 	public static OvalRoi create(double x, double y, double width, double height) {
 		return new OvalRoi(x, y, width, height);
@@ -72,7 +72,7 @@ public class OvalRoi extends Roi {
 		if (clipboard!=null) return;
 		int ox = offScreenX(sx);
 		int oy = offScreenY(sy);
-		//IJ.log("moveHandle: "+activeHandle+" "+ox+" "+oy);
+		//IJMessage.log("moveHandle: "+activeHandle+" "+ox+" "+oy);
 		int x1=x, y1=y, x2=x+width, y2=y+height, xc=x+width/2, yc=y+height/2;
 		int w2 = (int)(0.14645*width);
 		int h2 = (int)(0.14645*height);
@@ -85,7 +85,7 @@ public class OvalRoi extends Roi {
 			case 0: x=ox-w2; y=oy-h2; break;
 			case 1: y=oy; break;
 			case 2: x2=ox+w2; y=oy-h2; break;
-			case 3: x2=ox; break;			
+			case 3: x2=ox; break;
 			case 4: x2=ox+w2; y2=oy+h2; break;
 			case 5: y2=oy; break;
 			case 6: x=ox-w2; y2=oy+h2; break;
@@ -151,7 +151,7 @@ public class OvalRoi extends Roi {
 		if (constrain) {
 			if (activeHandle==1 || activeHandle==5) width=height;
 			else height=width;
-			
+
 			if (x>=x2) {
 				width=1;
 				x=x2=xc;
@@ -267,7 +267,7 @@ public class OvalRoi extends Roi {
 		int sx3 = sx1+sw;
 		int sy3 = sy1+sh;
 		Graphics2D g2d = (Graphics2D)g;
-		if (stroke!=null) 
+		if (stroke!=null)
 			g2d.setStroke(getScaledStroke());
 		setRenderingHint(g2d);
 		if (fillColor!=null) {
@@ -306,7 +306,7 @@ public class OvalRoi extends Roi {
 		}
 		if (Line.getWidth()>1 || getStrokeWidth()>1)
 			updateFullWindow = true;
-	}		
+	}
 
 	/** Returns this OvalRoi as a Polygon that outlines the mask, in image pixel coordinates. */
 	public Polygon getPolygon() {
@@ -326,7 +326,7 @@ public class OvalRoi extends Roi {
 				wand.ypoints[i] += y;
 			}
 		return new Polygon(wand.xpoints, wand.ypoints, wand.npoints);
-	}		
+	}
 
 	/** Returns this OvalRoi as a FloatPolygon approximating the ellipse. */
 	public FloatPolygon getFloatPolygon() {
@@ -367,7 +367,7 @@ public class OvalRoi extends Roi {
 		return e.contains(x, y);
 	}
 
-	/** Returns a handle number if the specified screen coordinates are  
+	/** Returns a handle number if the specified screen coordinates are
 		inside or near a handle, otherwise returns -1. */
 	public int isHandle(int sx, int sy) {
 		if (clipboard!=null || ic==null) return -1;
@@ -380,16 +380,16 @@ public class OvalRoi extends Roi {
 		int sy3 = screenY(y+height) - halfSize;
 		int sx2 = sx1 + (sx3 - sx1)/2;
 		int sy2 = sy1 + (sy3 - sy1)/2;
-		
+
 		int sw2 = (int)(0.14645*(sx3-sx1));
 		int sh2 = (int)(0.14645*(sy3-sy1));
-		
+
 		if (sx>=sx1+sw2&&sx<=sx1+sw2+size&&sy>=sy1+sh2&&sy<=sy1+sh2+size) return 0;
-		if (sx>=sx2&&sx<=sx2+size&&sy>=sy1&&sy<=sy1+size) return 1;		
-		if (sx>=sx3-sw2&&sx<=sx3-sw2+size&&sy>=sy1+sh2&&sy<=sy1+sh2+size) return 2;		
-		if (sx>=sx3&&sx<=sx3+size&&sy>=sy2&&sy<=sy2+size) return 3;		
-		if (sx>=sx3-sw2&&sx<=sx3-sw2+size&&sy>=sy3-sh2&&sy<=sy3-sh2+size) return 4;		
-		if (sx>=sx2&&sx<=sx2+size&&sy>=sy3&&sy<=sy3+size) return 5;		
+		if (sx>=sx2&&sx<=sx2+size&&sy>=sy1&&sy<=sy1+size) return 1;
+		if (sx>=sx3-sw2&&sx<=sx3-sw2+size&&sy>=sy1+sh2&&sy<=sy1+sh2+size) return 2;
+		if (sx>=sx3&&sx<=sx3+size&&sy>=sy2&&sy<=sy2+size) return 3;
+		if (sx>=sx3-sw2&&sx<=sx3-sw2+size&&sy>=sy3-sh2&&sy<=sy3-sh2+size) return 4;
+		if (sx>=sx2&&sx<=sx2+size&&sy>=sy3&&sy<=sy3+size) return 5;
 		if (sx>=sx1+sw2&&sx<=sx1+sw2+size&&sy>=sy3-sh2&&sy<=sy3-sh2+size) return 6;
 		if (sx>=sx1&&sx<=sx1+size&&sy>=sy2&&sy<=sy2+size) return 7;
 		return -1;
@@ -410,7 +410,7 @@ public class OvalRoi extends Roi {
             offset = y*width;
 			for (int x=0; x<width; x++) {
 				xx = x - a;
-				yy = y - b;   
+				yy = y - b;
 				if ((xx*xx/a2+yy*yy/b2)<=1.0)
 					pixels[offset+x] = -1;
 			}
@@ -431,5 +431,5 @@ public class OvalRoi extends Roi {
 		double b = 0.5*height*ph;
 		return Math.PI*(3*(a + b) - Math.sqrt((3*a + b)*(a + 3*b)));
 	}
-		
+
 }

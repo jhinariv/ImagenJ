@@ -15,8 +15,8 @@ public class Memory implements PlugIn {
 
 	public void run(String arg) {
 		changeMemoryAllocation();
-		//IJ.log("setting="+getMemorySetting()/(1024*1024)+"MB");
-		//IJ.log("maxMemory="+maxMemory()/(1024*1024)+"MB");
+		//IJMessage.log("setting="+getMemorySetting()/(1024*1024)+"MB");
+		//IJMessage.log("maxMemory="+maxMemory()/(1024*1024)+"MB");
 	}
 
 	void changeMemoryAllocation() {
@@ -40,7 +40,7 @@ public class Memory implements PlugIn {
 		Prefs.keepUndoBuffers = gd.getNextBoolean();
 		Prefs.noClickToGC = !gd.getNextBoolean();
 		if (gd.invalidNumber()) {
-			IJ.showMessage("Memory", "The number entered was invalid.");
+			IJMessage.showMessage("Memory", "The number entered was invalid.");
 			return;
 		}
 		if (unableToSet && max2!=max)
@@ -53,7 +53,7 @@ public class Memory implements PlugIn {
 		int limit = IJ.isWindows()?1600:1700;
 		String OSXInfo = "";
 		if (max2>=limit && !IJ.is64Bit()) {
-			if (!IJ.showMessageWithCancel(title, 
+			if (!IJMessage.showMessageWithCancel(title,
 			"Note: setting the memory limit to a value\n"
 			+"greater than "+limit+"MB on a 32-bit system\n"
 			+"may cause ImageJ to fail to start. The title of\n"
@@ -75,19 +75,19 @@ public class Memory implements PlugIn {
 			String error = e.getMessage();
 			if (error==null || error.equals("")) error = ""+e;
 			String name = IJ.isMacOSX()?"Info.plist":"ImageJ.cfg";
-			String msg = 
+			String msg =
 				   "Unable to update the file \"" + name + "\".\n"
 				+ " \n"
 				+ "\"" + error + "\"";
-			IJ.showMessage("Memory", msg);
+			IJMessage.showMessage("Memory", msg);
 			return;
 		}
 		String hint = "";
 		if (IJ.isWindows() && max2>640 && max2>max)
 			hint = "\nDelete the \"ImageJ.cfg\" file, located in the ImageJ folder,\nif ImageJ fails to start.";
-		IJ.showMessage("Memory", "The new " + max2 +"MB limit will take effect after ImageJ is restarted."+hint);		
+		IJMessage.showMessage("Memory", "The new " + max2 +"MB limit will take effect after ImageJ is restarted."+hint);
 	}
-	
+
 	public long getMemorySetting() {
 		if (IJ.getApplet()!=null) return 0L;
 		long max = 0L;
@@ -99,7 +99,7 @@ public class Memory implements PlugIn {
 			appPath = appPath.substring(0,index+5);
 			max = getMemorySetting(appPath+"Contents/Info.plist");
 		} else
-			max = getMemorySetting("ImageJ.cfg");		
+			max = getMemorySetting("ImageJ.cfg");
 		return max;
 	}
 
@@ -119,12 +119,12 @@ public class Memory implements PlugIn {
 		}
 		if (max>0)
 			msg += "Current limit: " + max + "MB";
-		IJ.showMessage("Memory", msg);
+		IJMessage.showMessage("Memory", msg);
 	}
 
 	long getMemorySetting(String file) {
 		String path = file.startsWith("/")?file:Prefs.getImageJDir()+file;
-		if (IJ.debugMode) IJ.log("getMemorySetting: "+path);
+		if (IJDebugMode.debugMode) IJMessage.log("getMemorySetting: "+path);
 		f = new File(path);
 		if (!f.exists()) {
 			fileMissing = true;
@@ -150,7 +150,7 @@ public class Memory implements PlugIn {
 				max = max*1024L;
 		}
 		catch (Exception e) {
-			IJ.log(""+e);
+			IJMessage.log(""+e);
 			return 0L;
 		}
 		return max;
@@ -160,5 +160,5 @@ public class Memory implements PlugIn {
 	public long maxMemory() {
 			return Runtime.getRuntime().maxMemory();
 	}
-	
+
 }

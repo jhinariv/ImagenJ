@@ -29,7 +29,7 @@ public class PluginClassLoader extends URLClassLoader {
 		super(new URL[0], IJ.class.getClassLoader());
 		init(path);
 	}
-	
+
 	/** This version of the constructor is used when ImageJ is launched using Java WebStart. */
 	public PluginClassLoader(String path, boolean callSuper) {
 		super(new URL[0], Thread.currentThread().getContextClassLoader());
@@ -45,7 +45,7 @@ public class PluginClassLoader extends URLClassLoader {
             // Add plugin directory to search path
             addURL(f.toURI().toURL());
         } catch (MalformedURLException e) {
-            ij.IJ.log("PluginClassLoader: "+e);
+            ij.IJMessage.log("PluginClassLoader: "+e);
         }
 		String[] list = f.list();
 		if (list==null)
@@ -56,19 +56,19 @@ public class PluginClassLoader extends URLClassLoader {
 			File f2=new File(path, list[i]);
 			if (f2.isDirectory())
 				addDirectory(f2);
-			else 
+			else
 				addJar(f2);
 		}
 		addDirectory(f, "jars"); // add ImageJ/jars; requested by Wilhelm Burger
 	}
 
 	private void addDirectory(File f) {
-		//if (IJ.debugMode) IJ.log("PluginClassLoader.addDirectory: "+f);
+		//if (IJDebugMode.debugMode) IJMessage.log("PluginClassLoader.addDirectory: "+f);
 		try {
 			// Add first level subdirectories to search path
 			addURL(f.toURI().toURL());
 		} catch (MalformedURLException e) {
-			ij.IJ.log("PluginClassLoader: "+e);
+			ij.IJMessage.log("PluginClassLoader: "+e);
 		}
 		String[] innerlist = f.list();
 		if (innerlist==null)
@@ -82,11 +82,11 @@ public class PluginClassLoader extends URLClassLoader {
 
     private void addJar(File f) {
         if (f.getName().endsWith(".jar") || f.getName().endsWith(".zip")) {
-			//if (IJ.debugMode) IJ.log("PluginClassLoader.addJar: "+f);
+			//if (IJDebugMode.debugMode) IJMessage.log("PluginClassLoader.addJar: "+f);
             try {
                 addURL(f.toURI().toURL());
             } catch (MalformedURLException e) {
-				ij.IJ.log("PluginClassLoader: "+e);
+				ij.IJMessage.log("PluginClassLoader: "+e);
             }
         }
     }

@@ -8,7 +8,7 @@ import ij.process.*;
 import ij.io.*;
 import ij.gui.*;
 
-/** Saves the current ROI outline to a file. RoiDecoder.java 
+/** Saves the current ROI outline to a file. RoiDecoder.java
 	has a description of the file format.
 	@see ij.io.RoiDecoder
 	@see ij.plugin.RoiReader
@@ -28,7 +28,7 @@ public class RoiWriter implements PlugInFilter {
 			String msg = e.getMessage();
 			if (msg==null || msg.equals(""))
 				msg = ""+e;
-			IJ.error("ROI Writer", msg);
+			IJMessage.error("ROI Writer", msg);
 		}
 	}
 
@@ -50,5 +50,5 @@ public class RoiWriter implements PlugInFilter {
 			name = name.substring(0, name.length()-4);
 		roi.setName(name);
 	}
-	
+
 }

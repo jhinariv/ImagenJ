@@ -1,7 +1,7 @@
 package ij.plugin;
 import java.awt.*;
 import java.io.*;
-import java.text.DecimalFormat;	
+import java.text.DecimalFormat;
 import java.util.*;
 import ij.*;
 import ij.io.*;
@@ -12,7 +12,7 @@ import ij.plugin.frame.Recorder;
 import ij.macro.Interpreter;
 import ij.util.Tools;
 
-/** This plugin, which saves the images in a stack as separate files, 
+/** This plugin, which saves the images in a stack as separate files,
 	implements the File/Save As/Image Sequence command. */
 public class StackWriter implements PlugIn {
 	private static final String DIR_KEY = "save.sequence.dir";
@@ -29,7 +29,7 @@ public class StackWriter implements PlugIn {
 	private String directory;
 	private String format = "tiff";
 	private String name;
-	
+
 	/** Saves the specified image as a sequence of images. */
 	public static void save(ImagePlus imp, String directoryPath, String options) {
 		StackWriter sw = new StackWriter();
@@ -45,8 +45,8 @@ public class StackWriter implements PlugIn {
 	public void run(String arg) {
 		if (imp==null)
 			imp = WindowManager.getCurrentImage();
-		if (imp==null || (imp!=null && imp.getStackSize()<2&&!IJ.isMacro())) {
-			IJ.error("Stack Writer", "This command requires a stack.");
+		if (imp==null || (imp!=null && imp.getStackSize()<2&&!IJMacro.isMacro())) {
+			IJMessage.error("Stack Writer", "This command requires a stack.");
 			return;
 		}
 		int stackSize = imp.getStackSize();
@@ -71,13 +71,13 @@ public class StackWriter implements PlugIn {
 		}
 		if (arg!=null && arg.length()>0)
 			directory = arg;
-		else {		
+		else {
 			if (!showDialog(imp))
 				return;
-		}		
+		}
 		File d = new File(directory);
 		if (d==null || !d.isDirectory()) {
-			IJ.error("File>Save As>Image Sequence", "Directory not found: "+directory);
+			IJMessage.error("File>Save As>Image Sequence", "Directory not found: "+directory);
 			return;
 		}
 		int number = 0;
@@ -85,19 +85,19 @@ public class StackWriter implements PlugIn {
 		if (ndigits>8) ndigits = 8;
 		int maxImages = (int)Math.pow(10,ndigits);
 		if (stackSize>maxImages && !useLabels && !hyperstack) {
-			IJ.error("Stack Writer", "More than " + ndigits
+			IJMessage.error("Stack Writer", "More than " + ndigits
 				+" digits are required to generate \nunique file names for "+stackSize+" images.");
-			return;			
+			return;
 		}
 		if (format.equals("fits") && !FileSaver.okForFits(imp))
-			return;			
+			return;
 		if (format.equals("text"))
 			format = "text image";
 		String extension = "." + format;
 		if (format.equals("tiff"))
 			extension = ".tif";
 		else if (format.equals("text image"))
-			extension = ".txt";					
+			extension = ".txt";
 		Overlay overlay = imp.getOverlay();
 		boolean isOverlay = overlay!=null && !imp.getHideOverlay();
 		if (!(format.equals("jpeg")||format.equals("png")))
@@ -110,7 +110,7 @@ public class StackWriter implements PlugIn {
 		String path,label=null;
 		imp.lock();
 		for (int i=1; i<=nSlices; i++) {
-			IJ.showStatus("writing: "+i+"/"+nSlices);
+			IJMessage.showStatus("writing: "+i+"/"+nSlices);
 			IJ.showProgress(i, nSlices);
 			ImageProcessor ip = stack.getProcessor(i);
 			if (isOverlay) {
@@ -146,10 +146,10 @@ public class StackWriter implements PlugIn {
 			if (i==1) {
 				File f = new File(path);
 				if (f.exists()) {
-					if (!IJ.isMacro() && !IJ.showMessageWithCancel("Overwrite files?",
+					if (!IJMacro.isMacro() && !IJMessage.showMessageWithCancel("Overwrite files?",
 						"One or more files will be overwritten if you click \"OK\".\n \n"+path)) {
 						imp.unlock();
-						IJ.showStatus("");
+						IJMessage.showStatus("");
 						IJ.showProgress(1.0);
 						return;
 					}
@@ -175,19 +175,19 @@ public class StackWriter implements PlugIn {
 		}
 		imp.unlock();
 		if (isOverlay) imp.setSlice(1);
-		IJ.showStatus("");
+		IJMessage.showStatus("");
 	}
-	
+
 	private boolean showDialog(ImagePlus imp) {
 		String options = Macro.getOptions();
 		if (options!=null && options.contains("save="))  //macro
 			Macro.setOptions(options.replaceAll("save=", "dir="));
 		directory = Prefs.get(DIR_KEY, IJ.getDir("downloads")+"stack2/");
 		GenericDialog gd = new GenericDialog("Save Image Sequence");
-		if (!IJ.isMacro())
+		if (!IJMacro.isMacro())
 			fileType = staticFileType;
 		gd.setInsets(5, 0, 0);
-		gd.addDirectoryField("Dir:", directory);		
+		gd.addDirectoryField("Dir:", directory);
 		gd.setInsets(2, 110, 5);
 		gd.addMessage("drag and drop target", IJ.font10, Color.darkGray);
 		gd.addChoice("Format:", choices, fileType);
@@ -206,7 +206,7 @@ public class StackWriter implements PlugIn {
 		gd.setSmartRecording(true);
 		fileType = gd.getNextChoice();
 		format = fileType.toLowerCase(Locale.US);
-		if (!IJ.isMacro())
+		if (!IJMacro.isMacro())
 			staticFileType = fileType;
 		String name2 = gd.getNextString();
 		boolean nameChanged =  !name2.equals(name);
@@ -228,13 +228,13 @@ public class StackWriter implements PlugIn {
 			if (ndigitsChanged)
 				options2 += " digits="+ndigits;
 			if (useLabels)
-				options2 += " use";			
+				options2 += " use";
 			String dir = Recorder.fixPath(directory);
    			Recorder.recordCall("StackWriter.save(imp, \""+dir+"\", \""+options2+"\");");
 		}
 		return true;
 	}
-	
+
 	String getDigits(int n) {
 		if (hyperstack) {
 			int c = (n%dim[2])+1;
@@ -259,6 +259,6 @@ public class StackWriter implements PlugIn {
 			return digits.substring(digits.length()-ndigits);
 		}
 	}
-	
+
 }
 

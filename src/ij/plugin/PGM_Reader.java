@@ -77,14 +77,14 @@ public class PGM_Reader extends ImagePlus implements PlugIn {
             return;
         String path = directory + name;
 
-        IJ.showStatus("Opening: " + path);
+        IJMessage.showStatus("Opening: " + path);
         ImageStack stack;
         try {
             stack = openFile(path);
         }
         catch (IOException e) {
             String msg = e.getMessage();
-            IJ.showMessage("PBM/PGM/PPM Reader", msg.equals("") ? "" + e : msg);
+            IJMessage.showMessage("PBM/PGM/PPM Reader", msg.equals("") ? "" + e : msg);
             return;
         }
         setStack(name, stack);
@@ -109,8 +109,8 @@ public class PGM_Reader extends ImagePlus implements PlugIn {
 			tok.eolIsSignificant(true);
 			tok.commentChar('#');
 			openHeader(tok);
-			//IJ.log("PGM_Reader: w="+width+",h="+height+",raw="+rawBits+",16bits="+sixteenBits+",color="+isColor+",b&w="+isBlackWhite+",max="+maxValue);
-				
+			//IJMessage.log("PGM_Reader: w="+width+",h="+height+",raw="+rawBits+",16bits="+sixteenBits+",color="+isColor+",b&w="+isBlackWhite+",max="+maxValue);
+
 			if (!isColor && sixteenBits) { // 16-bit grayscale
 				if (rawBits) {
 					ImageProcessor ip = open16bitRawImage(is, width, height);
@@ -124,7 +124,7 @@ public class PGM_Reader extends ImagePlus implements PlugIn {
 					return stack;
 				}
 			}
-			
+
 			if (!isColor) { // 8-bit grayscale
 				byte[] pixels = new byte[width * height];
 				ImageProcessor ip = new ByteProcessor(width, height, pixels, null);
@@ -149,7 +149,7 @@ public class PGM_Reader extends ImagePlus implements PlugIn {
 				stack.addSlice("", ip);
 				return stack;
 			}
-			
+
 			if (!sixteenBits) { // 8-bit color
 				int[] pixels = new int[width * height];
 				byte[] bytePixels = new byte[3 * width * height];
@@ -171,7 +171,7 @@ public class PGM_Reader extends ImagePlus implements PlugIn {
 				stack.addSlice("", ip);
 				return stack;
 			}
-			
+
 			// 16-bit raw color
 			short[] red = new short[width*height];
 			short[] green = new short[width*height];

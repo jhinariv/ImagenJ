@@ -14,13 +14,13 @@ public class RoiRotator implements PlugIn {
 		ImagePlus imp = IJ.getImage();
 		Roi roi = imp.getRoi();
 		if (roi==null) {
-			IJ.error("Rotate", "This command requires a selection");
+			IJMessage.error("Rotate", "This command requires a selection");
 			return;
 		}
 		double angle = showDialog(defaultAngle);
 		if (Double.isNaN(angle))
 			return;
-		if (!IJ.macroRunning())
+		if (!IJMacro.macroRunning())
 			defaultAngle = angle;
 		FloatPolygon center = roi.getRotationCenter();
 		double xcenter = center.xpoints[0];
@@ -39,7 +39,7 @@ public class RoiRotator implements PlugIn {
 		imp.setRoi(roi2);
 		Roi.setPreviousRoi(roi);
 	}
-	
+
 	public double showDialog(double angle) {
 		GenericDialog gd = new GenericDialog("Rotate Selection");
 		int decimalPlaces = 0;
@@ -57,7 +57,7 @@ public class RoiRotator implements PlugIn {
 		rotateAroundImageCenter = gd.getNextBoolean();
 		return gd.getNextNumber();
 	}
-	
+
 	public static Roi rotate(Roi roi, double angle) {
 		if (roi instanceof ImageRoi) {
 			((ImageRoi)roi).rotate(angle);
@@ -112,7 +112,7 @@ public class RoiRotator implements PlugIn {
 		roi2.copyAttributes(roi);
 		return roi2;
 	}
-	
+
 	private static Roi rotateShape(ShapeRoi roi, double angle, double xcenter, double ycenter) {
 		Shape shape = roi.getShape();
 		AffineTransform at = new AffineTransform();
@@ -124,5 +124,5 @@ public class RoiRotator implements PlugIn {
 		roi2.copyAttributes(roi);
 		return roi2;
 	}
-	
+
 }

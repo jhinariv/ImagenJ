@@ -30,7 +30,7 @@ public class CircularRoiMaker implements PlugIn, DialogListener {
 			saveRadius = radius;
 
 	}
-	
+
 	private void showDialog() {
 		Roi roi = imp.getRoi();
 		drawRoi();
@@ -45,7 +45,7 @@ public class CircularRoiMaker implements PlugIn, DialogListener {
 				imp.setRoi(roi);
 		}
 	}
-	
+
 	public boolean dialogItemChanged(GenericDialog gd, AWTEvent e) {
 		radius = gd.getNextNumber();
 		if (gd.invalidNumber())
@@ -53,7 +53,7 @@ public class CircularRoiMaker implements PlugIn, DialogListener {
 		drawRoi();
 		return true;
 	}
-	
+
 	private void drawRoi() {
 		double x = xcenter - radius;
 		double y = ycenter - radius;
@@ -61,7 +61,7 @@ public class CircularRoiMaker implements PlugIn, DialogListener {
 		imp.setRoi(roi);
 		showRadius();
 	}
-		
+
 	private void showRadius() {
 		String units = cal.getUnits();
 		String s = " radius = ";
@@ -69,7 +69,7 @@ public class CircularRoiMaker implements PlugIn, DialogListener {
 			int width = imp.getWidth();
 			if (radius<1.0)
 				s += "Infinity/c";
-			else if (cal.scaled()) 
+			else if (cal.scaled())
 				s += IJ.d2s((width/radius)*cal.pixelWidth,2) + " " + units + "/c";
 		   else
 				s += IJ.d2s(width/radius,2) + " p/c";
@@ -77,7 +77,7 @@ public class CircularRoiMaker implements PlugIn, DialogListener {
 			int digits = cal.pixelWidth==1.0?0:2;
 			s +=  IJ.d2s(radius*cal.pixelWidth,digits)+" "+units;
 		}
-		IJ.showStatus(s);
+		IJMessage.showStatus(s);
 	}
 
 }

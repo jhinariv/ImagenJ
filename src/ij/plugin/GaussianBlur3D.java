@@ -11,7 +11,7 @@ public class GaussianBlur3D implements PlugIn {
 	public void run(String arg) {
 		ImagePlus imp = IJ.getImage();
 		if (imp.isComposite() && imp.getNChannels()==imp.getStackSize()) {
-			IJ.error("3D Gaussian Blur", "Composite color images not supported");
+			IJMessage.error("3D Gaussian Blur", "Composite color images not supported");
 			return;
 		}
 		if (!showDialog())
@@ -20,7 +20,7 @@ public class GaussianBlur3D implements PlugIn {
 		blur(imp, xsigma, ysigma, zsigma);
 		IJ.showTime(imp, imp.getStartTime(), "", imp.getStackSize());
 	}
-	
+
 	private boolean showDialog() {
 		GenericDialog gd = new GenericDialog("3D Gaussian Blur");
 		gd.addNumericField("X sigma:", xsigma, 1);
@@ -34,7 +34,7 @@ public class GaussianBlur3D implements PlugIn {
 		zsigma = gd.getNextNumber();
 		return true;
 	}
-	
+
 	public static void blur(ImagePlus imp, double sigmaX, double sigmaY, double sigmaZ) {
 		imp.deleteRoi();
 		ImageStack stack = imp.getStack();
@@ -63,7 +63,7 @@ public class GaussianBlur3D implements PlugIn {
 		int w=stack.getWidth(), h=stack.getHeight(), d=stack.size();
 		float[] zpixels = null;
 		FloatProcessor fp =null;
-		IJ.showStatus("Z blurring");
+		IJMessage.showStatus("Z blurring");
 		gb.showProgress(false);
 		int channels = stack.getProcessor(1).getNChannels();
 		for (int y=0; y<h; y++) {
@@ -77,7 +77,7 @@ public class GaussianBlur3D implements PlugIn {
 				stack.setVoxels(0, y, 0, w, 1, d, zpixels, channel);
 			}
 		}
-		IJ.showStatus("");
+		IJMessage.showStatus("");
 	}
 
 	private static void blurHyperStackZ(ImagePlus imp, double zsigma) {

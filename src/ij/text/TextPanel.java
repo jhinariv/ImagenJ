@@ -282,9 +282,9 @@ public class TextPanel extends Panel implements AdjustmentListener,
 			msg += "-" + endLine;
 		}
 		if (!msg.equals("Line 0"))
-			IJ.showStatus(msg);
+			IJMessage.showStatus(msg);
 	}
-	
+
 	public void mousePressed (MouseEvent e) {
 		int x=e.getX(), y=e.getY();
 		if (e.isPopupTrigger() || e.isMetaDown())
@@ -363,7 +363,7 @@ public class TextPanel extends Panel implements AdjustmentListener,
 		}
 		imp.setRoi(roi);
 	}
-	
+
     /** For better performance, open double-clicked files on
     	separate thread instead of on event dispatch thread. */
     public void run() {
@@ -426,7 +426,7 @@ public class TextPanel extends Panel implements AdjustmentListener,
  	public void mouseReleased (MouseEvent e) {
 			showLinePos();
 	}
-	
+
 	public void mouseClicked (MouseEvent e) {
 		if (e.getClickCount() == 2 && !e.isConsumed()) {
 			e.consume();
@@ -438,10 +438,10 @@ public class TextPanel extends Panel implements AdjustmentListener,
 			if (doubleClickableTable && !tableActionCommand)
 				return;
 			String options = title+"|"+getSelectionStart()+"|"+getSelectionEnd();
-			IJ.run("Table Action", options);
+			IJMacro.run("Table Action", options);
 		}
 	}
-	
+
 	public void mouseWheelMoved(MouseWheelEvent event) {
 		synchronized(this) {
 			int rot = event.getWheelRotation();
@@ -537,7 +537,7 @@ public class TextPanel extends Panel implements AdjustmentListener,
 			new PlotContentsDialog(title, getOrCreateResultsTable()).showDialog(getParent() instanceof Frame ? (Frame)getParent() : null);
 		else if (cmd.equals("Table Action")) {
 			String options = title+"|"+getSelectionStart()+"|"+getSelectionEnd();
-			IJ.run("Table Action", options);
+			IJMacro.run("Table Action", options);
 		}
 	}
 
@@ -755,7 +755,7 @@ public class TextPanel extends Panel implements AdjustmentListener,
 		StringSelection cont = new StringSelection(s);
 		clip.setContents(cont,this);
 		if (s.length()>0) {
-			IJ.showStatus((selEnd-selStart+1)+" lines copied to clipboard");
+			IJMessage.showStatus((selEnd-selStart+1)+" lines copied to clipboard");
 			if (this.getParent() instanceof ImageJ)
 				Analyzer.setUnsavedMeasurements(false);
 		}
@@ -795,7 +795,7 @@ public class TextPanel extends Panel implements AdjustmentListener,
 	public void clearSelection() {
 		if (selStart==-1 || selEnd==-1) {
 			if (getLineCount()>0)
-				IJ.error("Text selection required");
+				IJMessage.error("Text selection required");
 			return;
 		}
 		if (Recorder.record) {
@@ -859,7 +859,7 @@ public class TextPanel extends Panel implements AdjustmentListener,
 	public void selectAll() {
 		if (selStart==0 && selEnd==iRowCount-1) {
 			resetSelection();
-			IJ.showStatus("");
+			IJMessage.showStatus("");
 			return;
 		}
 		selStart = 0;
@@ -1002,7 +1002,7 @@ public class TextPanel extends Panel implements AdjustmentListener,
 				pw = new PrintWriter(bos);
 			}
 			catch (IOException e) {
-				IJ.error("Save As>Text", e.getMessage());
+				IJMessage.error("Save As>Text", e.getMessage());
 				return true;
 			}
 			saveAsCSV = path.endsWith(".csv");
@@ -1012,16 +1012,16 @@ public class TextPanel extends Panel implements AdjustmentListener,
 		}
 		if (isResults) {
 			Analyzer.setUnsavedMeasurements(false);
-			if (Recorder.record && !IJ.isMacro())
+			if (Recorder.record && !IJMacro.isMacro())
 				Recorder.record("saveAs", "Results", path);
 		} else if (rt!=null) {
-			if (Recorder.record && !IJ.isMacro())
+			if (Recorder.record && !IJMacro.isMacro())
 				Recorder.record("saveAs", "Results", path);
 		} else {
-			if (Recorder.record && !IJ.isMacro())
+			if (Recorder.record && !IJMacro.isMacro())
 				Recorder.record("saveAs", "Text", path);
 		}
-		IJ.showStatus("");
+		IJMessage.showStatus("");
 		return true;
 	}
 
@@ -1086,8 +1086,8 @@ public class TextPanel extends Panel implements AdjustmentListener,
 	}
 
 	/** Sets the ResultsTable associated with this TextPanel. */
-	public void setResultsTable(ResultsTable rt) {
-		if (IJ.debugMode) IJ.log("setResultsTable: "+rt);
+	public static void setResultsTable(ResultsTable rt) {
+		if (IJDebugMode.debugMode) IJMessage.log("setResultsTable: "+rt);
 		this.rt = rt;
 		if (!menusExtended)
 			extendMenus();
@@ -1095,7 +1095,7 @@ public class TextPanel extends Panel implements AdjustmentListener,
 
 	/** Returns the ResultsTable associated with this TextPanel, or null. */
 	public ResultsTable getResultsTable() {
-		if (IJ.debugMode) IJ.log("getResultsTable: "+rt);
+		if (IJDebugMode.debugMode) IJMessage.log("getResultsTable: "+rt);
 		return rt;
 	}
 
@@ -1105,7 +1105,7 @@ public class TextPanel extends Panel implements AdjustmentListener,
 		if ((rt==null||rt.size()==0) && iRowCount>0 && labels!=null && !labels.equals("")) {
 			String tmpDir = IJ.getDir("temp");
 			if (tmpDir==null) {
-				if (IJ.debugMode) IJ.log("getOrCreateResultsTable: tmpDir null");
+				if (IJDebugMode.debugMode) IJMessage.log("getOrCreateResultsTable: tmpDir null");
 				return null;
 			}
 			String path = tmpDir+"temp-table.csv";
@@ -1115,10 +1115,10 @@ public class TextPanel extends Panel implements AdjustmentListener,
 				new File(path).delete();
 			} catch (Exception e) {
 				rt = null;
-				if (IJ.debugMode) IJ.log("getOrCreateResultsTable: "+e);
+				if (IJDebugMode.debugMode) IJMessage.log("getOrCreateResultsTable: "+e);
 			}
 		}
-		if (IJ.debugMode) IJ.log("getOrCreateResultsTable: "+rt);
+		if (IJDebugMode.debugMode) IJMessage.log("getOrCreateResultsTable: "+rt);
 		return rt;
 	}
 
@@ -1154,7 +1154,7 @@ public class TextPanel extends Panel implements AdjustmentListener,
 			vData.removeAllElements();
 		vData = null;
 	}
-	
+
 	private void sort() {
 		ResultsTable rt2 = getOrCreateResultsTable();
 		if (rt2==null)
@@ -1169,7 +1169,7 @@ public class TextPanel extends Panel implements AdjustmentListener,
 		GenericDialog gd = new GenericDialog("Sort Table");
 		gd.addChoice ("Column: ", headers, headers[0]);
 		gd.showDialog();
-		if (gd.wasCanceled()) 
+		if (gd.wasCanceled())
 			return;
 		String column = gd.getNextChoice();
 		rt2.sort(column);

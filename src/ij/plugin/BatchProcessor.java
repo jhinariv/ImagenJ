@@ -15,7 +15,7 @@ import java.util.Vector;
 		private static final String MACRO_FILE_NAME = "BatchMacro.ijm";
 		private static final String[] formats = {"TIFF", "8-bit TIFF", "JPEG", "GIF", "PNG", "PGM", "BMP", "FITS", "Text Image", "ZIP", "Raw"};
 		private static String format = Prefs.get("batch.format", formats[0]);
-		
+
 		private static final String[] code = {
 			"[Select from list]",
 			"Add Border",
@@ -33,7 +33,7 @@ import java.util.Vector;
 			"Show File Info",
 			"Unsharp Mask",
 		};
-		
+
 		private static final String help = "<html>"
 		+"<h1>Process&gt;Batch&gt;Virtual Stack</h1>"
 		+"<font size=+1>"
@@ -72,7 +72,7 @@ import java.util.Vector;
 		String macroPath = IJ.getDirectory("macros")+MACRO_FILE_NAME;
 		macro = IJ.openAsString(macroPath);
 		if (macro==null || macro.startsWith("Error: ")) {
-			IJ.showStatus(macro.substring(7) + ": "+macroPath);
+			IJMessage.showStatus(macro.substring(7) + ": "+macroPath);
 			macro = "";
 		}
 		if (!showDialog()) return;
@@ -117,7 +117,7 @@ import java.util.Vector;
 		if (!macro.equals(""))
 			IJ.saveString(macro, IJ.getDirectory("macros")+MACRO_FILE_NAME);
 	}
-		
+
 	boolean showDialog() {
 		validateFormat();
 		gd = GUI.newNonBlockingDialog("Batch Process");
@@ -145,7 +145,7 @@ import java.util.Vector;
 		macro = gd.getNextText();
 		return !gd.wasCanceled();
 	}
-	
+
 	void processVirtualStack(String outputPath) {
 		ImageStack stack = virtualStack.getStack();
 		int n = stack.size();
@@ -163,9 +163,9 @@ import java.util.Vector;
 			if (saveOutput && !outputPath.equals("")) {
 				if (format.equals("8-bit TIFF") || format.equals("GIF")) {
 					if (imp.getBitDepth()==24)
-						IJ.run(imp, "8-bit Color", "number=256");
+						IJPlugin.runimp, "8-bit Color", "number=256");
 					else
-						IJ.run(imp, "8-bit", "");
+						IJPlugin.runimp, "8-bit", "");
 				}
 				IJ.saveAs(imp, format, outputPath+pad(i));
 			}
@@ -173,9 +173,9 @@ import java.util.Vector;
 			imp.close();
 		}
 		if (outputPath!=null && !outputPath.equals(""))
-			IJ.run("Image Sequence...", "open=[" + outputPath + "]"+" use");
+			IJMacro.run("Image Sequence...", "open=[" + outputPath + "]"+" use");
 	}
-	
+
 	String pad(int n) {
 		String str = ""+n;
 		while (str.length()<5)
@@ -183,7 +183,7 @@ import java.util.Vector;
 		return str;
 	}
 
-	
+
 	void processFolder(String inputPath, String outputPath) {
 		String[] list = (new File(inputPath)).list();
 		list = FolderOpener.getFilteredList(list, filter, "Batch Processor");
@@ -194,7 +194,7 @@ import java.util.Vector;
 		for (int i=0; i<list.length; i++) {
 			if (IJ.escapePressed()) break;
 			String path = inputPath + list[i];
-			if (IJ.debugMode) IJ.log(i+": "+path);
+			if (IJDebugMode.debugMode) IJMessage.log(i+": "+path);
 			if ((new File(path)).isDirectory())
 				continue;
 			if (list[i].startsWith(".")||list[i].endsWith(".avi")||list[i].endsWith(".AVI") || list[i].equals("Thumbs.db"))
@@ -208,7 +208,7 @@ import java.util.Vector;
 			if (imp==null)
 				imp = Opener.openUsingBioFormats(path);
 			if (imp==null) {
-				IJ.log("openImage() and openUsingBioFormats() returned null: "+path);
+				IJMessage.log("openImage() and openUsingBioFormats() returned null: "+path);
 				continue;
 			}
 			if (!macro.equals("")) {
@@ -219,9 +219,9 @@ import java.util.Vector;
 			if (saveOutput && !outputPath.equals("")) {
 				if (format.equals("8-bit TIFF") || format.equals("GIF")) {
 					if (imp.getBitDepth()==24)
-						IJ.run(imp, "8-bit Color", "number=256");
+						IJPlugin.runimp, "8-bit Color", "number=256");
 					else
-						IJ.run(imp, "8-bit", "");
+						IJPlugin.runimp, "8-bit", "");
 				}
 				if (outputImage!=null && outputImage!=imp)
 					IJ.saveAs(outputImage, format, outputPath+list[i]);
@@ -232,7 +232,7 @@ import java.util.Vector;
 			imp.close();
 		}
 	}
-	
+
 	private boolean runMacro(String macro, ImagePlus imp) {
 		WindowManager.setTempCurrentImage(imp);
 		Interpreter interp = new Interpreter();
@@ -249,14 +249,14 @@ import java.util.Vector;
 		}
 		return true;
 	}
-		
+
 	String addSeparator(String path) {
 		if (path.equals("")) return path;
 		if (!(path.endsWith("/")||path.endsWith("\\")))
 			path = path + File.separator;
 		return path;
 	}
-	
+
 	void validateFormat() {
 		boolean validFormat = false;
 		for (int i=0; i<formats.length; i++) {
@@ -288,7 +288,7 @@ import java.util.Vector;
 		p.add(outputDir);
 		gd.addPanel(p);
 	}
-	
+
 	void addButtons(GenericDialog gd) {
 		Panel p = new Panel();
     	p.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 0));
@@ -375,7 +375,7 @@ import java.util.Vector;
 			if (path==null) return;
 			outputDir.setText(path);
 		} else if (source==test) {
-			thread = new Thread(this, "BatchTest"); 
+			thread = new Thread(this, "BatchTest");
 			thread.setPriority(Math.max(thread.getPriority()-2, Thread.MIN_PRIORITY));
 			thread.start();
 		} else if (source==open)
@@ -383,7 +383,7 @@ import java.util.Vector;
 		else if (source==save)
 			save();
 	}
-	
+
 	void open() {
 		String text = IJ.openAsString("");
 		if (text==null) return;
@@ -396,7 +396,7 @@ import java.util.Vector;
 				gd.getTextArea1().setText(text);
 		}
 	}
-	
+
 	void save() {
 		macro = gd.getTextArea1().getText();
 		if (!macro.equals(""))
@@ -404,9 +404,9 @@ import java.util.Vector;
 	}
 
 	void error(String msg) {
-		IJ.error("Batch Processor", msg);
+		IJMessage.error("Batch Processor", msg);
 	}
-	
+
 	public void run() {
 		TextArea ta = gd.getTextArea1();
 		//ta.selectAll();
@@ -424,7 +424,7 @@ import java.util.Vector;
 		IJ.redirectErrorMessages(false);
 		if (imp==null) {
 			if (!errorDisplayed)
-				IJ.log("IJ.openImage() returned null");
+				IJMessage.log("IJ.openImage() returned null");
 			return;
 		}
 		runMacro("i=0;"+macro, imp);
@@ -443,7 +443,7 @@ import java.util.Vector;
 		if (iw!=null) iw.setLocation(loc);
 		testImage = imp.getID();
 	}
-	
+
 	ImagePlus getVirtualStackImage() {
 		ImagePlus imp = virtualStack.createImagePlus();
 		imp.setProcessor("", virtualStack.getProcessor().duplicate());
@@ -466,13 +466,13 @@ import java.util.Vector;
 		setDirAndName(path);
 		return IJ.openImage(path);
 	}
-	
+
 	void setDirAndName(String path) {
 		File f = new File(path);
 		OpenDialog.setLastDirectory(f.getParent()+File.separator);
 		OpenDialog.setLastName(f.getName());
 	}
-	
+
 	public static void saveOutput(boolean b) {
 		saveOutput = b;
 	}

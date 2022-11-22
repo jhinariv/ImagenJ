@@ -3,7 +3,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.util.*;
-import java.awt.datatransfer.*;																																																																																													
+import java.awt.datatransfer.*;
 import ij.*;
 import ij.gui.*;
 import ij.util.Tools;
@@ -18,8 +18,8 @@ import ij.io.SaveDialog;
 /** This is a simple TextArea based editor for editing and compiling plugins. */
 public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 	TextListener, KeyListener, MouseListener, ClipboardOwner, MacroConstants, Runnable, Debugger {
-	
-	/** ImportPackage statements added in front of scripts. Contains no 
+
+	/** ImportPackage statements added in front of scripts. Contains no
 	newlines so that lines numbers in error messages are not changed. */
 	public static String JavaScriptIncludes =
 		"importPackage(Packages.ij);"+
@@ -39,18 +39,18 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 		"importPackage(java.awt.geom);"+
 		"importPackage(java.util);"+
 		"importPackage(java.io);"+
-		"function print(s) {IJ.log(s);};";
-		
+		"function print(s) {IJMessage.log(s);};";
+
 	private static String JS_EXAMPLES =
 		"img = IJ.openImage(\"http://imagej.net/images/blobs.gif\")\n"
- 		+"img = IJ.createImage(\"Untitled\", \"16-bit ramp\", 500, 500, 1)\n" 		
+ 		+"img = IJ.createImage(\"Untitled\", \"16-bit ramp\", 500, 500, 1)\n"
  		+"img.show()\n"
  		+"ip = img.getProcessor()\n"
  		+"ip.getStats()\n"
  		+"IJ.setAutoThreshold(img, \"IsoData\")\n"
- 		+"IJ.run(img, \"Analyze Particles...\", \"show=Overlay display clear\")\n"
+ 		+"IJPlugin.runimg, \"Analyze Particles...\", \"show=Overlay display clear\")\n"
 		+"ip.invert()\n"
- 		+"ip.blurGaussian(5)\n"	 
+ 		+"ip.blurGaussian(5)\n"
  		+"ip.get(10,10)\n"
  		+"ip.set(10,10,222)\n"
  		+"(To run, move cursor to end of a line and press 'enter'.\n"
@@ -68,7 +68,7 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 	static final String TAB_INC= "editor.tab-inc";
 	private final static int MACRO=0, JAVASCRIPT=1, BEANSHELL=2, PYTHON=3;
 	private final static String[] languages = {"Macro", "JavaScript", "BeanShell", "Python"};
-	private final static String[] extensions = {".ijm", ".js", ".bsh", ".py"};	
+	private final static String[] extensions = {".ijm", ".js", ".bsh", ".py"};
 	public static Editor currentMacroEditor;
 	private TextArea ta;
 	private String path;
@@ -119,7 +119,7 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 	private String rejectMacrosMsg;
 	private Button runButton, installButton;
 	private Choice language;
-	
+
 	public Editor() {
 		this(24, 80, 0, MENU_BAR);
 	}
@@ -131,18 +131,18 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 	public Editor(int rows, int columns, int fontSize, int options) {
 		super("Editor");
 		WindowManager.addWindow(this);
-		addMenuBar(options);	
+		addMenuBar(options);
 		if ((options&RUN_BAR)!=0) {
 			Panel panel = new Panel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 			runButton = new Button("Run");
 			runButton.addActionListener(this);
 			panel.setFont(new Font("SansSerif", Font.PLAIN, sizes[fontSizeIndex]));
-			panel.add(runButton);			
+			panel.add(runButton);
 			if ((options&INSTALL_BUTTON)!=0) {
 				installButton = new Button("Install");
 				installButton.addActionListener(this);
 				panel.add(installButton);
-			}			
+			}
 			language = new Choice();
 			for (int i=0; i<languages.length; i++)
 				language.addItem(languages[i]);
@@ -163,7 +163,7 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 		if (!IJ.isJava18() && !IJ.isLinux())
 			insertSpaces = false;
 	}
-	
+
 	private static int getOptions(String name) {
 		int options = MENU_BAR;
 		if (name==null)
@@ -174,7 +174,7 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 			options |= INSTALL_BUTTON;
 		return options;
 	}
-	
+
 	void addMenuBar(int options) {
 		mb = new MenuBar();
 		if (Menus.getFontSize()!=0) ;
@@ -189,15 +189,15 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 		m.addActionListener(this);
 		fileMenu = m;
 		mb.add(m);
-		
+
 		m = new Menu("Edit");
 		MenuItem item = null;
 		if (IJ.isWindows())
 			item = new MenuItem("Undo  Ctrl+Z");
 		else
-			item = new MenuItem("Undo",new MenuShortcut(KeyEvent.VK_Z));		
+			item = new MenuItem("Undo",new MenuShortcut(KeyEvent.VK_Z));
 		m.add(item);
-		m.addSeparator();		
+		m.addSeparator();
 		if (IJ.isWindows())
 			item = new MenuItem("Cut  Ctrl+X");
 		else
@@ -232,7 +232,7 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 		editMenu = m;
 		if ((options&MENU_BAR)!=0)
 			setMenuBar(mb);
-		
+
 		m = new Menu("Font");
 		m.add(new MenuItem("Make Text Smaller"));
 		m.add(new MenuItem("Make Text Larger"));
@@ -244,11 +244,11 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 		m.add(new MenuItem("Save Settings"));
 		m.addActionListener(this);
 		mb.add(m);
-		
+
 		m = Menus.getExamplesMenu(this);
 		mb.add(m);
-	}			
-			
+	}
+
 	public void positionWindow() {
 		Dimension screen = IJ.getScreenSize();
 		Dimension window = getSize();
@@ -270,7 +270,7 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 		Menus.updateWindowMenuItem(getTitle(), title);
 		setTitle(title);
 	}
-	
+
 	public void create(String name, String text) {
 		ta.append(text);
 		if (IJ.isMacOSX()) IJ.wait(25); // needed to get setCaretPosition() on OS X
@@ -278,7 +278,7 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 		setWindowTitle(name);
 		boolean macroExtension = name.endsWith(".txt") || name.endsWith(".ijm");
 		if (macroExtension || name.endsWith(".js") || name.endsWith(".bsh") || name.endsWith(".py") || name.indexOf(".")==-1) {
-			macrosMenu = new Menu("Macros");			
+			macrosMenu = new Menu("Macros");
 			macrosMenu.add(new MenuItem("Run Macro", new MenuShortcut(KeyEvent.VK_R)));
 			macrosMenu.add(new MenuItem("Evaluate Line", new MenuShortcut(KeyEvent.VK_Y)));
 			macrosMenu.add(new MenuItem("Abort Macro"));
@@ -298,7 +298,7 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 			macrosMenu.addActionListener(this);
 			mb.add(macrosMenu);
 			if (!(name.endsWith(".js")||name.endsWith(".bsh")||name.endsWith(".py"))) {
-				Menu debugMenu = new Menu("Debug");			
+				Menu debugMenu = new Menu("Debug");
 				debugMenu.add(new MenuItem("Debug Macro", new MenuShortcut(KeyEvent.VK_D)));
 				debugMenu.add(new MenuItem("Step", new MenuShortcut(KeyEvent.VK_E)));
 				debugMenu.add(new MenuItem("Trace", new MenuShortcut(KeyEvent.VK_T)));
@@ -319,13 +319,13 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 					language.select(languages[i]);
 					break;
 				}
-			}		
+			}
 		}
 		if (text.startsWith("//@AutoInstall") && (name.endsWith(".ijm")||name.endsWith(".txt"))) {
 			boolean installInPluginsMenu = !name.contains("Tool.");
 			installMacros(text, installInPluginsMenu);
 			if ( text.startsWith("//@AutoInstallAndHide"))
-				dontShowWindow = true;		
+				dontShowWindow = true;
 		}
 		if (IJ.getInstance()!=null && !dontShowWindow)
 			show();
@@ -352,11 +352,11 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 	public String getRejectMacrosMsg() {
 		return rejectMacrosMsg;
 	}
-	
+
 	void installMacros(String text, boolean installInPluginsMenu) {
 		if (rejectMacrosMsg != null){
 			if (rejectMacrosMsg.length()> 0)
-					IJ.showMessage("", rejectMacrosMsg);
+					IJMessage.showMessage("", rejectMacrosMsg);
 			return;
 		}
 		String functions = Interpreter.getAdditionalFunctions();
@@ -374,13 +374,13 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 		dontShowWindow = installer.isAutoRunAndHide();
 		currentMacroEditor = this;
 	}
-		
+
 	/** Opens a file and replaces the text (if any) by the contents of the file. */
 	public void open(String dir, String name) {
 		path = dir+name;
 		File file = new File(path);
 		if (!file.exists()) {
-			IJ.error("File not found: "+path);
+			IJMessage.error("File not found: "+path);
 			return;
 		}
 		try {
@@ -431,12 +431,12 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 
 	void save() {
 		if (path==null) {
-			saveAs(); 
+			saveAs();
 			return;
 		}
 		File f = new File(path);
 		if (f.exists() && !f.canWrite()) {
-			IJ.showMessage("Editor", "Unable to save because file is write-protected. \n \n" + path);
+			IJMessage.showMessage("Editor", "Unable to save because file is write-protected. \n \n" + path);
 			return;
 		}
 		String text = ta.getText();
@@ -452,7 +452,7 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 				bw.newLine();
 			}
 			bw.close();
-			IJ.showStatus(text.length()+" chars saved to " + path);
+			IJMessage.showStatus(text.length()+" chars saved to " + path);
 			changes = false;
 		} catch
 			(IOException e) {}
@@ -464,12 +464,12 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 		if (path!=null) {
 			save();
 			String text = ta.getText();
-			if (text.contains("implements PlugInFilter") && text.contains("IJ.run("))
-				IJ.log("<<Plugins that call IJ.run() should probably implement PlugIn, not PlugInFilter.>>");
-			IJ.runPlugIn("ij.plugin.Compiler", path);
+			if (text.contains("implements PlugInFilter") && text.contains("IJMacro.run("))
+				IJMessage.log("<<Plugins that call IJMacro.run() should probably implement PlugIn, not PlugInFilter.>>");
+			IJPlugin.runPlugIn(("ij.plugin.Compiler", path);
 		}
 	}
-	
+
 	final void runMacro(boolean debug) {
 		if (path!=null)
 			Macro_Runner.setFilePath(path);
@@ -489,13 +489,13 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 		Interpreter.abort();  // abort any currently running macro
 		if (checkForCurlyQuotes && text.contains("\u201D")) {
 			// replace curly quotes with standard quotes
- 			text = text.replaceAll("\u201C", "\""); 
+ 			text = text.replaceAll("\u201C", "\"");
 			text = text.replaceAll("\u201D", "\"");
 			if (start==end)
 				ta.setText(text);
 			else {
 				String text2 = ta.getText();
- 				text2 = text2.replaceAll("\u201C", "\""); 
+ 				text2 = text2.replaceAll("\u201C", "\"");
 				text2 = text2.replaceAll("\u201D", "\"");
 				ta.setText(text2);
 			}
@@ -505,7 +505,7 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 		currentMacroEditor = this;
 		new MacroRunner(text, debug?this:null);
 	}
-	
+
 	void evaluateMacro() {
 		String title = getTitle();
 		if (title.endsWith(".js")||title.endsWith(".bsh")||title.endsWith(".py"))
@@ -539,9 +539,9 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 		}
 		if (!(IJ.isMacOSX()&&!IJ.is64Bit())) {
 			// Use JavaScript engine built into Java 6 and later.
-			IJ.runPlugIn("ij.plugin.JavaScriptEvaluator", text);
+			IJPlugin.runPlugIn(("ij.plugin.JavaScriptEvaluator", text);
 		} else {
-			Object js = IJ.runPlugIn("JavaScript", text);
+			Object js = IJPlugin.runPlugIn(("JavaScript", text);
 			if (js==null)
 				download("/download/tools/JavaScript.jar");
 		}
@@ -550,7 +550,7 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 	public void evaluateScript(String ext) {
 		if (downloading) {
 			IJ.beep();
-			IJ.showStatus("Download in progress");
+			IJMessage.showStatus("Download in progress");
 			return;
 		}
 		if (ext.endsWith(".js")) {
@@ -576,11 +576,11 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 			plugin = "Jython";
 			url = "/plugins/jython/Jython.jar";
 		}
-		Object obj = IJ.runPlugIn(plugin, text);
+		Object obj = IJPlugin.runPlugIn((plugin, text);
 		if (obj==null)
 			download(url);
 	}
-	
+
 	private void download(String url) {
 		this.downloadUrl = url;
 		Thread thread = new Thread(this, "Downloader");
@@ -616,7 +616,7 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 			if (pg != null) {
 				String s = ta.getText();
 				printString(pjob, pg, s);
-				pg.dispose( );	
+				pg.dispose( );
 			}
 			pjob.end( );
 		}
@@ -629,7 +629,7 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 		int topMargin = 30;
 		int leftMargin = 30;
 		int bottomMargin = 30;
-		
+
 		if (!(pg instanceof PrintGraphics))
 			throw new IllegalArgumentException ("Graphics contextt not PrintGraphics");
 		if (IJ.isMacintosh()) {
@@ -650,7 +650,7 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 		try {
 			do {
 				nextLine = lnr.readLine();
-			   if (nextLine != null) {		   
+			   if (nextLine != null) {
 					nextLine = detabLine(nextLine);
 					if ((curHeight + fontHeight) > pageHeight) {
 						// New Page
@@ -667,7 +667,7 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 						pg.drawString (nextLine, leftMargin, curHeight - fontDescent);
 						linesForThisPage++;
 						linesForThisJob++;
-					} 
+					}
 				}
 			} while (nextLine != null);
 		} catch (EOFException eof) {
@@ -676,7 +676,7 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 			IJ.handleException(t);
 		}
 	}
-	
+
 	String detabLine(String s) {
 		if (s.indexOf('\t')<0)
 			return s;
@@ -687,19 +687,19 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 			c = s.charAt(i);
 			if (c=='\t') {
 				  for (int j=0; j<tabSize; j++)
-					  sb.append(' '); 
+					  sb.append(' ');
 		} else
 			sb.append(c);
 		 }
 		return sb.toString();
-	}	   
+	}
 
 	void undo() {
 		if (IJ.isWindows()) {
-			IJ.showMessage("Editor", "Press Ctrl-Z to undo");
+			IJMessage.showMessage("Editor", "Press Ctrl-Z to undo");
 			return;
 		}
-		if (IJ.debugMode) IJ.log("Undo1: "+undoBuffer.size());
+		if (IJDebugMode.debugMode) IJMessage.log("Undo1: "+undoBuffer.size());
 		int position = ta.getCaretPosition();
 		if (undoBuffer.size()>1) {
 			undoBuffer.remove(undoBuffer.size()-1);
@@ -708,12 +708,12 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 			ta.setText(text);
 			if (position<=text.length())
 				ta.setCaretPosition(position-offset(position));
-			if (IJ.debugMode) IJ.log("Undo2: "+undoBuffer.size()+" "+text);
+			if (IJDebugMode.debugMode) IJMessage.log("Undo2: "+undoBuffer.size()+" "+text);
 		}
 	}
-	
-	boolean copy() { 
-		String s; 
+
+	boolean copy() {
+		String s;
 		s = ta.getSelectedText();
 		Clipboard clip = getToolkit().getSystemClipboard();
 		if (clip!=null) {
@@ -723,7 +723,7 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 		} else
 			return false;
 	}
-	  
+
 	void cut() {
 		if (copy()) {
 			int start = ta.getSelectionStart();
@@ -731,13 +731,13 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 			ta.replaceRange("", start-offset(start), end-offset(end-2>=start?end-2:start));
 			if (IJ.isMacOSX())
 				ta.setCaretPosition(start);
-		}	
+		}
 	}
-	
+
 	private void assignToRepeatCommand() {
 		String title = getTitle();
 		if (!(title.endsWith(".ijm")||title.endsWith(".txt")||!title.contains("."))) {
-			IJ.error("Assign to Repeat Command", "One or more lines of macro code required.");
+			IJMessage.error("Assign to Repeat Command", "One or more lines of macro code required.");
 			return;
 		}
 		int start = ta.getSelectionStart();
@@ -753,7 +753,7 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 	void paste() {
 		String s;
 		s = ta.getSelectedText();
-		Clipboard clipboard = getToolkit( ). getSystemClipboard(); 
+		Clipboard clipboard = getToolkit( ). getSystemClipboard();
 		Transferable clipData = clipboard.getContents(s);
 		try {
 			s = (String)(clipData.getTransferData(DataFlavor.stringFlavor));
@@ -767,7 +767,7 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 			ta.setCaretPosition(start+s.length());
 		checkForCurlyQuotes = true;
 	}
-	
+
 	// workaround for TextArea.getCaretPosition() bug on Windows
 	private int offset(int pos) {
 		if (!IJ.isWindows())
@@ -778,14 +778,14 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 			if (text.charAt(i)=='\r')
 				rcount++;
 		}
-		if (IJ.debugMode) IJ.log("offset: "+pos+" "+rcount);
+		if (IJDebugMode.debugMode) IJMessage.log("offset: "+pos+" "+rcount);
 		return pos-rcount>=0?rcount:0;
 	}
 
-	void copyToInfo() { 
+	void copyToInfo() {
 		ImagePlus imp = WindowManager.getCurrentImage();
 		if (imp==null) {
-			IJ.noImage();
+			IJMacro.noImage();
 			return;
 		}
 		int start = ta.getSelectionStart();
@@ -797,7 +797,7 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 			text = ta.getSelectedText();
 		imp.setProperty("Info", text);
 	}
-	
+
 	public void actionPerformed(ActionEvent e) {
 		String what = e.getActionCommand();
 		int flags = e.getModifiers();
@@ -810,9 +810,9 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 			if (text.contains("macro \"") || text.contains("macro\""))
 				installMacros(text, true);
 			else
-				IJ.error("Editor", "File must contain at least one macro or macro tool.");
+				IJMessage.error("Editor", "File must contain at least one macro or macro tool.");
 			return;
-		} 
+		}
 		if ("Save".equals(what))
 			save();
 		else if ("Compile and Run".equals(what))
@@ -838,7 +838,7 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 			runToInsertionPoint();
 		else if ("Abort".equals(what) || "Abort Macro".equals(what)) {
 			Interpreter.abort();
-			IJ.beep();		
+			IJ.beep();
 		} else if ("Evaluate Line".equals(what))
 			evaluateLine();
 		else if ("Install Macros".equals(what))
@@ -894,7 +894,7 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 		else if ("Save Settings".equals(what))
 			saveSettings();
 		else if ("New...".equals(what))
-			IJ.run("Text Window");
+			IJMacro.run("Text Window");
 		else if ("Open...".equals(what))
 			IJ.open();
 		else if (what.equals("Enter Interactive Mode"))
@@ -911,7 +911,7 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 				installer.runMacro(what, null);
 		}
 	}
-	
+
 	/** Opens an example from the Help/Examples menu
 		and runs if "Autorun Exampes" is checked. */
 	public static boolean openExample(String name) {
@@ -942,7 +942,7 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 		String url = "http://wsr.imagej.net/download/Examples/"+dir+name;
 		text = IJ.openUrlAsString(url);
 		if (text.startsWith("<Error: ")) {
-			IJ.error("Open Example", text);
+			IJMessage.error("Open Example", text);
 			return true;
 		}
 		ed.create(name, text);
@@ -950,14 +950,14 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 			ed.runMacro(false);
 		return true;
 	}
-	
+
 	protected void showMacroFunctions() {
 		String url= "/developer/macro/functions.html";
 		String selText = ta.getSelectedText().replace("\n", " ");
 		String[] selectedWords = Tools.split(selText, "/,(,[\"\'&+");
-		if (selectedWords.length==1 && selectedWords[0].length()>0) 
+		if (selectedWords.length==1 && selectedWords[0].length()>0)
 			url += "#" +selectedWords[0];//append selection as hash tag
-		IJ.runPlugIn("ij.plugin.BrowserLauncher", IJ.URL+url);
+		IJPlugin.runPlugIn(("ij.plugin.BrowserLauncher", IJ.URL+url);
 	}
 
 	final void runToInsertionPoint() {
@@ -969,7 +969,7 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 			setDebugMode(RUN_TO_CARET);
 		}
 	}
-		
+
 	final int getCurrentLine() {
 		int pos = ta.getCaretPosition();
 		int currentLine = 0;
@@ -1004,7 +1004,7 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 			if (start==debugStart && end==debugEnd)
 				ta.select(start, start);
 	}
-	
+
 	final void setDebugMode(int mode) {
 		step = true;
 		Interpreter interp = Interpreter.getInstance();
@@ -1040,12 +1040,12 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 		if (IJ.isMacOSX()) // screen update bug work around
 			ta.setCaretPosition(ta.getCaretPosition());
 	}
-	
-	public void keyPressed(KeyEvent e) { } 	
+
+	public void keyPressed(KeyEvent e) { }
 	public void mousePressed (MouseEvent e) {}
 	public void mouseExited (MouseEvent e) {}
 	public void mouseEntered (MouseEvent e) {}
-	
+
 	public void mouseReleased (MouseEvent e) {
 		showLinePos();
 	}
@@ -1065,9 +1065,9 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 		for (int i=1; i<=chars.length; i++) {
 			if (chars[i-1]=='\n') line++;
 			if (i==selStart)
-				startLine=line + 1; 
+				startLine=line + 1;
 			if (i<=selEnd)
-				endLine=line + 1; 
+				endLine=line + 1;
 			if (i>=selEnd)
 				break;
 		}
@@ -1075,9 +1075,9 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 		if (startLine != endLine) {
 			msg += "-" + endLine;
 		}
-		IJ.showStatus(msg);
+		IJMessage.showStatus(msg);
 	}
-				
+
 	public void keyReleased(KeyEvent e) {
 		int pos = ta.getCaretPosition();
 		showLinePos();
@@ -1090,7 +1090,7 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 		if (interactiveMode && e.getKeyChar()=='\n')
 			runMacro(e);
 	}
-	
+
 	private void runMacro(KeyEvent e) {
 		boolean isScript = getTitle().endsWith(".js");
 		String text = ta.getText();
@@ -1116,22 +1116,22 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 		}
 		String code = text.substring(pos1,pos2+1);
 		if (code.length()==0 || code.equals("\n"))
-			return;		
+			return;
 		else if (code.length()<=6 && code.contains("help")) {
-			ta.appendText("  Type a statement (e.g., \"run('Invert')\") to run it.\n");			
-			ta.appendText("  Enter an expression (e.g., \"x/2\" or \"log(2)\") to evaluate it.\n");			
-			ta.appendText("  Move cursor to end of line and press 'enter' to repeat.\n");			
-			ta.appendText("  \"quit\" - exit interactive mode\n");			
+			ta.appendText("  Type a statement (e.g., \"run('Invert')\") to run it.\n");
+			ta.appendText("  Enter an expression (e.g., \"x/2\" or \"log(2)\") to evaluate it.\n");
+			ta.appendText("  Move cursor to end of line and press 'enter' to repeat.\n");
+			ta.appendText("  \"quit\" - exit interactive mode\n");
 			ta.appendText("  "+(IJ.isMacOSX()?"cmd":"ctrl")+"+M - enter interactive mode\n");
-			if (isScript) {	
+			if (isScript) {
 				ta.appendText("  \"macro\" - switch language to macro\n");
-				ta.appendText("  \"examples\" - show JavaScript examples\n");	
+				ta.appendText("  \"examples\" - show JavaScript examples\n");
 			} else {
-				ta.appendText("  "+(IJ.isMacOSX()?"cmd":"ctrl")+"+shift+F - open Function Finder\n");	
-				ta.appendText("  \"js\" - switch language to JavaScript\n");	
+				ta.appendText("  "+(IJ.isMacOSX()?"cmd":"ctrl")+"+shift+F - open Function Finder\n");
+				ta.appendText("  \"js\" - switch language to JavaScript\n");
 			}
 		} else if (isScript && code.length()==9 && code.contains("examples")) {
-			ta.appendText(JS_EXAMPLES);					
+			ta.appendText(JS_EXAMPLES);
 		} else if (code.length()<=3 && code.contains("js")) {
 			interactiveMode = false;
 			interpreter = null;
@@ -1157,7 +1157,7 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 				int index = rtn.indexOf("at line number ");
 				if (index>-1)
 					rtn = rtn.substring(0,index);
-				insertText(rtn);	
+				insertText(rtn);
 			}
 			if (updateImage && (rtn==null||rtn.length()==0)) {
 				ImagePlus imp = WindowManager.getCurrentImage();
@@ -1170,7 +1170,7 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 				insertText(rtn);
 		}
 	}
-	
+
 	private void changeExtension(String ext) {
 		String title = getTitle();
 		int index = title.indexOf(".");
@@ -1178,7 +1178,7 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 			title = title.substring(0,index);
 		setTitle(title+ext);
 	}
-	
+
 	private void enterInteractiveMode() {
 		if (interactiveMode)
 			return;
@@ -1197,13 +1197,13 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 		ta.appendText("["+language+"interactive mode."+help+"]\n");
 		interactiveMode = true;
 	}
-	
+
 	public void insertText(String text) {
-		if (ta==null) return;			
+		if (ta==null) return;
 		int start = ta.getSelectionStart( );
 		ta.replaceRange("  "+text+"\n", start, start);
 	}
-		
+
 	public void keyTyped(KeyEvent e) {
 	}
 
@@ -1220,7 +1220,7 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 		} else
 			setFont();
 	}
-	
+
 	private void setExtension(String language) {
 		String title = getTitle();
 		int dot = title.lastIndexOf(".");
@@ -1232,13 +1232,13 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 				break;
 			}
 		}
-		setWindowTitle(title);		
+		setWindowTitle(title);
 	}
 
 	/** Override windowActivated in PlugInFrame to
 		prevent Mac menu bar from being installed. */
 	public void windowActivated(WindowEvent e) {
-			if (IJ.debugMode) IJ.log("Editor.windowActivated");
+			if (IJDebugMode.debugMode) IJMessage.log("Editor.windowActivated");
 			WindowManager.setWindow(this);
 			instance = this;
 	}
@@ -1247,7 +1247,7 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 	public void close() {
 		boolean okayToClose = true;
 		ImageJ ij = IJ.getInstance();
-		if (!getTitle().equals("Errors") && changes && !IJ.isMacro() && ij!=null && !ij.quittingViaMacro()) {
+		if (!getTitle().equals("Errors") && changes && !IJMacro.isMacro() && ij!=null && !ij.quittingViaMacro()) {
 			String msg = "Save changes to \"" + getTitle() + "\"?";
 			YesNoCancelDialog d = new YesNoCancelDialog(this, "Editor", msg);
 			if (d.cancelPressed())
@@ -1296,16 +1296,16 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 				Recorder.record("saveAs", "Text", path);
 		}
 	}
-	
+
 	protected void revert() {
 		if (!changes)
 			return;
 		String title = getTitle();
 		if (path==null || !(new File(path).exists()) || !path.endsWith(title)) {
-			IJ.showStatus("Cannot revert, no file "+getTitle());
+			IJMessage.showStatus("Cannot revert, no file "+getTitle());
 			return;
 		}
-		if (!IJ.showMessageWithCancel("Revert?", "Revert to saved version of\n\""+getTitle()+"\"?"))
+		if (!IJMessage.showMessageWithCancel("Revert?", "Revert to saved version of\n\""+getTitle()+"\"?"))
 			return;
 		String directory = path.substring(0, path.length()-title.length());
 		open(directory, title);
@@ -1315,7 +1315,7 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 	/** Changes a plugins class name to reflect a new file name. */
 	public void updateClassName(String oldName, String newName) {
 		if (newName.indexOf("_")<0)
-			IJ.showMessage("Plugin Editor", "Plugins without an underscore in their name will not\n"
+			IJMessage.showMessage("Plugin Editor", "Plugins without an underscore in their name will not\n"
 				+"be automatically installed when ImageJ is restarted.");
 		if (oldName.equals(newName) || !oldName.endsWith(".java") || !newName.endsWith(".java"))
 			return;
@@ -1328,7 +1328,7 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 		String text2 = text1.substring(0,index+13)+newName+text1.substring(index+13+oldName.length(),text1.length());
 		ta.setText(text2);
 	}
-	
+
 	void find(String s) {
 		if (s==null) {
 			GenericDialog gd = new GenericDialog("Find", this);
@@ -1371,7 +1371,7 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 		ta.setSelectionStart(index);
 		ta.setSelectionEnd(index+s.length());
 	}
-	
+
 	boolean isWholeWordMatch(String text, String word, int index) {
 		char c = index==0?' ':text.charAt(index-1);
 		if (Character.isLetterOrDigit(c) || c=='_') return false;
@@ -1379,7 +1379,7 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 		if (Character.isLetterOrDigit(c) || c=='_') return false;
 		return true;
 	}
-	
+
 	void gotoLine() {
 		GenericDialog gd = new GenericDialog("Go to Line", this);
 		gd.addNumericField("Go to line number: ", lineNumber, 0);
@@ -1400,7 +1400,7 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 		ta.setCaretPosition(loc);
 		lineNumber = n;
 	}
-	
+
 	//extracts  characters  "({[]})" as string and removes inner pairs
 	private void balance() { //modified: N.Vischer
 		String text = ta.getText();
@@ -1410,7 +1410,7 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 		maskQuotes(chars);
 		int position = ta.getCaretPosition();
 		if (position == 0) {
-			IJ.error("Balance", "This command locates the pair of brackets, curly braces or\nparentheses that surround the insertion point.");
+			IJMessage.error("Balance", "This command locates the pair of brackets, curly braces or\nparentheses that surround the insertion point.");
 			return;
 		}
 		int start = -1;
@@ -1450,7 +1450,7 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 		}
 		ta.setSelectionStart(start);
 		ta.setSelectionEnd(stop + 1);
-		IJ.showStatus(chars.length + " " + position + " " + start + " " + stop);
+		IJMessage.showStatus(chars.length + " " + position + " " + start + " " + stop);
 	}
 
 	// replaces contents of comments with blanks
@@ -1503,7 +1503,7 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 			}
 		}
 	}
-	
+
    //replaces contents of comments with blanks
 	private void rmaskComments(char[] chars) {
 		int n = chars.length;
@@ -1549,12 +1549,12 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 			ta.setText(text);
 		}
 		if (count>0)
-			IJ.showMessage("Zap Gremlins", count+" invalid characters converted to spaces");
+			IJMessage.showMessage("Zap Gremlins", count+" invalid characters converted to spaces");
 		else
-			IJ.showMessage("Zap Gremlins", "No invalid characters found");
+			IJMessage.showMessage("Zap Gremlins", "No invalid characters found");
 	}
-	
-	
+
+
 	private void detab() {
 		GenericDialog gd = new GenericDialog("Detab", this);
 		gd.addNumericField("Spaces per tab: ", tabInc, 0);
@@ -1606,7 +1606,7 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 		ta.selectAll();
 		showLinePos();
 	}
-    
+
     void changeFontSize(boolean larger) {
         int in = fontSizeIndex;
         if (larger) {
@@ -1618,28 +1618,28 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
             if (fontSizeIndex<0)
                 fontSizeIndex = 0;
         }
-        IJ.showStatus(sizes[fontSizeIndex]+" point");
+        IJMessage.showStatus(sizes[fontSizeIndex]+" point");
         setFont();
     }
-    
+
     void saveSettings() {
 		Prefs.set(FONT_SIZE, fontSizeIndex);
 		Prefs.set(FONT_MONO, monospaced.getState());
-		IJ.showStatus("Font settings saved (size="+sizes[fontSizeIndex]+", monospaced="+monospaced.getState()+")");
+		IJMessage.showStatus("Font settings saved (size="+sizes[fontSizeIndex]+", monospaced="+monospaced.getState()+")");
     }
-    
+
     void setFont() {
         ta.setFont(new Font(getFontName(), Font.PLAIN, sizes[fontSizeIndex]));
     }
-    
+
     String getFontName() {
     	return monospaced.getState()?"Monospaced":"SansSerif";
     }
-	
+
 	public void setFont(Font font) {
 		ta.setFont(font);
 	}
-	
+
 	public int getFontSize() {
 		return sizes[fontSizeIndex];
 	}
@@ -1656,12 +1656,12 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 		dir = IJ.addSeparator(dir);
 		defaultDir = dir;
 	}
-	
+
 	public void lostOwnership (Clipboard clip, Transferable cont) {}
-	
+
 	public int debug(Interpreter interp, int mode) {
-		if (IJ.debugMode)
-			IJ.log("debug: "+interp.getLineNumber()+"  "+mode+"  "+interp);
+		if (IJDebugMode.debugMode)
+			IJMessage.log("debug: "+interp.getLineNumber()+"  "+mode+"  "+interp);
 		if (mode==RUN_TO_COMPLETION)
 			return 0;
 		int n = interp.getLineNumber();
@@ -1703,7 +1703,7 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 				break;
 			}
 		}
-		//IJ.log("debug: "+debugStart+"  "+debugEnd+"  "+len+"  "+count);
+		//IJMessage.log("debug: "+debugStart+"  "+debugEnd+"  "+len+"  "+count);
 		if (debugStart==1) debugStart = 0;
 		if ((debugStart==0||debugStart==len) && debugEnd==len)
 			return 0; // skip code added with Interpreter.setAdditionalFunctions()
@@ -1729,17 +1729,17 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 		}
 		return 0;
 	}
-		
+
 	public static Editor getInstance() {
 		return instance;
 	}
-	
+
 	public static String getJSPrefix(String arg) {
 		if (arg==null)
 			arg = "";
 		return JavaScriptIncludes+"function getArgument() {return \""+arg+"\";};";
 	}
-	
+
 	/** Changes Windows (CRLF) line separators to line feeds (LF). */
 	public void fixLineEndings() {
 		if (!IJ.isWindows())
@@ -1748,19 +1748,19 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 		text = text.replaceAll("\r\n", "\n");
 		ta.setText(text);
 	}
-	
+
 	public void showLogWindow() {
 		Frame log = WindowManager.getFrame("Log");
 		if (log!=null)
 			log.toFront();
 		else
-			IJ.log("");
+			IJMessage.log("");
 	}
 
 	public boolean fileChanged() {
 		return changes;
 	}
-	
+
 	/** Downloads BeanShell or Jython interpreter using a separate thread. */
 	public void run() {
 		if (downloading || downloadUrl==null)

@@ -20,7 +20,7 @@ public class Commands extends PlugInFrame implements ActionListener, ItemListene
 		"Close All",
 		"Appearance...",
 		"Histogram",
-		"Gaussian Blur...",		
+		"Gaussian Blur...",
 		"Record...",
 		"Capture Screen",
 		"Find Commands..."
@@ -54,7 +54,7 @@ public class Commands extends PlugInFrame implements ActionListener, ItemListene
 				for (int i=0; i<len; i++)
 					list.add(cmd[i]);
 			} else
-				cmds = null;				
+				cmds = null;
 		}
 		if (cmds==null)
 			reset();
@@ -66,13 +66,13 @@ public class Commands extends PlugInFrame implements ActionListener, ItemListene
 		GridBagLayout gridbag = new GridBagLayout();
         GridBagConstraints c = new GridBagConstraints();
         setLayout(gridbag);
-        c.insets = new Insets(0, 0, 0, 0); 
+        c.insets = new Insets(0, 0, 0, 0);
         c.gridx = 0; c.gridy = 0; c.anchor = GridBagConstraints.WEST;
-        add(list,c); 
+        add(list,c);
 		button = new Button("Edit");
 		button.addActionListener(this);
 		button.addKeyListener(ij);
-        //c.insets = new Insets(2, 6, 6, 6); 
+        //c.insets = new Insets(2, 6, 6, 6);
         c.gridx = 0; c.gridy = 2; c.anchor = GridBagConstraints.CENTER;
         add(button, c);
 		pack();
@@ -87,7 +87,7 @@ public class Commands extends PlugInFrame implements ActionListener, ItemListene
 		GenericDialog gd = new GenericDialog("Commands");
 		int dividerIndex = getDividerIndex();
 		StringBuilder sb = new StringBuilder(200);
-		sb.append("| ");	
+		sb.append("| ");
 		for (int i=0; i<dividerIndex; i++) {
 			String cmd = list.getItem(i);
 			sb.append(cmd);
@@ -108,16 +108,16 @@ public class Commands extends PlugInFrame implements ActionListener, ItemListene
 		if (gd.wasCanceled())
 			return;
 		else if (!gd.wasOKed()) {
-			boolean ok = IJ.showMessageWithCancel("Commands", "Are you sure you want to reset?");
+			boolean ok = IJMessage.showMessageWithCancel("Commands", "Are you sure you want to reset?");
 			if (ok) reset();
-        } else { 
+        } else {
 			for (int i=index; i<list.getItemCount(); i++)
 				list.replaceItem(gd.getNextString(),i);
 		}
 	}
 
 	public void itemStateChanged(ItemEvent e) {
-		//IJ.log("itemStateChanged: "+e);
+		//IJMessage.log("itemStateChanged: "+e);
 		if (e.getStateChange()==ItemEvent.SELECTED) {
 			int index = list.getSelectedIndex();
 			if (index<0)
@@ -125,16 +125,16 @@ public class Commands extends PlugInFrame implements ActionListener, ItemListene
 			command = list.getItem(index);
 			if (!command.equals(divider)) {
 				if (command.equals("Debug Mode"))
-					IJ.runMacro("setOption('DebugMode')");
+					IJPlugin.runMacro("setOption('DebugMode')");
 				else if (command.equals("Hyperstack"))
-					IJ.runMacro("newImage('HyperStack', '8-bit color label', 400, 300, 3, 4, 25)");
+					IJPlugin.runMacro("newImage('HyperStack', '8-bit color label', 400, 300, 3, 4, 25)");
 				else
 					IJ.doCommand(command);
 			}
 			list.deselect(index);
 		}
 	}
-	
+
 	public String commandExecuting(String cmd2) {
 		if ("Quit".equals(cmd2))
 			return cmd2;
@@ -150,7 +150,7 @@ public class Commands extends PlugInFrame implements ActionListener, ItemListene
 		command = null;
 		return cmd2;
 	}
-	
+
 	private int getDividerIndex() {
 		int index = 0;
 		for (int i=0; i<MAX_COMMANDS; i++) {
@@ -162,15 +162,15 @@ public class Commands extends PlugInFrame implements ActionListener, ItemListene
 		}
 		return index;
 	}
-	
+
 	private void reset() {
 		list.clear();
 		list.add(divider);
 		int len = commands.length<MAX_COMMANDS?commands.length:MAX_COMMANDS-1;
 		for (int i=0; i<len; i++)
-			list.add(commands[i]);		
+			list.add(commands[i]);
 	}
-	
+
 	/** Overrides PlugInFrame.close(). */
 	public void close() {
 		super.close();
@@ -185,7 +185,7 @@ public class Commands extends PlugInFrame implements ActionListener, ItemListene
 		}
 		String cmds = sb.toString();
 		cmds = cmds.substring(0, cmds.length()-1);
-		//IJ.log("close: "+cmds); IJ.wait(5000);
+		//IJMessage.log("close: "+cmds); IJ.wait(5000);
 		Prefs.set(CMDS_KEY, cmds);
 	}
 

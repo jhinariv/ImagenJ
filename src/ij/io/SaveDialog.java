@@ -9,16 +9,16 @@ import ij.plugin.frame.Recorder;
 import ij.util.Java2;
 import ij.macro.Interpreter;
 
-/** This class displays a dialog window from 
-	which the user can save a file. */ 
+/** This class displays a dialog window from
+	which the user can save a file. */
 public class SaveDialog {
 
 	private String dir;
 	private String name;
 	private String title;
 	private String ext;
-	
-	/** Displays a file save dialog with 'title' as the 
+
+	/** Displays a file save dialog with 'title' as the
 		title, 'defaultName' as the initial file name, and
 		'extension' (e.g. ".tif") as the default extension.
 	*/
@@ -35,10 +35,10 @@ public class SaveDialog {
 			save(title, defaultDir, defaultName);
 		if (name!=null && dir!=null)
 			OpenDialog.setDefaultDirectory(dir);
-		IJ.showStatus(title+": "+dir+name);
+		IJMessage.showStatus(title+": "+dir+name);
 	}
-	
-	/** Displays a file save dialog, using the specified 
+
+	/** Displays a file save dialog, using the specified
 		default directory and file name and extension. */
 	public SaveDialog(String title, String defaultDir, String defaultName, String extension) {
 		this.title = title;
@@ -50,9 +50,9 @@ public class SaveDialog {
 			jSave(title, defaultDir, defaultName);
 		else
 			save(title, defaultDir, defaultName);
-		IJ.showStatus(title+": "+dir+name);
+		IJMessage.showStatus(title+": "+dir+name);
 	}
-	
+
 	boolean isMacro() {
 		String macroOptions = Macro.getOptions();
 		if (macroOptions!=null) {
@@ -75,7 +75,7 @@ public class SaveDialog {
 		}
 		return false;
 	}
-	
+
 	public static String setExtension(String name, String extension) {
 		if (name==null || extension==null || extension.length()==0)
 			return name;
@@ -89,7 +89,7 @@ public class SaveDialog {
 			name += extension;
 		return name;
 	}
-	    
+
 	// Save using JFileChooser.
 	void jSave(String title, String defaultDir, String defaultName) {
 		LookAndFeel saveLookAndFeel = Java2.getLookAndFeel();
@@ -207,7 +207,7 @@ public class SaveDialog {
 			if (".raw".equals(ext))
 				ext = null;
 			name = setExtension(name, ext);
-			boolean dialog = name!=null && !name.equals(origName) && IJ.isMacOSX() && !IJ.isMacro();
+			boolean dialog = name!=null && !name.equals(origName) && IJ.isMacOSX() && !IJMacro.isMacro();
 			if (dialog) {
 				File f = new File( fd.getDirectory()+getFileName());
 				if (!f.exists()) dialog = false;
@@ -224,7 +224,7 @@ public class SaveDialog {
 					name = null;
 			}
 		}
-		if (IJ.debugMode) IJ.log(origName+"->"+name);
+		if (IJDebugMode.debugMode) IJMessage.log(origName+"->"+name);
 		dir = fd.getDirectory();
 		if (name==null)
 			Macro.abort();
@@ -232,19 +232,19 @@ public class SaveDialog {
 		if (ij==null)
 			parent.dispose();
 	}
-	
+
 	private boolean noExtension(String name) {
 		if (name==null) return false;
 		int dotIndex = name.indexOf(".");
 		return dotIndex==-1 || (name.length()-dotIndex)>5;
 	}
-	
+
 	/** Returns the selected directory. */
 	public String getDirectory() {
 		OpenDialog.setLastDirectory(dir);
 		return dir;
 	}
-	
+
 	/** Returns the selected file name. */
 	public String getFileName() {
 		if (name!=null) {
@@ -254,7 +254,7 @@ public class SaveDialog {
 		}
 		return name;
 	}
-	
+
 	public static String getPath(ImagePlus imp, String extension) {
 		String title = imp!=null?imp.getTitle():"Untitled";
 		SaveDialog sd = new SaveDialog("Save As", title, extension);
@@ -263,5 +263,5 @@ public class SaveDialog {
 		else
 			return sd.getDirectory()+sd.getFileName();
 	}
-			
+
 }

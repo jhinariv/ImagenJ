@@ -19,13 +19,13 @@ public class ColorProcessor extends ImageProcessor {
 	private WritableRaster rgbRaster;
 	private SampleModel rgbSampleModel;
 	private boolean caSnapshot;
-	
+
 	// Weighting factors used by getPixelValue(), getHistogram() and convertToByte().
 	// Enable "Weighted RGB Conversion" in <i>Edit/Options/Conversions</i>
 	// to use 0.299, 0.587 and 0.114.
-	private static double rWeight=1d/3d, gWeight=1d/3d,	bWeight=1d/3d; 
+	private static double rWeight=1d/3d, gWeight=1d/3d,	bWeight=1d/3d;
 	private double[] weights; // Overrides rWeight, etc. when set by setWeights()
-	 
+
 	/**Creates a ColorProcessor from an AWT Image or BufferedImage. */
 	public ColorProcessor(Image img) {
 		width = img.getWidth(null);
@@ -44,7 +44,7 @@ public class ColorProcessor extends ImageProcessor {
 	public ColorProcessor(int width, int height) {
 		this(width, height, new int[width*height]);
 	}
-	
+
 	/**Creates a ColorProcessor from a pixel array. */
 	public ColorProcessor(int width, int height, int[] pixels) {
 		if (pixels!=null && width*height!=pixels.length)
@@ -60,7 +60,7 @@ public class ColorProcessor extends ImageProcessor {
 	void createColorModel() {
 		cm = new DirectColorModel(24, 0xff0000, 0xff00, 0xff);
 	}
-	
+
 	public Image createImage() {
 		return createBufferedImage();
 	}
@@ -115,7 +115,7 @@ public class ColorProcessor extends ImageProcessor {
 		drawingColor = color;
 		fillValueSet = true;
 	}
-	
+
 	/** Sets the background fill/draw color. */
 	public void setBackgroundColor(Color color) {
 		setBackgroundValue(color.getRGB());
@@ -187,7 +187,7 @@ public class ColorProcessor extends ImageProcessor {
 		else
 			applyTable(lut, channels);
 	}
-	
+
 	public void snapshot() {
 		snapshotWidth = width;
 		snapshotHeight = height;
@@ -206,7 +206,7 @@ public class ColorProcessor extends ImageProcessor {
 
 	public void reset(ImageProcessor mask) {
 		if (mask==null || snapshotPixels==null)
-			return;	
+			return;
 		if (mask.getWidth()!=roiWidth||mask.getHeight()!=roiHeight)
 			throw new IllegalArgumentException(maskSizeError(mask));
 		byte[] mpixels = (byte[])mask.getPixels();
@@ -220,7 +220,7 @@ public class ColorProcessor extends ImageProcessor {
 			}
 		}
 	}
-	
+
 	/** Used by the ContrastAdjuster */
 	public void caSnapshot(boolean set) {
 		caSnapshot = set;
@@ -230,11 +230,11 @@ public class ColorProcessor extends ImageProcessor {
 	public boolean caSnapshot() {
 		return caSnapshot;
 	}
-	
+
 	/** Swaps the pixel and snapshot (undo) arrays. */
 	public void swapPixelArrays() {
 		if (snapshotPixels==null)
-			return;	
+			return;
 		int pixel;
 		for (int i=0; i<pixels.length; i++) {
 			pixel = pixels[i];
@@ -392,7 +392,7 @@ public class ColorProcessor extends ImageProcessor {
 	}
 
 	/** Converts the specified pixel to grayscale using the
-		formula g=(r+g+b)/3 and returns it as a float. 
+		formula g=(r+g+b)/3 and returns it as a float.
 		Call setWeightingFactors() to specify different conversion
 		factors. */
 	public float getPixelValue(int x, int y) {
@@ -406,7 +406,7 @@ public class ColorProcessor extends ImageProcessor {
 			else
 				return (float)(r*rWeight + g*gWeight + b*bWeight);
 		}
-		else 
+		else
 			return Float.NaN;
 	}
 
@@ -451,7 +451,7 @@ public class ColorProcessor extends ImageProcessor {
 			B[i] = (byte)((int)(hsb[2]*255.0));
 		}
 	}
-	
+
 	/** Returns hue, saturation and brightness in 3 float arrays. */
 	public void getHSB(float[] H, float[] S, float[] B) {
 		int c, r, g, b;
@@ -538,7 +538,7 @@ public class ColorProcessor extends ImageProcessor {
 		ByteProcessor bp = getChannel(channel, null);
 		return (byte[])bp.getPixels();
 	}
-	
+
 	/** Returns the specified plane (1=red, 2=green, 3=blue, 4=alpha) as a ByteProcessor. */
 	public ByteProcessor getChannel(int channel, ByteProcessor bp) {
 		int size = width*height;
@@ -551,7 +551,7 @@ public class ColorProcessor extends ImageProcessor {
 			bPixels[i] = (byte)(pixels[i]>>shift);
 		return bp;
 	}
-	
+
 	/** Sets the pixels of one color channel from a ByteProcessor.
 	*  @param channel  Determines the color channel, 1=red, 2=green, 3=blue, 4=alpha
 	*  @param bp  The ByteProcessor where the image data are read from.
@@ -591,7 +591,7 @@ public class ColorProcessor extends ImageProcessor {
 		for (int i=0; i < width*height; i++)
 			pixels[i] = Color.HSBtoRGB(H[i], S[i], B[i]);
 	}
-	
+
 	/** Updates the brightness using the pixels in the specified FloatProcessor). */
 	public void setBrightness(FloatProcessor fp) {
 		int c, r, g, b;
@@ -612,7 +612,7 @@ public class ColorProcessor extends ImageProcessor {
 			pixels[i] = Color.HSBtoRGB(hsb[0], hsb[1], bvalue);
 		}
 	}
-	
+
 	/** Copies the image contained in 'ip' to (xloc, yloc) using one of
 		the transfer modes defined in the Blitter interface. */
 	public void copyBits(ImageProcessor ip, int xloc, int yloc, int mode) {
@@ -636,7 +636,7 @@ public class ColorProcessor extends ImageProcessor {
 			}
 		}
 	}
-	
+
 	public void applyTable(int[] lut, int channels) {
 		int c, r=0, g=0, b=0;
 		for (int y=roiY; y<(roiY+roiHeight); y++) {
@@ -682,7 +682,7 @@ public class ColorProcessor extends ImageProcessor {
 				pixels[i++] = fgColor;
 		}
 	}
-	
+
 	public static final int RGB_NOISE=0, RGB_MEDIAN=1, RGB_FIND_EDGES=2,
 		RGB_ERODE=3, RGB_DILATE=4, RGB_THRESHOLD=5, RGB_ROTATE=6,
 		RGB_SCALE=7, RGB_RESIZE=8, RGB_TRANSLATE=9, RGB_MIN=10, RGB_MAX=11;
@@ -699,7 +699,7 @@ public class ColorProcessor extends ImageProcessor {
 		byte[] B = new byte[width*height];
 		getRGB(R, G, B);
 		Rectangle roi = new Rectangle(roiX, roiY, roiWidth, roiHeight);
-		
+
 		ByteProcessor r = new ByteProcessor(width, height, R, null);
 		r.setRoi(roi);
 		ByteProcessor g = new ByteProcessor(width, height, G, null);
@@ -712,7 +712,7 @@ public class ColorProcessor extends ImageProcessor {
 		r.setInterpolationMethod(interpolationMethod);
 		g.setInterpolationMethod(interpolationMethod);
 		b.setInterpolationMethod(interpolationMethod);
-		
+
 		showProgress(0.15);
 		switch (type) {
 			case RGB_NOISE:
@@ -746,28 +746,28 @@ public class ColorProcessor extends ImageProcessor {
 				b.autoThreshold(); showProgress(0.90);
 				break;
 			case RGB_ROTATE:
-				ij.IJ.showStatus("Rotating red");
+				ij.IJMessage.showStatus("Rotating red");
 				r.rotate(arg); showProgress(0.40);
-				ij.IJ.showStatus("Rotating green");
+				ij.IJMessage.showStatus("Rotating green");
 				g.rotate(arg); showProgress(0.65);
-				ij.IJ.showStatus("Rotating blue");
+				ij.IJMessage.showStatus("Rotating blue");
 				b.rotate(arg); showProgress(0.90);
 				break;
 			case RGB_SCALE:
-				ij.IJ.showStatus("Scaling red");
+				ij.IJMessage.showStatus("Scaling red");
 				r.scale(arg, arg2); showProgress(0.40);
-				ij.IJ.showStatus("Scaling green");
+				ij.IJMessage.showStatus("Scaling green");
 				g.scale(arg, arg2); showProgress(0.65);
-				ij.IJ.showStatus("Scaling blue");
+				ij.IJMessage.showStatus("Scaling blue");
 				b.scale(arg, arg2); showProgress(0.90);
 				break;
 			case RGB_RESIZE:
 				int w=(int)arg, h=(int)arg2;
-				ij.IJ.showStatus("Resizing red");
+				ij.IJMessage.showStatus("Resizing red");
 				ImageProcessor r2 = r.resize(w, h); showProgress(0.40);
-				ij.IJ.showStatus("Resizing green");
+				ij.IJMessage.showStatus("Resizing green");
 				ImageProcessor g2 = g.resize(w, h); showProgress(0.65);
-				ij.IJ.showStatus("Resizing blue");
+				ij.IJMessage.showStatus("Resizing blue");
 				ImageProcessor b2 = b.resize(w, h); showProgress(0.90);
 				R = (byte[])r2.getPixels();
 				G = (byte[])g2.getPixels();
@@ -777,11 +777,11 @@ public class ColorProcessor extends ImageProcessor {
 				showProgress(1.0);
 				return ip2;
 			case RGB_TRANSLATE:
-				ij.IJ.showStatus("Translating red");
+				ij.IJMessage.showStatus("Translating red");
 				r.translate(arg, arg2); showProgress(0.40);
-				ij.IJ.showStatus("Translating green");
+				ij.IJMessage.showStatus("Translating green");
 				g.translate(arg, arg2); showProgress(0.65);
-				ij.IJ.showStatus("Translating blue");
+				ij.IJMessage.showStatus("Translating blue");
 				b.translate(arg, arg2); showProgress(0.90);
 				break;
 			case RGB_MIN:
@@ -795,11 +795,11 @@ public class ColorProcessor extends ImageProcessor {
 				b.filter(MAX); showProgress(0.90);
 				break;
 		}
-		
+
 		R = (byte[])r.getPixels();
 		G = (byte[])g.getPixels();
 		B = (byte[])b.getPixels();
-		
+
 		setRGB(R, G, B);
 		showProgress(1.0);
 		return null;
@@ -812,24 +812,24 @@ public class ColorProcessor extends ImageProcessor {
 	public void medianFilter() {
     	filterRGB(RGB_MEDIAN, 0.0);
 	}
-	
+
 	public void findEdges() {
     	filterRGB(RGB_FIND_EDGES, 0.0);
-	}		
-		
+	}
+
 	public void erode() {
     	filterRGB(RGB_ERODE, 0.0);
 	}
-			
+
 	public void dilate() {
     	filterRGB(RGB_DILATE, 0.0);
 
 	}
-			
+
 	public void autoThreshold() {
    		filterRGB(RGB_THRESHOLD, 0.0);
 	}
-	
+
 	/** Scales the image or selection using the specified scale factors.
 		@see ImageProcessor#setInterpolate
 	*/
@@ -841,7 +841,7 @@ public class ColorProcessor extends ImageProcessor {
 		double xCenter = roiX + roiWidth/2.0;
 		double yCenter = roiY + roiHeight/2.0;
 		int xmin, xmax, ymin, ymax;
-		
+
 		if ((xScale>1.0) && (yScale>1.0)) {
 			//expand roi
 			xmin = (int)(xCenter-(xCenter-roiX)*xScale);
@@ -867,7 +867,7 @@ public class ColorProcessor extends ImageProcessor {
 		for (int y=ymin; y<=ymax; y++) {
 			ys = (y-yCenter)/yScale + yCenter;
 			ysi = (int)ys;
-			if (ys<0.0) ys = 0.0;			
+			if (ys<0.0) ys = 0.0;
 			if (ys>=ylimit) ys = ylimit2;
 			index1 = y*width + xmin;
 			index2 = width*(int)ys;
@@ -902,13 +902,13 @@ public class ColorProcessor extends ImageProcessor {
 		ColorProcessor cp2 = new ColorProcessor(roiWidth, roiHeight, pixels2);
 		return cp2;
 	}
-	
-	/** Returns a duplicate of this image. */ 
-	public ImageProcessor duplicate() { 
-		int[] pixels2 = new int[width*height]; 
-		System.arraycopy(pixels, 0, pixels2, 0, width*height); 
-		return new ColorProcessor(width, height, pixels2); 
-	} 
+
+	/** Returns a duplicate of this image. */
+	public ImageProcessor duplicate() {
+		int[] pixels2 = new int[width*height];
+		System.arraycopy(pixels, 0, pixels2, 0, width*height);
+		return new ColorProcessor(width, height, pixels2);
+	}
 
 	/** Uses bilinear interpolation to find the pixel value at real coordinates (x,y). */
 	public int getInterpolatedRGBPixel(double x, double y) {
@@ -929,12 +929,12 @@ public class ColorProcessor extends ImageProcessor {
 		double xFraction = x - xbase;
 		double yFraction = y - ybase;
 		int offset = ybase * width + xbase;
-		
+
 		int lowerLeft = pixels[offset];
 		int rll = (lowerLeft&0xff0000)>>16;
 		int gll = (lowerLeft&0xff00)>>8;
 		int bll = lowerLeft&0xff;
-		
+
 		int lowerRight = pixels[offset + 1];
 		int rlr = (lowerRight&0xff0000)>>16;
 		int glr = (lowerRight&0xff00)>>8;
@@ -949,7 +949,7 @@ public class ColorProcessor extends ImageProcessor {
 		int rul = (upperLeft&0xff0000)>>16;
 		int gul = (upperLeft&0xff00)>>8;
 		int bul = upperLeft&0xff;
-		
+
 		int r, g, b;
 		double upperAverage, lowerAverage;
 		upperAverage = rul + xFraction * (rur - rul);
@@ -1020,8 +1020,8 @@ public class ColorProcessor extends ImageProcessor {
 		showProgress(1.0);
 		return ip2;
 	}
-	
-	/** Uses averaging to creates a new ColorProcessor containing 
+
+	/** Uses averaging to creates a new ColorProcessor containing
 		a downsized copy of this image or selection. */
 	public ImageProcessor makeThumbnail(int width2, int height2, double smoothFactor) {
 		return resize(width2, height2, true);
@@ -1041,7 +1041,7 @@ public class ColorProcessor extends ImageProcessor {
 		double centerX = roiX + (roiWidth-1)/2.0;
 		double centerY = roiY + (roiHeight-1)/2.0;
 		int xMax = roiX + this.roiWidth - 1;
-		
+
 		double angleRadians = -angle/(180.0/Math.PI);
 		double ca = Math.cos(angleRadians);
 		double sa = Math.sin(angleRadians);
@@ -1052,7 +1052,7 @@ public class ColorProcessor extends ImageProcessor {
 		double dwidth = width, dheight=height;
 		double xlimit = width-1.0, xlimit2 = width-1.001;
 		double ylimit = height-1.0, ylimit2 = height-1.001;
-		
+
 		for (int y=roiY; y<(roiY + roiHeight); y++) {
 			index = y*width + roiX;
 			tmp3 = tmp1 - y*sa + centerX;
@@ -1064,7 +1064,7 @@ public class ColorProcessor extends ImageProcessor {
 					if (interpolationMethod==BILINEAR) {
 						if (xs<0.0) xs = 0.0;
 						if (xs>=xlimit) xs = xlimit2;
-						if (ys<0.0) ys = 0.0;			
+						if (ys<0.0) ys = 0.0;
 						if (ys>=ylimit) ys = ylimit2;
 				  		pixels[index++] = getInterpolatedPixel(xs, ys, pixels2);
 				  	} else {
@@ -1082,7 +1082,7 @@ public class ColorProcessor extends ImageProcessor {
 		}
 		showProgress(1.0);
 	}
-	
+
 	public void flipVertical() {
 		int index1,index2;
 		int tmp;
@@ -1096,7 +1096,7 @@ public class ColorProcessor extends ImageProcessor {
 			}
 		}
 	}
-	
+
 	/** 3x3 convolution contributed by Glynne Casteel. */
 	public void convolve3x3(int[] kernel) {
 		int p1, p2, p3, p4, p5, p6, p7, p8, p9;
@@ -1110,7 +1110,7 @@ public class ColorProcessor extends ImageProcessor {
 		if (scale==0) scale = 1;
 		int inc = roiHeight/25;
 		if (inc<1) inc = 1;
-		
+
 		int[] pixels2 = (int[])getPixelsCopy();
 		int offset;
 		int rsum = 0, gsum = 0, bsum = 0;
@@ -1172,7 +1172,7 @@ public class ColorProcessor extends ImageProcessor {
 				     + k9*(p9 & 0xff);
 				bsum /= scale;
 				if (bsum>255) bsum = 255;
-				if (bsum<0) bsum = 0; 
+				if (bsum<0) bsum = 0;
 
 				pixels[offset++] = 0xff000000
 				                 | ((rsum << 16) & 0xff0000)
@@ -1185,7 +1185,7 @@ public class ColorProcessor extends ImageProcessor {
 		showProgress(1.0);
 	}
 
-	/** A 3x3 filter operation, where the argument (ImageProcessor.BLUR_MORE,  FIND_EDGES, 
+	/** A 3x3 filter operation, where the argument (ImageProcessor.BLUR_MORE,  FIND_EDGES,
 	     MEDIAN_FILTER, MIN or MAX) determines the filter type. */
 	public void filter(int type) {
 		if (type == FIND_EDGES)
@@ -1203,7 +1203,7 @@ public class ColorProcessor extends ImageProcessor {
 	/** BLUR MORE: 3x3 unweighted smoothing is implemented directly, does not convert the image to three ByteProcessors. */
 	private void blurMore() {
 		int p1 = 0, p2, p3, p4 = 0, p5, p6, p7 = 0, p8, p9;
-		
+
 		int[] prevRow = new int[width];
 		int[] thisRow = new int[width];
 		int[] nextRow = new int[width];
@@ -1347,7 +1347,7 @@ public class ColorProcessor extends ImageProcessor {
 		bWeight = bFactor;
 	}
 
-	/** Returns the three weighting factors used by getPixelValue(), 
+	/** Returns the three weighting factors used by getPixelValue(),
 		getHistogram() and convertToByte() to do color conversions.
 		@see #setWeightingFactors
 		@see #getRGBWeights
@@ -1359,7 +1359,7 @@ public class ColorProcessor extends ImageProcessor {
 		weights[2] = bWeight;
 		return weights;
 	}
-	
+
 	/** This is a thread-safe (non-static) version of setWeightingFactors(). */
 	public void setRGBWeights(double rweight, double gweight, double bweight) {
 		weights = new double[3];
@@ -1372,7 +1372,7 @@ public class ColorProcessor extends ImageProcessor {
 	public void setRGBWeights(double[] weights) {
 		this.weights = weights;
 	}
-	
+
 	/** Returns the values set by setRGBWeights(), or null if setRGBWeights() has not been called. */
 	public double[] getRGBWeights() {
 		return weights;
@@ -1382,7 +1382,7 @@ public class ColorProcessor extends ImageProcessor {
 	public boolean isInvertedLut() {
 		return false;
 	}
-	
+
 	/** Returns 'true' if this is a grayscale image. */
 	public final boolean isGrayscale() {
 		int c, r, g, b;
@@ -1400,27 +1400,27 @@ public class ColorProcessor extends ImageProcessor {
 	public int getBestIndex(Color c) {
 		return 0;
 	}
-	
+
 	/** Does nothing since RGB images do not use LUTs. */
 	public void invertLut() {
 	}
-	
+
 	public void updateComposite(int[] rgbPixels, int channel) {
 	}
 
 	/** Not implemented. */
 	public void threshold(int level) {}
-	
+
 	/** Returns the number of color channels (3). */
 	public int getNChannels() {
 		return 3;
 	}
-	
+
 	/** Returns a FloatProcessor with one color channel of the image.
 	*  The roi and mask are also set for the FloatProcessor.
 	*  @param channelNumber   Determines the color channel, 0=red, 1=green, 2=blue
 	*  @param fp              Here a FloatProcessor can be supplied, or null. The FloatProcessor
-	*                         is overwritten by this method (re-using its pixels array 
+	*                         is overwritten by this method (re-using its pixels array
 	*                         improves performance).
 	*  @return A FloatProcessor with the converted image data of the color channel selected
 	*/
@@ -1438,7 +1438,7 @@ public class ColorProcessor extends ImageProcessor {
 		fp.setMinAndMax(0, 255);
 		return fp;
 	}
-	
+
 	/** Sets the pixels of one color channel from a FloatProcessor.
 	*  @param channelNumber   Determines the color channel, 0=red, 1=green, 2=blue
 	*  @param fp              The FloatProcessor where the image data are read from.
@@ -1456,7 +1456,7 @@ public class ColorProcessor extends ImageProcessor {
 			pixels[i] = (pixels[i]&resetMask) | ((int)value<<shift);
 		}
 	}
-	
+
 	public int getBitDepth() {
 		return 24;
 	}

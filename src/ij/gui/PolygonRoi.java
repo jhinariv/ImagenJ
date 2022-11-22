@@ -438,7 +438,7 @@ public class PolygonRoi extends Roi {
 		String angle = !Double.isNaN(degrees)?", angle=" + IJ.d2s(degrees2):"";
 		int ox = ic.offScreenX(sx);
 		int oy = ic.offScreenY(sy);
-		IJ.showStatus(imp.getLocationAsString(ox,oy) + length + angle);
+		IJMessage.showStatus(imp.getLocationAsString(ox,oy) + length + angle);
 	}
 
 	//Mouse behaves like an eraser when moved backwards with alt key down.
@@ -633,7 +633,7 @@ public class PolygonRoi extends Roi {
 			updateClipRectAndDraw();
 		}
 		String angle = type==ANGLE?getAngleAsString():"";
-		IJ.showStatus(imp.getLocationAsString(ox,oy) + angle);
+		IJMessage.showStatus(imp.getLocationAsString(ox,oy) + angle);
 	}
 
    /** After handle is moved, find clip rect and repaint. */
@@ -683,7 +683,7 @@ public class PolygonRoi extends Roi {
 	}
 
 	protected void resetBoundingRect() {
-		//IJ.log("resetBoundingRect");
+		//IJMessage.log("resetBoundingRect");
 		if (xpf!=null) {
 			resetSubPixelBoundingRect();
 			xp = toInt(xpf, xp, nPoints);
@@ -708,7 +708,7 @@ public class PolygonRoi extends Roi {
 			for (int i=0; i<nPoints; i++)
 				yp[i] -= ymin;
 		}
-		//IJ.log("reset: "+ymin+" "+before+" "+yp[0]);
+		//IJMessage.log("reset: "+ymin+" "+before+" "+yp[0]);
 		x+=xmin; y+=ymin;
 		width=xmax-xmin; height=ymax-ymin;
 		if (useLineSubpixelConvention()) {
@@ -718,7 +718,7 @@ public class PolygonRoi extends Roi {
 	}
 
 	private void resetSubPixelBoundingRect() {
-		//IJ.log("resetSubPixelBoundingRect: "+state+" "+bounds);
+		//IJMessage.log("resetSubPixelBoundingRect: "+state+" "+bounds);
 		if (xSpline!=null) {
 			resetSplineFitBoundingRect();
 			return;
@@ -1058,7 +1058,7 @@ public class PolygonRoi extends Roi {
 			while ((distanceOverNextWrite >= 0.0 || i==npoints-1) && pointsWritten < npOut) {  // we have to write a new point
 				double fractionOverNextWrite = distanceOverNextWrite/distance;
 				if (distance==0) fractionOverNextWrite = 0;
-				//IJ.log("i="+i+" n="+pointsWritten+"/"+npOut+" leng="+IJ.d2s(lengthRead)+"/"+IJ.d2s(length)+" done="+IJ.d2s(pointsWritten*step)+" over="+IJ.d2s(fractionOverNextWrite)+" x,y="+IJ.d2s(x2 - fractionOverNextWrite*dx)+","+IJ.d2s(y2 - fractionOverNextWrite*dy));
+				//IJMessage.log("i="+i+" n="+pointsWritten+"/"+npOut+" leng="+IJ.d2s(lengthRead)+"/"+IJ.d2s(length)+" done="+IJ.d2s(pointsWritten*step)+" over="+IJ.d2s(fractionOverNextWrite)+" x,y="+IJ.d2s(x2 - fractionOverNextWrite*dx)+","+IJ.d2s(y2 - fractionOverNextWrite*dy));
 				xpOut[pointsWritten] = (float)(x2 - fractionOverNextWrite*dx);
 				ypOut[pointsWritten] = (float)(y2 - fractionOverNextWrite*dy);
 				distanceOverNextWrite -= step;
@@ -1103,7 +1103,7 @@ public class PolygonRoi extends Roi {
 		|| (samePoint && doubleClick))) {
 			boolean okayToFinish = true;
 			if (type==POLYGON && samePoint && doubleClick && nPoints>25) {
-				okayToFinish = IJ.showMessageWithCancel("Polygon Tool", "Complete the selection?");
+				okayToFinish = IJMessage.showMessageWithCancel("Polygon Tool", "Complete the selection?");
 			}
 			if (okayToFinish) {
 				nPoints--;
@@ -1406,7 +1406,7 @@ public class PolygonRoi extends Roi {
 		else
 			return getLength(xp, yp, nPoints, closeShape, imp);
 	}
-	
+
 	/** Returns 'true' if this ROI was created using
 	 *  the wand tool or the particle analyzer.
 	*/
@@ -1675,7 +1675,7 @@ public class PolygonRoi extends Roi {
 		System.arraycopy(xp2, 0, xp2temp, 0, maxPoints);
 		System.arraycopy(yp2, 0, yp2temp, 0, maxPoints);
 		xp2=xp2temp; yp2=yp2temp;
-		if (IJ.debugMode) IJ.log("PolygonRoi: "+maxPoints+" points -> "+newSize);
+		if (IJDebugMode.debugMode) IJMessage.log("PolygonRoi: "+maxPoints+" points -> "+newSize);
 		maxPoints = newSize;
 	}
 

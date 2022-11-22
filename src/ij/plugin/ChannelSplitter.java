@@ -27,10 +27,10 @@ public class ChannelSplitter implements PlugIn {
 			}
 		} else if (imp.getType()==ImagePlus.COLOR_RGB)
 			splitRGB(imp);
-		else 
-			IJ.error("Split Channels", "Multichannel image required");
+		else
+			IJMessage.error("Split Channels", "Multichannel image required");
 	}
-	
+
 	private void splitRGB(ImagePlus imp) {
 		boolean keepSource = IJ.altKeyDown();
 		String title = imp.getTitle();
@@ -86,7 +86,7 @@ public class ChannelSplitter implements PlugIn {
 			imp2.setCalibration(imp.getCalibration());
 			reducer.reduce(imp2);
 			if (imp.isComposite() && ((CompositeImage)imp).getMode()==IJ.GRAYSCALE)
-				IJ.run(imp2, "Grays", "");
+				IJPlugin.runimp2, "Grays", "");
 			if (imp2.getNDimensions()>3)
 				imp2.setOpenAsHyperStack(true);
 			images.add(imp2);
@@ -94,8 +94,8 @@ public class ChannelSplitter implements PlugIn {
 		ImagePlus[] array = new ImagePlus[images.size()];
 		return (ImagePlus[])images.toArray(array);
 	}
-	
-	/** Returns, as an ImageStack, the specified channel, where 'c' must be greater 
+
+	/** Returns, as an ImageStack, the specified channel, where 'c' must be greater
 		than zero and less than or equal to the number of channels in the image. */
 	public static ImageStack getChannel(ImagePlus imp, int c) {
 		if (imp.getBitDepth()==24) { // RGB?
@@ -116,8 +116,8 @@ public class ChannelSplitter implements PlugIn {
 		}
 		return stack2;
 	}
-	
-	/** Splits the specified RGB stack into three 8-bit grayscale stacks. 
+
+	/** Splits the specified RGB stack into three 8-bit grayscale stacks.
 		Deletes the source stack if keepSource is false. */
 	public static ImageStack[] splitRGB(ImageStack rgb, boolean keepSource) {
 		 int w = rgb.getWidth();
@@ -131,7 +131,7 @@ public class ChannelSplitter implements PlugIn {
 		 int inc = keepSource?1:0;
 		 int n = rgb.getSize();
 		 for (int i=1; i<=n; i++) {
-			 IJ.showStatus(i+"/"+n);
+			 IJMessage.showStatus(i+"/"+n);
 			 r = new byte[w*h];
 			 g = new byte[w*h];
 			 b = new byte[w*h];

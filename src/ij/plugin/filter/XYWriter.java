@@ -39,10 +39,10 @@ public class XYWriter implements PlugInFilter {
 			pw = new PrintWriter(new BufferedOutputStream(new FileOutputStream(directory+name)));
 		}
 		catch (IOException e) {
-			IJ.error("XYWriter", "Unable to save coordinates:\n   "+e.getMessage());
+			IJMessage.error("XYWriter", "Unable to save coordinates:\n   "+e.getMessage());
 			return;
 		}
-		
+
 		Calibration cal = imp.getCalibration();
 		String ls = System.getProperty("line.separator");
 		if (roi.subPixelResolution()) {

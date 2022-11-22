@@ -1,4 +1,4 @@
-package ij.plugin; 
+package ij.plugin;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.datatransfer.*;
@@ -11,12 +11,12 @@ import ij.plugin.frame.Editor;
 import ij.plugin.frame.Recorder;
 import ij.text.TextWindow;
 import ij.util.Tools;
-	
+
 /**	Copies/pastes images to/from the system clipboard. */
 public class Clipboard implements PlugIn, Transferable {
 	static java.awt.datatransfer.Clipboard clipboard;
 	private ImagePlus gImp;
-	
+
 	public void run(String arg) {
 		if (IJ.altKeyDown()) {
 			if (arg.equals("copy"))
@@ -37,7 +37,7 @@ public class Clipboard implements PlugIn, Transferable {
 		else if (arg.equals("show"))
 			showInternalClipboard();
 	}
-	
+
 	/** Copies the contents of the specified image, or selection, to the system clicpboard. */
 	public static void copyToSystem(ImagePlus imp) {
 		Clipboard cplugin = new Clipboard();
@@ -47,7 +47,7 @@ public class Clipboard implements PlugIn, Transferable {
 			cplugin.clipboard.setContents(cplugin, null);
 		} catch (Throwable t) {}
 	}
-	
+
 	void copy(boolean cut) {
 		ImagePlus imp = WindowManager.getCurrentImage();
 		if (imp!=null) {
@@ -55,7 +55,7 @@ public class Clipboard implements PlugIn, Transferable {
 	 		if (cut)
 	 			imp.changes = true;
 	 	} else
-	 		IJ.noImage();
+	 		IJMacro.noImage();
 	 	if (Recorder.scriptMode()) {
 	 		if (cut)
 				Recorder.recordCall("imp.cut();");
@@ -63,7 +63,7 @@ public class Clipboard implements PlugIn, Transferable {
 				Recorder.recordCall("imp.copy();");
 	 	}
 	}
-	
+
 	private ImagePlus flatten(ImagePlus imp) {
 		if (imp.getOverlay()!=null && !imp.getHideOverlay() && !imp.isHyperStack()) {
 			ImagePlus imp2 = imp;
@@ -79,7 +79,7 @@ public class Clipboard implements PlugIn, Transferable {
 		}
 		return imp;
 	}
-	
+
 	void paste() {
 		if (ImagePlus.getClipboard()==null)
 			showSystemClipboard();
@@ -98,7 +98,7 @@ public class Clipboard implements PlugIn, Transferable {
 		if (clipboard==null)
 			clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 	}
-	
+
 	void copyToSystem() {
 		this.gImp = WindowManager.getCurrentImage();
 		setup();
@@ -108,10 +108,10 @@ public class Clipboard implements PlugIn, Transferable {
 	 	if (Recorder.scriptMode())
 			Recorder.recordCall("imp.copyToSystem();");
 	}
-	
+
 	void showSystemClipboard() {
 		setup();
-		IJ.showStatus("Opening system clipboard...");
+		IJMessage.showStatus("Opening system clipboard...");
 		try {
 			Transferable transferable = clipboard.getContents(null);
 			boolean imageSupported = transferable.isDataFlavorSupported(DataFlavor.imageFlavor);
@@ -119,8 +119,8 @@ public class Clipboard implements PlugIn, Transferable {
 			if (imageSupported) {
 				Image img = (Image)transferable.getTransferData(DataFlavor.imageFlavor);
 				if (img==null) {
-					IJ.error("Unable to convert image on system clipboard");
-					IJ.showStatus("");
+					IJMessage.error("Unable to convert image on system clipboard");
+					IJMessage.showStatus("");
 					return;
 				}
 				int width = img.getWidth(null);
@@ -138,14 +138,14 @@ public class Clipboard implements PlugIn, Transferable {
 				Editor ed = new Editor();
 				ed.setSize(600, 300);
 				ed.create("Clipboard", text);
-				IJ.showStatus("");
+				IJMessage.showStatus("");
 			} else
-				IJ.error("Unable to find an image on the system clipboard");
+				IJMessage.error("Unable to find an image on the system clipboard");
 		} catch (Throwable e) {
 			IJ.handleException(e);
 		}
 	}
-	
+
 	public DataFlavor[] getTransferDataFlavors() {
 		return new DataFlavor[] { DataFlavor.imageFlavor };
 	}
@@ -168,10 +168,10 @@ public class Clipboard implements PlugIn, Transferable {
 		}
 		boolean overlay = imp.getOverlay()!=null && !imp.getHideOverlay();
 		if (overlay && !imp.tempOverlay())
-			imp = imp.flatten(); 
+			imp = imp.flatten();
 		return imp.getImage();
 	}
-	
+
 	void showInternalClipboard() {
 		ImagePlus clipboard = ImagePlus.getClipboard();
 		if (clipboard!=null) {
@@ -183,13 +183,13 @@ public class Clipboard implements PlugIn, Transferable {
 				roi = (Roi)roi.clone();
 				roi.setLocation(0, 0);
 				imp2.setRoi(roi);
-				IJ.run(imp2, "Clear Outside", null);
+				IJPlugin.runimp2, "Clear Outside", null);
 				imp2.deleteRoi();
 			}
-			WindowManager.checkForDuplicateName = true;          
+			WindowManager.checkForDuplicateName = true;
 			imp2.show();
 		} else
-			IJ.error("The internal clipboard is empty.");
+			IJMessage.error("The internal clipboard is empty.");
 	}
 
 }

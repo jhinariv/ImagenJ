@@ -22,10 +22,10 @@ public class VirtualStack extends ImageStack {
 	private boolean generateData;
 	private int[] indexes;  // used to translate non-CZT hyperstack slice numbers
 
-	
+
 	/** Default constructor. */
 	public VirtualStack() { }
-	
+
 	public VirtualStack(int width, int height) {
 		super(width, height);
 	}
@@ -69,13 +69,13 @@ public class VirtualStack extends ImageStack {
 	}
 
 	/** Adds an image to the end of a virtual stack created using the
-	 * VirtualStack(w,h,cm,path) constructor. The argument 
+	 * VirtualStack(w,h,cm,path) constructor. The argument
 	 * can be a full file path (e.g., "C:/Users/wayne/dir1/image.tif")
 	 * if the 'path' argument in the constructor is "". File names
 	 * that start with '.' are ignored.
 	*/
 	public void addSlice(String fileName) {
-		if (fileName==null) 
+		if (fileName==null)
 			throw new IllegalArgumentException("'fileName' is null!");
 		if (fileName.startsWith("."))
 			return;
@@ -100,7 +100,7 @@ public class VirtualStack extends ImageStack {
 	/** Does nothing.. */
 	public void addSlice(String sliceLabel, ImageProcessor ip) {
 	}
-	
+
 	/** Does noting. */
 	public void addSlice(String sliceLabel, ImageProcessor ip, int n) {
 	}
@@ -116,14 +116,14 @@ public class VirtualStack extends ImageStack {
 		names[nSlices-1] = null;
 		nSlices--;
 	}
-	
+
 	/** Deletes the last slice in the stack. */
 	public void deleteLastSlice() {
 		int n = size();
 		if (n>0)
 			deleteSlice(n);
 	}
-	   
+
    /** Returns the pixel array for the specified slice, where {@literal 1<=n<=nslices}. */
 	public Object getPixels(int n) {
 		ImageProcessor ip = getProcessor(n);
@@ -131,8 +131,8 @@ public class VirtualStack extends ImageStack {
 			return ip.getPixels();
 		else
 			return null;
-	}		
-	
+	}
+
 	/** Assigns a pixel array to the specified slice, where {@literal 1<=n<=nslices}. */
 	public void setPixels(Object pixels, int n) {
 	}
@@ -224,7 +224,7 @@ public class VirtualStack extends ImageStack {
 			ip.setCalibrationTable(cTable);
 		return ip;
 	 }
-	 	 
+
 	 private void label(ImageProcessor ip, String msg, Color color) {
 		int size = getHeight()/20;
 		if (size<9) size=9;
@@ -234,12 +234,12 @@ public class VirtualStack extends ImageStack {
 		ip.setColor(color);
 		ip.drawString(msg, size, size*2);
 	}
- 
+
 	/** Currently not implemented */
 	public int saveChanges(int n) {
 		return -1;
 	}
-	
+
 	/** Returns the number of slices in this stack. */
 	public int size() {
 		return getSize();
@@ -263,7 +263,7 @@ public class VirtualStack extends ImageStack {
 				return names[n-1]+"\n"+label;
 		}
 	}
-	
+
 	/** Returns null. */
 	public Object[] getImageArray() {
 		return null;
@@ -281,17 +281,17 @@ public class VirtualStack extends ImageStack {
    /** Does nothing. */
 	public void trim() {
 	}
-	
+
 	/** Returns the path to the directory containing the images. */
 	public String getDirectory() {
 		return IJ.addSeparator(path);
 	}
-		
+
 	/** Returns the file name of the specified slice, where {@literal 1<=n<=nslices}. */
 	public String getFileName(int n) {
 		return names[n-1];
 	}
-	
+
 	/** Sets the bit depth (8, 16, 24 or 32). */
 	public void setBitDepth(int bitDepth) {
 		this.bitDepth = bitDepth;
@@ -301,7 +301,7 @@ public class VirtualStack extends ImageStack {
 	public int getBitDepth() {
 		return bitDepth;
 	}
-	
+
 	public ImageStack sortDicom(String[] strings, String[] info, int maxDigits) {
 		int n = size();
 		String[] names2 = new String[n];
@@ -315,24 +315,24 @@ public class VirtualStack extends ImageStack {
 		}
 		return this;
 	}
-	
+
 	/** Returns the ImagePlus Properties assoctated with the current slice, or null. */
 	public Properties getProperties() {
 		return properties;
 	}
-	
+
 	/** Sets the table that translates slice numbers of hyperstacks not in default CZT order. */
 	public void setIndexes(int[] indexes) {
 		this.indexes = indexes;
 	}
-	
+
 	/** Translates slice numbers of hyperstacks not in default CZT order. */
 	public int translate(int n) {
 		int n2 = (indexes!=null&&indexes.length==getSize()) ? indexes[n-1]+1 : n;
-		//IJ.log("translate: "+n+" "+n2+" "+getSize()+" "+(indexes!=null?indexes.length:null));
+		//IJMessage.log("translate: "+n+" "+n2+" "+getSize()+" "+(indexes!=null?indexes.length:null));
 		return n2;
 	}
-	
+
 	/** Reduces the number of slices in this stack by a factor. */
 	public void reduce(int factor) {
 		if (factor<2 || nSlices/factor<1 || names==null)
@@ -349,5 +349,5 @@ public class VirtualStack extends ImageStack {
 		}
 	}
 
-} 
+}
 

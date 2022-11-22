@@ -21,7 +21,7 @@ public class Resizer implements PlugIn, TextListener, ItemListener  {
     private Vector fields, checkboxes;
 	private double origWidth, origHeight;
 	private boolean sizeToHeight;
- 
+
 	public void run(String arg) {
 		boolean crop = arg.equals("crop");
 		ImagePlus imp = IJ.getImage();
@@ -29,15 +29,15 @@ public class Resizer implements PlugIn, TextListener, ItemListener  {
 		Roi roi = imp.getRoi();
 		int bitDepth = imp.getBitDepth();
 		double min = ip.getMin();
-		double max = ip.getMax();	
+		double max = ip.getMax();
 		if (!imp.okToDeleteRoi())
 			return;
 		if ((roi==null||!roi.isArea()) && crop) {
-			IJ.error(crop?"Crop":"Resize", "Area selection required");
+			IJMessage.error(crop?"Crop":"Resize", "Area selection required");
 			return;
 		}
 		if (!imp.lock()) {
-			IJ.log("<<Resizer: image is locked ("+imp+")>>");
+			IJMessage.log("<<Resizer: image is locked ("+imp+")>>");
 			return;
 		}
 		Rectangle r = ip.getRoi();
@@ -54,8 +54,8 @@ public class Resizer implements PlugIn, TextListener, ItemListener  {
 				ShapeRoi shape2 = new ShapeRoi(new Roi(0, 0, w, h));
 				roi = shape2.and(shape1);
 				if (roi.getBounds().width==0 || roi.getBounds().height==0) {
-					if (IJ.isMacro())
-						IJ.log("Selection is outside image");
+					if (IJMacro.isMacro())
+						IJMessage.log("Selection is outside image");
 					else
 						throw new IllegalArgumentException("Selection is outside image");
 				}
@@ -99,12 +99,12 @@ public class Resizer implements PlugIn, TextListener, ItemListener  {
 			gd.addCheckbox("Average when downsizing", averageWhenDownsizing);
 			gd.addChoice("Interpolation:", methods, methods[interpolationMethod]);
 			fields = gd.getNumericFields();
-			if (!IJ.macroRunning()) {
+			if (!IJMacro.macroRunning()) {
 				for (int i=0; i<2; i++)
 					((TextField)fields.elementAt(i)).addTextListener(this);
 			}
 			checkboxes = gd.getCheckboxes();
-			if (!IJ.macroRunning())
+			if (!IJMacro.macroRunning())
 				((Checkbox)checkboxes.elementAt(0)).addItemListener(this);
 			gd.showDialog();
 			if (gd.wasCanceled()) {
@@ -118,7 +118,7 @@ public class Resizer implements PlugIn, TextListener, ItemListener  {
 			if (t1>1)
 				t2 = (int)gd.getNextNumber();
 			if (gd.invalidNumber()) {
-				IJ.error("Width or height are invalid.");
+				IJMessage.error("Width or height are invalid.");
 				imp.unlock();
 				return;
 			}
@@ -130,7 +130,7 @@ public class Resizer implements PlugIn, TextListener, ItemListener  {
 			if (newWidth<=0.0 && !constrain)  newWidth = 50;
 			if (newHeight<=0.0) newHeight = 50;
 		}
-		
+
 		if (!crop && constrain) {
 			if (sizeToHeight)
 				newWidth = (int)Math.round(newHeight*(origWidth/origHeight));
@@ -139,7 +139,7 @@ public class Resizer implements PlugIn, TextListener, ItemListener  {
 		}
 		ip.setInterpolationMethod(interpolationMethod);
 		Undo.setup(crop?Undo.TRANSFORM:Undo.TYPE_CONVERSION, imp);
-			    	
+
 		if (roi!=null || newWidth!=origWidth || newHeight!=origHeight) {
 			try {
 				StackProcessor sp = new StackProcessor(imp.getStack(), ip);
@@ -178,7 +178,7 @@ public class Resizer implements PlugIn, TextListener, ItemListener  {
 					}
 				}
 				if (stackSize>1 && newSize<stackSize)
-					IJ.error("ImageJ ran out of memory causing \nthe last "+(stackSize-newSize)+" slices to be lost.");
+					IJMessage.error("ImageJ ran out of memory causing \nthe last "+(stackSize-newSize)+" slices to be lost.");
 			} catch(OutOfMemoryError o) {
 				IJ.outOfMemory("Resize");
 			}
@@ -186,7 +186,7 @@ public class Resizer implements PlugIn, TextListener, ItemListener  {
 			if (crop)
 				interpolationMethod = saveMethod;
 		}
-		
+
 		ImagePlus imp2 = null;
 		if (z2>0 && z2!=z1)
 			imp2 = zScale(imp, z2, interpolationMethod+IN_PLACE);
@@ -201,7 +201,7 @@ public class Resizer implements PlugIn, TextListener, ItemListener  {
 			imp.setDisplayRange(min, max);
 			imp.updateAndDraw();
 		}
-		Scaler.record(imp, newWidth, newHeight, 1, interpolationMethod);	
+		Scaler.record(imp, newWidth, newHeight, 1, interpolationMethod);
 	}
 
 	public ImagePlus zScale(ImagePlus imp, int newDepth, int interpolationMethod) {
@@ -268,10 +268,10 @@ public class Resizer implements PlugIn, TextListener, ItemListener  {
 		ImageProcessor ip = imp.getProcessor();
 		int count = 0;
 		if (scaleT) {
-			IJ.showStatus("T Scaling...");
+			IJMessage.showStatus("T Scaling...");
 			ImageProcessor xtPlane1 = ip.createProcessor(width, frames);
 			xtPlane1.setInterpolationMethod(interpolationMethod);
-			ImageProcessor xtPlane2;		
+			ImageProcessor xtPlane2;
 			Object xtpixels1 = xtPlane1.getPixels();
 			int last = slices*channels*height-1;
 			for (int z=1; z<=slices; z++) {
@@ -280,7 +280,7 @@ public class Resizer implements PlugIn, TextListener, ItemListener  {
 						IJ.showProgress(count++, last);
 						for (int t=1; t<=frames; t++) {
 							int index = imp.getStackIndex(c, z, t);
-							//IJ.log("1: "+c+" "+z+" "+t+" "+index+" "+xzPlane1);
+							//IJMessage.log("1: "+c+" "+z+" "+t+" "+index+" "+xzPlane1);
 							Object pixels1 = stack1.getPixels(index);
 							System.arraycopy(pixels1, y*width, xtpixels1, (t-1)*width, width);
 						}
@@ -288,7 +288,7 @@ public class Resizer implements PlugIn, TextListener, ItemListener  {
 						Object xtpixels2 = xtPlane2.getPixels();
 						for (int t=1; t<=frames2; t++) {
 							int index = imp2.getStackIndex(c, z, t);
-							//IJ.log("2: "+c+" "+z+" "+t+" "+index+" "+xzPlane2);
+							//IJMessage.log("2: "+c+" "+z+" "+t+" "+index+" "+xzPlane2);
 							Object pixels2 = stack2.getPixels(index);
 							System.arraycopy(xtpixels2, (t-1)*width, pixels2, y*width, width);
 						}
@@ -296,10 +296,10 @@ public class Resizer implements PlugIn, TextListener, ItemListener  {
 				}
 			}
 		} else {
-			IJ.showStatus("Z Scaling...");
+			IJMessage.showStatus("Z Scaling...");
 			ImageProcessor xzPlane1 = ip.createProcessor(width, slices);
 			xzPlane1.setInterpolationMethod(interpolationMethod);
-			ImageProcessor xzPlane2;		
+			ImageProcessor xzPlane2;
 			Object xypixels1 = xzPlane1.getPixels();
 			int last = frames*channels*height-1;
 			for (int t=1; t<=frames; t++) {
@@ -338,9 +338,9 @@ public class Resizer implements PlugIn, TextListener, ItemListener  {
 		ImageProcessor ip = imp.getProcessor();
 		ImageProcessor xzPlane1 = ip.createProcessor(width, depth);
 		xzPlane1.setInterpolationMethod(interpolationMethod);
-		ImageProcessor xzPlane2;		
+		ImageProcessor xzPlane2;
 		Object xzpixels1 = xzPlane1.getPixels();
-		IJ.showStatus("Z Scaling...");
+		IJMessage.showStatus("Z Scaling...");
 		for (int y=0; y<height; y++) {
 			IJ.showProgress(y, height-1);
 			for (int z=0; z<depth; z++) { // get xz plane at y
@@ -376,7 +376,7 @@ public class Resizer implements PlugIn, TextListener, ItemListener  {
 			}
         }
     }
-    
+
     void updateFields() {
 		if (sizeToHeight) {
 			newWidth = (int)Math.round(newHeight*(origWidth/origHeight));
@@ -396,7 +396,7 @@ public class Resizer implements PlugIn, TextListener, ItemListener  {
         	updateFields();
         constrain = newConstrain;
 	}
-	
+
 	public void setAverageWhenDownsizing(boolean averageWhenDownsizing) {
 		this. averageWhenDownsizing = averageWhenDownsizing;
 	}

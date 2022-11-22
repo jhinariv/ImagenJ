@@ -18,16 +18,16 @@ public class FFTMath implements PlugIn {
     private static boolean doInverse = true;
     private static String title = "Result";
     private ImagePlus imp1, imp2;
-            
+
     public void run(String arg) {
         if (showDialog())
             doMath(imp1, imp2);
     }
-    
+
     public boolean showDialog() {
         int[] wList = WindowManager.getIDList();
         if (wList==null) {
-            IJ.noImage();
+            IJMacro.noImage();
             return false;
         }
         int nGoodImages = 0;
@@ -39,7 +39,7 @@ public class FFTMath implements PlugIn {
                 nGoodImages++;
         }
         if (nGoodImages == 0) {
-        	IJ.error("FFT Math", "Images must be a power of 2 size (256x256, 512x512, etc.)");
+        	IJMessage.error("FFT Math", "Images must be a power of 2 size (256x256, 512x512, etc.)");
         	return false;
         }
         int[] wList2 = new int[nGoodImages];
@@ -77,7 +77,7 @@ public class FFTMath implements PlugIn {
         imp2 = WindowManager.getImage(wList2[index2]);
         return true;
    }
-    
+
     public void doMath(ImagePlus imp1, ImagePlus imp2) {
     	FHT h1, h2=null;
     	ImageProcessor fht1, fht2;
@@ -85,7 +85,7 @@ public class FFTMath implements PlugIn {
 		if (fht1!=null)
 			h1 = new FHT(fht1);
 		else {
-			IJ.showStatus("Converting to float");
+			IJMessage.showStatus("Converting to float");
        		ImageProcessor ip1 = imp1.getProcessor();
        	 	h1 = new FHT(ip1);
        	}
@@ -98,51 +98,51 @@ public class FFTMath implements PlugIn {
        	 		h2 = new FHT(ip2);
        	}
         if (!h1.powerOf2Size()) {
-        	IJ.error("FFT Math", "Images must be a power of 2 size (256x256, 512x512, etc.)");
+        	IJMessage.error("FFT Math", "Images must be a power of 2 size (256x256, 512x512, etc.)");
         	return;
         }
         if (imp1.getWidth()!=imp2.getWidth()) {
-        	IJ.error("FFT Math", "Images must be the same size");
+        	IJMessage.error("FFT Math", "Images must be the same size");
         	return;
         }
 		if (fht1==null) {
-			IJ.showStatus("Transform image1");
+			IJMessage.showStatus("Transform image1");
 			h1.transform();
 		}
 		if (fht2==null) {
 			if (h2==null)
 				h2 = new FHT(h1.duplicate());
 				else {
-					IJ.showStatus("Transform image2");
+					IJMessage.showStatus("Transform image2");
 					h2.transform();
 				}
 		}
 		FHT result=null;
 		switch (operation) {
-			case CONJUGATE_MULTIPLY: 
-				IJ.showStatus("Complex conjugate multiply");
-				result = h1.conjugateMultiply(h2); 
+			case CONJUGATE_MULTIPLY:
+				IJMessage.showStatus("Complex conjugate multiply");
+				result = h1.conjugateMultiply(h2);
 				break;
-			case MULTIPLY: 
-				IJ.showStatus("Fourier domain multiply");
-				result = h1.multiply(h2); 
+			case MULTIPLY:
+				IJMessage.showStatus("Fourier domain multiply");
+				result = h1.multiply(h2);
 				break;
-			case DIVIDE: 
-				IJ.showStatus("Fourier domain divide");
-				result = h1.divide(h2); 
+			case DIVIDE:
+				IJMessage.showStatus("Fourier domain divide");
+				result = h1.divide(h2);
 				break;
 		}
 		ImagePlus imp3 = null;
 		if (doInverse) {
-			IJ.showStatus("Inverse transform");
+			IJMessage.showStatus("Inverse transform");
 			result.inverseTransform();
-			IJ.showStatus("Swap quadrants");
+			IJMessage.showStatus("Swap quadrants");
 			result.swapQuadrants();
-			IJ.showStatus("Display image");
+			IJMessage.showStatus("Display image");
 			result.resetMinAndMax();
 			imp3 = new ImagePlus(title, result);
 		} else {
-			IJ.showStatus("Power spectrum");
+			IJMessage.showStatus("Power spectrum");
 			ImageProcessor ps = result.getPowerSpectrum();
 			imp3 = new ImagePlus(title, ps.convertToFloat());
 			result.quadrantSwapNeeded = true;

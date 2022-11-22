@@ -13,10 +13,10 @@ Calculate the so-called "capacity" fractal dimension.  The algorithm
 is called, in fractal parlance, the "box counting" method.  In the
 simplest terms, the routine counts the number of boxes of a given size
 needed to cover a one pixel wide, binary (black on white) border.
-The procedure is repeated for boxes that are 2 to 64 pixels wide. 
-The output consists of two columns labeled "size" and "count". A plot 
+The procedure is repeated for boxes that are 2 to 64 pixels wide.
+The output consists of two columns labeled "size" and "count". A plot
 is generated with the log of size on the x-axis and the log of count on
-the y-axis and the data is fitted with a straight line. The slope (S) 
+the y-axis and the data is fitted with a straight line. The slope (S)
 of the line is the negative of the fractal dimension, i.e. D=-S.
 
 A full description of the technique can be found in T. G. Smith,
@@ -71,7 +71,7 @@ public class FractalBoxCounter implements PlugInFilter {
 		counts = new int[maxBoxSize*maxBoxSize+1];
 		imp.deleteRoi();
 		if (!ip.isBinary()) {
-			IJ.error("8-bit binary image (0 and 255) required.");
+			IJMessage.error("8-bit binary image (0 and 255) required.");
 			return;
 		}
 		if (blackBackground)
@@ -93,13 +93,13 @@ public class FractalBoxCounter implements PlugInFilter {
 		int[] ints = new int[nInts];
 		for(int i=0; i<nInts; i++) {
 			try {ints[i] = Integer.parseInt(st.nextToken());}
-			catch (NumberFormatException e) {IJ.log(""+e); return null;}
+			catch (NumberFormatException e) {IJMessage.log(""+e); return null;}
 		}
 		return ints;
 	}
 
 	boolean FindMargins(ImageProcessor ip) {
-		if (IJ.debugMode) IJ.log("FindMargins");
+		if (IJDebugMode.debugMode) IJMessage.log("FindMargins");
 		int[] histogram = new int[256];
 		int width = imp.getWidth();
 		int height = imp.getHeight();
@@ -110,7 +110,7 @@ public class FractalBoxCounter implements PlugInFilter {
 		do {
 			left++;
 			if (left>=width) {
-				IJ.error("No non-backround pixels found.");
+				IJMessage.error("No non-backround pixels found.");
 				return false;
 			}
 			ip.setRoi(left, 0, 1, height);
@@ -155,7 +155,7 @@ public class FractalBoxCounter implements PlugInFilter {
 		int right = roi.x+roi.width;
 		int bottom = roi.y+roi.height;
 		int maxCount = size*size;
-		
+
 		for (int i=1; i<=maxCount; i++)
 			counts[i] = 0;
 		boolean done = false;
@@ -185,7 +185,7 @@ public class FractalBoxCounter implements PlugInFilter {
 		}
 		return boxSum;
 	}
-	
+
 	double plot() {
 		int n = boxSizes.length;
 		float[] sizes = new float[boxSizes.length];
@@ -199,9 +199,9 @@ public class FractalBoxCounter implements PlugInFilter {
 		float[] px = new float[100];
 		float[] py = new float[100];
 		double[] a = Tools.getMinMax(sizes);
-		double xmin=a[0], xmax=a[1]; 
+		double xmin=a[0], xmax=a[1];
 		a = Tools.getMinMax(boxCountSums);
-		double ymin=a[0], ymax=a[1]; 
+		double ymin=a[0], ymax=a[1];
 		double inc = (xmax-xmin)/99.0;
 		double tmp = xmin;
 		for (int i=0; i<100; i++) {
@@ -218,7 +218,7 @@ public class FractalBoxCounter implements PlugInFilter {
 		plot.addPoints(sizes, boxCountSums, PlotWindow.CIRCLE);
 		plot.addLabel(0.8, 0.2, label);
 		plot.show();
-		return D;			
+		return D;
 	}
 
 	void doBoxCounts(ImageProcessor ip) {

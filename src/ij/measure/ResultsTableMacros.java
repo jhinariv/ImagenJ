@@ -33,7 +33,7 @@ public class ResultsTableMacros implements Runnable, DialogListener, ActionListe
 		if (rt==null)
 			rt = Analyzer.getResultsTable();
 		if (rt==null || rt.size()==0) {
-			IJ.error("Results Table required");
+			IJMessage.error("Results Table required");
 			return;
 		}
 		String[] temp = rt.getHeadingsAsVariableNames();
@@ -79,7 +79,7 @@ public class ResultsTableMacros implements Runnable, DialogListener, ActionListe
 				"<li>A new variable starting with a lowercase character is temporary."+
 				"<li>The variable <b>row</b> (row index) is pre-defined.\n"+
 				"<li>String operations are supported for the 'Label' column only (if<br>enabled"+
-				"with Analyze&gt;Set Measurements&gt;Display Label)."+				
+				"with Analyze&gt;Set Measurements&gt;Display Label)."+
 				"<li>Click \"<b>Run</b>\", or press "+(IJ.isMacOSX()?"cmd":"ctrl") + "-r, to apply the macro code to the table."+
 				"<li>Select a line and press "+(IJ.isMacOSX()?"cmd":"ctrl") + "-r to apply a line of macro code."+
 				"<li>Click \"<b>Reset</b>\" to revert to the original version of the table."+
@@ -127,7 +127,7 @@ public class ResultsTableMacros implements Runnable, DialogListener, ActionListe
 		int end = ta.getSelectionEnd();
 		return start==end?ta.getText():ta.getSelectedText();
 	}
-	
+
 	public boolean dialogItemChanged(GenericDialog gd, AWTEvent e) {
 		final String variableName = gd.getNextChoice();
 		if (e!=null && (e.getSource() instanceof Choice) && !variableName.equals("Insert...")) {
@@ -157,7 +157,7 @@ public class ResultsTableMacros implements Runnable, DialogListener, ActionListe
 			if (macro==null)
 				return;
 			if (macro.startsWith("Error: ")) {
-				IJ.error(macro);
+				IJMessage.error(macro);
 				return;
 			} else
 				ta.setText(macro);

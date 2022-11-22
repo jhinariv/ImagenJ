@@ -45,7 +45,7 @@ public class OtherInstance {
 		int counter = 0;
 
 		public void sendArgument(String cmd) {
-			if (IJ.debugMode) IJ.log("SocketServer.sendArgument: \""+ cmd+"\"");
+			if (IJDebugMode.debugMode) IJMessage.log("SocketServer.sendArgument: \""+ cmd+"\"");
 			if (cmd.startsWith("open "))
 				(new Opener()).openAndAddToRecent(cmd.substring(5));
 			else if (cmd.startsWith("macro ")) {
@@ -59,9 +59,9 @@ public class OtherInstance {
 				}
 				IJ.runMacroFile(name, arg);
 			} else if (cmd.startsWith("run "))
-				IJ.run(cmd.substring(4));
+				IJPlugin.runcmd.substring(4));
 			else if (cmd.startsWith("eval ")) {
-				String rtn = IJ.runMacro(cmd.substring(5));
+				String rtn = IJPlugin.runMacro(cmd.substring(5));
 				if (rtn!=null)
 					System.out.print(rtn);
 			} else if (cmd.startsWith("user.dir "))
@@ -101,7 +101,7 @@ public class OtherInstance {
 			m.invoke(file, arguments);
 			return;
 		} catch (Exception e) {
-			if (IJ.debugMode)
+			if (IJDebugMode.debugMode)
 				System.err.println("Java < 6 detected,"
 					+ " trying chmod 0600 " + path);
 		}
@@ -112,7 +112,7 @@ public class OtherInstance {
 				};
 				Runtime.getRuntime().exec(command);
 			} catch (Exception e) {
-				if (IJ.debugMode)
+				if (IJDebugMode.debugMode)
 					System.err.println("Even chmod failed.");
 			}
 		}
@@ -156,7 +156,7 @@ public class OtherInstance {
 			} // for
 			return true;
 		} catch (Exception e) {
-			if (IJ.debugMode) {
+			if (IJDebugMode.debugMode) {
 				System.err.println("Client exception: " + e);
 				e.printStackTrace();
 			}
@@ -164,7 +164,7 @@ public class OtherInstance {
 		}
 		if (!new File(file).exists())
 			startServer();
-		//IJ.log("sendArguments: return false ");
+		//IJMessage.log("sendArguments: return false ");
 		return false;
 	}
 
@@ -172,7 +172,7 @@ public class OtherInstance {
 	static Implementation implementation;
 
 	public static void startServer() {
-		if (IJ.debugMode)
+		if (IJDebugMode.debugMode)
 			System.err.println("OtherInstance: starting server");
 		try {
 			implementation = new Implementation();
@@ -185,10 +185,10 @@ public class OtherInstance {
 			new ObjectOutputStream(out).writeObject(stub);
 			out.close();
 
-			if (IJ.debugMode)
+			if (IJDebugMode.debugMode)
 				System.err.println("OtherInstance: server ready");
 		} catch (Exception e) {
-			if (IJ.debugMode) {
+			if (IJDebugMode.debugMode) {
 				System.err.println("Server exception: " + e);
 				e.printStackTrace();
 			}
@@ -209,13 +209,13 @@ public class OtherInstance {
 			return true;
 		return (options&RUN_SOCKET_LISTENER)!=0;
 	}
-	
+
 	protected static int getInt(Properties props, String key) {
 		String s = props.getProperty(key);
 		if (s!=null) {
 			try {
 				return Integer.decode(s).intValue();
-			} catch (NumberFormatException e) {IJ.log(""+e);}
+			} catch (NumberFormatException e) {IJMessage.log(""+e);}
 		}
 		return -1;
 	}

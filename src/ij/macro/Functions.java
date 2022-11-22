@@ -700,7 +700,7 @@ public class Functions implements MacroConstants, Measurements {
 			arg2 = getString();
 			interp.getRightParen();
 		}
-		IJ.run(this.interp, arg1, arg2);
+		IJPlugin.runthis.interp, arg1, arg2);
 		resetImage();
 		IJ.setKeyUp(IJ.ALL_KEYS);
 		shiftKeyDown = altKeyDown = false;
@@ -1732,7 +1732,7 @@ public class Functions implements MacroConstants, Measurements {
 
 	private String getWindowTitle() {
 		Window win = WindowManager.getActiveWindow();
-		if (IJ.debugMode) IJ.log("getWindowTitle: "+win);
+		if (IJDebugMode.debugMode) IJMessage.log("getWindowTitle: "+win);
 		if (win==null)
 			return "";
 		else if (win instanceof Frame)
@@ -1821,13 +1821,13 @@ public class Functions implements MacroConstants, Measurements {
 		}
 		interp.getRightParen();
 		if (withCancel) {
-			boolean rtn = IJ.showMessageWithCancel(title, message);
+			boolean rtn = IJMessage.showMessageWithCancel(title, message);
 			if (!rtn) {
 				interp.finishUp();
 				throw new RuntimeException(Macro.MACRO_CANCELED);
 			}
 		} else
-			IJ.showMessage(title, message);
+			IJMessage.showMessage(title, message);
 	}
 
 	double lengthOf() {
@@ -2234,7 +2234,7 @@ public class Functions implements MacroConstants, Measurements {
 			return getPlotLimits(currentPlot);
 		} else if (name.equals("freeze")) {
 			currentPlot.setFrozen(getBooleanArg());
-			return Double.NaN;			
+			return Double.NaN;
 		} else if (name.equals("removeNaNs")) {
 			interp.getParens();
 			currentPlot.removeNaNs();
@@ -2849,7 +2849,7 @@ public class Functions implements MacroConstants, Measurements {
 		}
 		interp.finishUp();
 		if (msg!=null)
-			IJ.showMessage("Macro", msg);
+			IJMessage.showMessage("Macro", msg);
 		throw new RuntimeException(Macro.MACRO_CANCELED);
 	}
 
@@ -2867,9 +2867,9 @@ public class Functions implements MacroConstants, Measurements {
 			s = s.substring(1);
 		IJ.protectStatusBar(false);
 		if (options!=null)
-			IJ.showStatus(s, options);
+			IJMessage.showStatus(s, options);
 		else
-			IJ.showStatus(s);
+			IJMessage.showStatus(s);
 		IJ.protectStatusBar(withSign);
 		interp.statusUpdated = true;
 	}
@@ -2903,7 +2903,7 @@ public class Functions implements MacroConstants, Measurements {
 		open100Percent = Prefs.open100Percent;
 		blackCanvas = Prefs.blackCanvas;
 		useJFileChooser = Prefs.useJFileChooser;
-		debugMode = IJ.debugMode;
+		debugMode = IJDebugMode.debugMode;
 		foregroundColor =Toolbar.getForegroundColor();
 		backgroundColor =Toolbar.getBackgroundColor();
 		roiColor = Roi.getColor();
@@ -3095,7 +3095,7 @@ public class Functions implements MacroConstants, Measurements {
 			if (Interpreter.isBatchMode())
 				roiManager = new RoiManager(true);
 			else
-				IJ.run("ROI Manager...");
+				IJMacro.run("ROI Manager...");
 		}
 		RoiManager rm = roiManager!=null?roiManager:RoiManager.getInstance();
 		if (rm==null)
@@ -3341,7 +3341,7 @@ public class Functions implements MacroConstants, Measurements {
 							String title = txtWin.getTitle();
 							if (wm.match(title, pattern)) {
 								if (title.equals("Results"))
-									IJ.run("Clear Results");
+									IJMacro.run("Clear Results");
 								txtWin.close();
 							}
 
@@ -3771,7 +3771,7 @@ public class Functions implements MacroConstants, Measurements {
 			else if (arg!=null && (name.equals("python")))
 				return Macro_Runner.runPython(arg,"");
 			else
-				return IJ.runMacro(name, arg);
+				return IJPlugin.runMacro(name, arg);
 		} else
 			return IJ.runMacroFile(name, arg);
 	}
@@ -4387,7 +4387,7 @@ public class Functions implements MacroConstants, Measurements {
 			interp.error("Unrecognized File function "+name);
 		return null;
 	}
-	
+
 	private void openSequence() {
 		String path = getFirstString();
 		String options = "";
@@ -4577,7 +4577,7 @@ public class Functions implements MacroConstants, Measurements {
 		// get the class
 		Class c;
 		try {
-			c = IJ.getClassLoader().loadClass(className);
+			c = IJPlugin.getClassLoader().loadClass(className);
 		} catch(Exception ex) {
 			interp.error("Could not load class "+className);
 			return null;
@@ -4627,10 +4627,10 @@ public class Functions implements MacroConstants, Measurements {
 			if (IJ.getInstance()!=null)
 				new TextWindow("Exception", s, 400, 400);
 			else
-				IJ.log(s);
+				IJMessage.log(s);
 			return null;
 		} catch(Exception e) {
-			IJ.log("Call error ("+e+")");
+			IJMessage.log("Call error ("+e+")");
 			return null;
 		}
 
@@ -4928,7 +4928,7 @@ public class Functions implements MacroConstants, Measurements {
 			interp.error("Unrecognized String function");
 		return null;
 	}
-	
+
 	private String format() {
 		try {
 			String command = getFirstString();
@@ -5055,17 +5055,17 @@ public class Functions implements MacroConstants, Measurements {
 	}
 
 	public static void registerExtensions(MacroExtension extensions) {
-		if (IJ.debugMode) IJ.log("registerExtensions");
+		if (IJDebugMode.debugMode) IJMessage.log("registerExtensions");
 		Interpreter interp = Interpreter.getInstance();
 		if (interp==null) {
-			IJ.error("Macro must be running to install macro extensions");
+			IJMessage.error("Macro must be running to install macro extensions");
 			return;
 		}
 		interp.pgm.extensionRegistry = new Hashtable();
 		ExtensionDescriptor[] descriptors = extensions.getExtensionFunctions();
 		for (int i=0; i<descriptors.length; ++i) {
 			interp.pgm.extensionRegistry.put(descriptors[i].name, descriptors[i]);
-			if (IJ.debugMode) IJ.log("  "+i+" "+descriptors[i].name);
+			if (IJDebugMode.debugMode) IJMessage.log("  "+i+" "+descriptors[i].name);
 		}
 	}
 
@@ -5078,7 +5078,7 @@ public class Functions implements MacroConstants, Measurements {
 			interp.error("Function name expected: ");
 		String name = interp.tokenString;
 		if (name.equals("install")) {
-			Object plugin = IJ.runPlugIn(getStringArg(), "");
+			Object plugin = IJPlugin.runPlugIn((getStringArg(), "");
 			if (plugin==null) interp.error("Plugin not found");
 			return null;
 		}
@@ -5307,7 +5307,7 @@ public class Functions implements MacroConstants, Measurements {
 			{setStackUnits(imp); return Double.NaN;}
 		if (imp.getStackSize()==1) {
 			interp.error("Stack required");
-			return Double.NaN;			
+			return Double.NaN;
 		}
 		if (name.equals("setDimensions"))
 			setDimensions(imp);
@@ -5903,7 +5903,7 @@ public class Functions implements MacroConstants, Measurements {
 		} else
 			fitter.doFit(fit, showFitDialog);
 		if (logFitResults) {
-			IJ.log(fitter.getResultString());
+			IJMessage.log(fitter.getResultString());
 			logFitResults = false;
 		}
 		showFitDialog = false;
@@ -5952,7 +5952,7 @@ public class Functions implements MacroConstants, Measurements {
 		else
 			interp.getParens();
 		if (arg.equals("conditional")) {
-			if (IJ.debugMode)
+			if (IJDebugMode.debugMode)
 				arg = "break";
 			else
 				return null;
@@ -6583,7 +6583,7 @@ public class Functions implements MacroConstants, Measurements {
 		else if (name.equals("deleteRows"))
 			IJ.deleteRows((int)getFirstArg(), (int)getLastArg());
 		else if (name.equals("log"))
-			IJ.log(getStringArg());
+			IJMessage.log(getStringArg());
 		else if (name.equals("freeMemory"))
 			{interp.getParens(); return IJ.freeMemory();}
 		else if (name.equals("currentMemory"))
@@ -6784,7 +6784,7 @@ public class Functions implements MacroConstants, Measurements {
 			overlay.fill(imp, foreground, background);
 			return Double.NaN;
 		} else if (name.equals("flatten")) {
-			IJ.runPlugIn("ij.plugin.OverlayCommands", "flatten");
+			IJPlugin.runPlugIn(("ij.plugin.OverlayCommands", "flatten");
 			return Double.NaN;
 		} else if (name.equals("setLabelFontSize")) {
 			int fontSize = (int)getFirstArg();
@@ -7399,7 +7399,7 @@ public class Functions implements MacroConstants, Measurements {
 		ResultsTable rt = getResultsTable(getTitle());
 		return new Variable(rt.columnExists(col)?1:0);
 	}
-	
+
 	private Variable renameColumn() {
 		String oldName = getFirstString();
 		String newName = getNextString();

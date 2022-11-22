@@ -9,9 +9,9 @@ import java.io.*;
 import javax.swing.*;
 import javax.swing.filechooser.*;
 
-/** This class displays a dialog window from 
+/** This class displays a dialog window from
  * which the user can select an input file.
-*/ 
+*/
 public class OpenDialog {
 
 	private String dir;
@@ -23,7 +23,7 @@ public class OpenDialog {
 	private static String lastDir, lastName;
 	private static boolean defaultDirectorySet;
 
-	
+
 	/** Displays a file open dialog with 'title' as the title. */
 	public OpenDialog(String title) {
 		this(title, null);
@@ -54,12 +54,12 @@ public class OpenDialog {
 			recordPath = true;
 		} else {
 			decodePath(path);
-			recordPath = IJ.macroRunning();
+			recordPath = IJMacro.macroRunning();
 		}
 		IJ.register(OpenDialog.class);
 	}
-	
-	/** Displays a file open dialog, using the specified 
+
+	/** Displays a file open dialog, using the specified
 		default directory and file name. */
 	public OpenDialog(String title, String defaultDir, String defaultName) {
 		String path = null;
@@ -77,7 +77,7 @@ public class OpenDialog {
 			recordPath = true;
 		}
 	}
-	
+
 	public static String lookupPathVariable(String path) {
 		if (path!=null && path.indexOf(".")==-1 && !((new File(path)).exists())) {
 			if (path.startsWith("&")) path=path.substring(1);
@@ -98,7 +98,7 @@ public class OpenDialog {
 			jOpenInvokeAndWait(title, path, fileName);
 		Java2.setLookAndFeel(saveLookAndFeel);
 	}
-		
+
 	// Uses the JFileChooser class to display the dialog box.
 	// Assumes we are running on the event dispatch thread
 	void jOpenDispatchThread(String title, String path, final String fileName) {
@@ -152,7 +152,7 @@ public class OpenDialog {
 			});
 		} catch (Exception e) {}
 	}
-	
+
 	// Uses the AWT FileDialog class to display the dialog box
 	void open(String title, String path, String fileName) {
 		Frame parent = IJ.getInstance();
@@ -203,7 +203,7 @@ public class OpenDialog {
 		lastDir = dir;
 		return dir;
 	}
-	
+
 	/** Returns the selected file name. */
 	public String getFileName() {
 		if (name!=null) {
@@ -213,7 +213,7 @@ public class OpenDialog {
 		}
 		return name;
 	}
-		
+
 	/** Returns the selected file path or null if the dialog was canceled. */
 	public String getPath() {
 		if (getFileName()==null)
@@ -241,13 +241,13 @@ public class OpenDialog {
 		defaultDirectory = dir;
 		defaultDirectorySet = true;
 	}
-	
+
 	/** Returns the path to the directory that contains the last file
 		 opened or saved, or null if a file has not been opened or saved. */
 	public static String getLastDirectory() {
 		return lastDir;
 	}
-		
+
 	/** Sets the path to the directory containing the last file opened by the user. */
 	public static void setLastDirectory(String dir) {
 		lastDir = dir;

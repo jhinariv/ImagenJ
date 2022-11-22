@@ -8,9 +8,9 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
 
-/** Implements the Image/Stacks/Reslice command. Known shortcomings: 
-	for FREELINE or POLYLINE ROI, spatial calibration is ignored: 
-	the image is sampled at constant _pixel_ increments (distance 1), so 
+/** Implements the Image/Stacks/Reslice command. Known shortcomings:
+	for FREELINE or POLYLINE ROI, spatial calibration is ignored:
+	the image is sampled at constant _pixel_ increments (distance 1), so
 	(if y/x aspect ratio != 1 in source image) one dimension in the output is not
 	homogeneous (i.e. pixelWidth not the same everywhere).
 */
@@ -21,7 +21,7 @@ public class Slicer implements PlugIn, TextListener, ItemListener {
 	private static boolean rotateS;
 	private static boolean flipS;
 	private static int sliceCountS = 1;
-	
+
 	private String startAt = starts[0];
 	private boolean rotate;
 	private boolean flip;
@@ -52,7 +52,7 @@ public class Slicer implements PlugIn, TextListener, ItemListener {
 	public void run(String arg) {
 		imp = WindowManager.getCurrentImage();
 		if (imp==null) {
-			IJ.noImage();
+			IJMacro.noImage();
 			return;
 		}
 		int stackSize = imp.getStackSize();
@@ -60,12 +60,12 @@ public class Slicer implements PlugIn, TextListener, ItemListener {
 		int roiType = roi!=null?roi.getType():0;
 		// stack required except for ROI = none or RECT
 		if (stackSize<2 && roi!=null && roiType!=Roi.RECTANGLE) {
-			IJ.error("Reslice...", "Stack required");
+			IJMessage.error("Reslice...", "Stack required");
 			return;
 		}
 		// permissible ROI types: none,RECT,*LINE
 		if (roi!=null && roiType!=Roi.RECTANGLE && roiType!=Roi.LINE && roiType!=Roi.POLYLINE && roiType!=Roi.FREELINE) {
-			IJ.error("Reslice...", "Line or rectangular selection required");
+			IJMessage.error("Reslice...", "Line or rectangular selection required");
 			return;
 		}
 		if (!showDialog(imp))
@@ -89,7 +89,7 @@ public class Slicer implements PlugIn, TextListener, ItemListener {
 			imp.deleteRoi();
 		else
 			imp.draw();
-		IJ.showStatus(IJ.d2s(((System.currentTimeMillis()-startTime)/1000.0),2)+" seconds");
+		IJMessage.showStatus(IJ.d2s(((System.currentTimeMillis()-startTime)/1000.0),2)+" seconds");
 	}
 
 	public ImagePlus reslice(ImagePlus imp) {
@@ -115,7 +115,7 @@ public class Slicer implements PlugIn, TextListener, ItemListener {
 				imp2 = resliceRectOrLine(imp);
 		 } else {// we assert roiType==Roi.POLYLINE || roiType==Roi.FREELINE
 				String status = imp.getStack().isVirtual()?"":null;
-				IJ.showStatus("Reslice...");
+				IJMessage.showStatus("Reslice...");
 				ImageProcessor ip2 = getSlice(imp, 0.0, 0.0, 0.0, 0.0, status);
 				imp2 = new ImagePlus("Reslice of "+imp.getShortTitle(), ip2);
 		 }
@@ -133,7 +133,7 @@ public class Slicer implements PlugIn, TextListener, ItemListener {
 				horizontal = true;
 			else
 				vertical = true;
-		} 
+		}
 		if (roi!=null && roiType==Roi.LINE) {
 			Line l = (Line)roi;
 			horizontal  = (l.y2-l.y1)==0;
@@ -287,7 +287,7 @@ public class Slicer implements PlugIn, TextListener, ItemListener {
 		GenericDialog gd = new GenericDialog("Reslice");
 		gd.addNumericField("Output spacing ("+units+"):", outputSpacing, 3);
 		if (line) {
-			if (!IJ.isMacro()) outputSlices=sliceCount;
+			if (!IJMacro.isMacro()) outputSlices=sliceCount;
 			gd.addNumericField("Slice_count:", outputSlices, 0);
 		} else
 			gd.addChoice("Start at:", starts, startAt);
@@ -317,7 +317,7 @@ public class Slicer implements PlugIn, TextListener, ItemListener {
 		outputZSpacing = gd.getNextNumber()/cal.pixelWidth;
 		if (line) {
 			outputSlices = (int)gd.getNextNumber();
-			if (!IJ.isMacro()) sliceCount=outputSlices;
+			if (!IJMacro.isMacro()) sliceCount=outputSlices;
 			imp.setRoi(roi);
 		} else
 			startAt = gd.getNextChoice();
@@ -333,7 +333,7 @@ public class Slicer implements PlugIn, TextListener, ItemListener {
 		}
 		return true;
 	}
-	
+
 	String d2s(double n) {
 		String s;
 		if (n==(int)n)
@@ -419,7 +419,7 @@ public class Slicer implements PlugIn, TextListener, ItemListener {
 				return null;
 
 		 if (outputSlices==0) {
-				IJ.error("Reslicer", "Output Z spacing ("+IJ.d2s(outputZSpacing,0)+" pixels) is too large.\n"
+				IJMessage.error("Reslicer", "Output Z spacing ("+IJ.d2s(outputZSpacing,0)+" pixels) is too large.\n"
 					+"Is the voxel size in Image>Properties correct?.");
 				return null;
 		 }
@@ -429,7 +429,7 @@ public class Slicer implements PlugIn, TextListener, ItemListener {
 		 ImageStack stack2 = null;
 		 boolean isStack = imp.getStackSize()>1;
 		 IJ.resetEscape();
-		 boolean macro = IJ.isMacro();
+		 boolean macro = IJMacro.isMacro();
 		 for (int i=0; i<outputSlices; i++)	{
 			if (virtualStack)
 				status = outputSlices>1?(i+1)+"/"+outputSlices+", ":"";
@@ -461,7 +461,7 @@ public class Slicer implements PlugIn, TextListener, ItemListener {
 		 int flags = NewImage.FILL_BLACK + NewImage.CHECK_AVAILABLE_MEMORY;
 		 ImagePlus imp2 = NewImage.createImage("temp", w2, h2, d2, bitDepth, flags);
 		 if (imp2!=null && imp2.getStackSize()==d2)
-				IJ.showStatus("Reslice... (press 'Esc' to abort)");
+				IJMessage.showStatus("Reslice... (press 'Esc' to abort)");
 		 if (imp2==null)
 				return null;
 		 else {
@@ -494,7 +494,7 @@ public class Slicer implements PlugIn, TextListener, ItemListener {
 					if (i==0) ip2 = ip.createProcessor(line.length, stackSize);
 					putRow(ip2, 0, i, line, line.length);
 				}
-				if (status!=null) IJ.showStatus("Slicing: "+status +i+"/"+stackSize);
+				if (status!=null) IJMessage.showStatus("Slicing: "+status +i+"/"+stackSize);
 		 }
 		 Calibration cal = imp.getCalibration();
 		 double zSpacing = inputZSpacing/cal.pixelWidth;
@@ -629,7 +629,7 @@ public class Slicer implements PlugIn, TextListener, ItemListener {
 		 }
 		 return data;
 	}
-	
+
 	private float[] getOrthoLine(ImageProcessor ip, int x1, int y1, int x2, int y2, float[] data) {
 		int dx = x2-x1;
 		int dy = y2-y1;

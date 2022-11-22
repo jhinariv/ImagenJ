@@ -6,7 +6,7 @@ import ij.process.*;
 import java.io.*;
 import java.awt.*;
 
-/** Opens ImageJ, NIH Image and Scion Image for windows ROI outlines. 
+/** Opens ImageJ, NIH Image and Scion Image for windows ROI outlines.
 	RoiDecoder.java has a description of the file format.
 	@see ij.io.RoiDecoder
 	@see ij.plugin.filter.RoiWriter
@@ -26,7 +26,7 @@ public class RoiReader implements PlugIn {
 			String msg = e.getMessage();
 			if (msg==null || msg.equals(""))
 				msg = ""+e;
-			IJ.error("ROI Reader", msg);
+			IJMessage.error("ROI Reader", msg);
 		}
 	}
 

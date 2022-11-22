@@ -1,7 +1,7 @@
 package ij;
 import ij.plugin.Converter;
 import ij.plugin.frame.Recorder;
-import ij.plugin.frame.Editor; 
+import ij.plugin.frame.Editor;
 import ij.text.TextWindow;
 import ij.plugin.frame.PlugInFrame;
 import ij.plugin.frame.Commands;
@@ -23,7 +23,7 @@ public class WindowManager {
 	private static Window frontTable;
 	private static Frame frontFrame;
 	private static Hashtable tempImageTable = new Hashtable();
-	
+
 	private WindowManager() {
 	}
 
@@ -31,7 +31,7 @@ public class WindowManager {
 	public static void setCurrentWindow(ImageWindow win) {
 		if (win==null || win.isClosed() || win.getImagePlus()==null) // deadlock-"wait to lock"
 			return;
-		//IJ.log("setCurrentWindow: "+win.getImagePlus().getTitle()+" ("+(currentWindow!=null?currentWindow.getImagePlus().getTitle():"null") + ")");
+		//IJMessage.log("setCurrentWindow: "+win.getImagePlus().getTitle()+" ("+(currentWindow!=null?currentWindow.getImagePlus().getTitle():"null") + ")");
 		setWindow(win);
 		tempImageTable.remove(Thread.currentThread());
 		if (win==currentWindow || imageList.size()==0)
@@ -50,10 +50,10 @@ public class WindowManager {
 		activations.remove(win);
 		activations.add(win);
 		Menus.updateMenus();
-		if (Recorder.record && !IJ.isMacro())
+		if (Recorder.record && !IJMacro.isMacro())
 			Recorder.record("selectWindow", win.getImagePlus().getTitle());
 	}
-	
+
 	/** Returns the active ImageWindow. */
 	public static ImageWindow getCurrentWindow() {
 		return currentWindow;
@@ -71,21 +71,21 @@ public class WindowManager {
 		//String str = (img==null)?" null":"";
 		if (img==null)
 			img = getActiveImage();
-		//if (img!=null) IJ.log("getCurrentImage: "+img.getTitle()+" "+Thread.currentThread().hashCode()+str);
+		//if (img!=null) IJMessage.log("getCurrentImage: "+img.getTitle()+" "+Thread.currentThread().hashCode()+str);
 		return img;
 	}
 
-	/** Makes the specified image temporarily the active 
+	/** Makes the specified image temporarily the active
 		image for this thread. Call again with a null
 		argument to revert to the previous active image. */
 	public static void setTempCurrentImage(ImagePlus img) {
-		//IJ.log("setTempImage: "+(img!=null?""+img:"null")+" "+Thread.currentThread().hashCode());
+		//IJMessage.log("setTempImage: "+(img!=null?""+img:"null")+" "+Thread.currentThread().hashCode());
 		if (img==null)
 			tempImageTable.remove(Thread.currentThread());
 		else
 			tempImageTable.put(Thread.currentThread(), img);
 	}
-	
+
 	/** Sets a temporary image for the specified thread. */
 	public static void setTempCurrentImage(Thread thread, ImagePlus img) {
 		if (thread==null)
@@ -102,18 +102,18 @@ public class WindowManager {
 			return currentWindow.getImagePlus();
 		else if (frontWindow!=null && (frontWindow instanceof ImageWindow))
 			return frontWindow!=null?((ImageWindow)frontWindow).getImagePlus():null;
-		else if (imageList.size()>0) {	
+		else if (imageList.size()>0) {
 			ImagePlus imp = getFocusManagerActiveImage();
 			if (imp!=null)
 				return imp;
 			ImageWindow win = (ImageWindow)imageList.get(imageList.size()-1);
 			return win.getImagePlus();
 		} else
-			return Interpreter.getLastBatchModeImage(); 
+			return Interpreter.getLastBatchModeImage();
 	}
-	
+
 	private static ImagePlus getFocusManagerActiveImage() {
-		if (IJ.isMacro())
+		if (IJMacro.isMacro())
 			return null;
 		KeyboardFocusManager kfm = KeyboardFocusManager.getCurrentKeyboardFocusManager();
 		Window win = kfm.getActiveWindow();
@@ -226,9 +226,9 @@ public class WindowManager {
 		return titles;
 	}
 
-	/** For IDs less than zero, returns the ImagePlus with the specified ID. 
-		Returns null if no open window has a matching ID or no images are open. 
-		For IDs greater than zero, returns the Nth ImagePlus. Returns null if 
+	/** For IDs less than zero, returns the ImagePlus with the specified ID.
+		Returns null if no open window has a matching ID or no images are open.
+		For IDs greater than zero, returns the Nth ImagePlus. Returns null if
 		the ID is zero. */
 	public synchronized static ImagePlus getImage(int imageID) {
 		if (imageID>0)
@@ -252,8 +252,8 @@ public class WindowManager {
 			return imp2;
 		return imp;
 	}
-	
-	/** Returns the ID of the Nth open image. Returns zero if n<=0 
+
+	/** Returns the ID of the Nth open image. Returns zero if n<=0
 		or n greater than the number of open image windows. */
 	public synchronized static int getNthImageID(int n) {
 			if (n<=0) return 0;
@@ -273,7 +273,7 @@ public class WindowManager {
             }
 	}
 
-	
+
 	/** Returns the first image that has the specified title or null if it is not found. */
 	public synchronized static ImagePlus getImage(String title) {
 		int[] wList = getIDList();
@@ -311,13 +311,13 @@ public class WindowManager {
         Menus.addWindowMenuItem(imp);
         setCurrentWindow(win);
     }
-    
+
 	static void checkForDuplicateName(ImagePlus imp) {
 		if (checkForDuplicateName) {
 			String name = imp.getTitle();
 			if (isDuplicateName(name))
 				imp.setTitle(getUniqueName(name));
-		} 
+		}
 		checkForDuplicateName = false;
     }
 
@@ -333,7 +333,7 @@ public class WindowManager {
 		}
 		return false;
 	}
-	
+
 	/*
 	static boolean isDuplicateBatchModeName(String name) {
 		int[] list = getIDList();
@@ -444,7 +444,7 @@ public class WindowManager {
 			frontTable = win;
 		//System.out.println("Set window(F): "+(win!=null?win.getTitle():"null"));
     }
-    
+
 	/** Closes all windows. Stops and returns false if an image or Editor "save changes" dialog is canceled. */
 	public synchronized static boolean closeAllWindows() {
 		Prefs.closingAll = true;
@@ -486,15 +486,15 @@ public class WindowManager {
 		}
 		return true;
     }
-    
+
     private static boolean quittingViaMacro() {
     	ImageJ ij = IJ.getInstance();
     	return ij!=null && ij.quittingViaMacro();
     }
-    
+
 	/** Activates the next image window on the window list. */
 	public static void putBehind() {
-		if (IJ.debugMode) IJ.log("putBehind");
+		if (IJDebugMode.debugMode) IJMessage.log("putBehind");
 		if (imageList.size()<1 || currentWindow==null)
 			return;
 		int index = imageList.indexOf(currentWindow);
@@ -514,7 +514,7 @@ public class WindowManager {
 
 	/** Returns the temporary current image for this thread, or null. */
 	public static ImagePlus getTempCurrentImage() {
-		return (ImagePlus)tempImageTable.get(Thread.currentThread()); 
+		return (ImagePlus)tempImageTable.get(Thread.currentThread());
 	}
 
     /** Returns the window (a Frame or a Dialog) with the specified
@@ -545,7 +545,7 @@ public class WindowManager {
 		}
 		return frame;
     }
-    
+
     private static Frame getImageWindow(String title) {
 		int[] wList = getIDList();
 		int len = wList!=null?wList.length:0;
@@ -570,7 +570,7 @@ public class WindowManager {
 				else
 					((Dialog)win).toFront();
 				((CheckboxMenuItem)item).setState(false);
-				if (Recorder.record && !IJ.isMacro())
+				if (Recorder.record && !IJMacro.isMacro())
 					Recorder.record("selectWindow", title);
 				return;
 			}
@@ -592,10 +592,10 @@ public class WindowManager {
 		for (int j=start; j<n; j++) {
 			MenuItem mi = Menus.window.getItem(j);
 			if (mi instanceof CheckboxMenuItem)
-				((CheckboxMenuItem)mi).setState((j-start)==index);						
+				((CheckboxMenuItem)mi).setState((j-start)==index);
 		}
 	}
-    
+
     /** Repaints all open image windows. */
     public synchronized static void repaintImageWindows() {
 		int[] list = getIDList();
@@ -609,35 +609,35 @@ public class WindowManager {
 			}
 		}
 	}
-    
+
 	public static void showList() {
 		for (int i=0; i<imageList.size(); i++) {
 			ImageWindow win = (ImageWindow)imageList.get(i);
 			ImagePlus imp = win.getImagePlus();
-			IJ.log(i + " " + imp.getTitle() + (win==currentWindow?"*":"")+" "+imp.getID());
+			IJMessage.log(i + " " + imp.getTitle() + (win==currentWindow?"*":"")+" "+imp.getID());
 		}
 		for (int i=0; i<activations.size(); i++) {
 			ImageWindow win = (ImageWindow)activations.get(i);
 			ImagePlus imp = win.getImagePlus();
-			IJ.log(i + " " + imp.getTitle() + " " + imp.getID());
+			IJMessage.log(i + " " + imp.getTitle() + " " + imp.getID());
 		}
-		if (imageList.size()==0) IJ.log("imageList is empty");
-		if (activations.size()==0) IJ.log("activations list is empty");
-		IJ.log(" ");
+		if (imageList.size()==0) IJMessage.log("imageList is empty");
+		if (activations.size()==0) IJMessage.log("activations list is empty");
+		IJMessage.log(" ");
     }
-    
+
     public static void toFront(Frame frame) {
 		if (frame==null) return;
 		if (frame.getState()==Frame.ICONIFIED)
 			frame.setState(Frame.NORMAL);
 		frame.toFront();
 	}
-	
+
 	public static void toFront(Window window) {
 		if (window==null) return;
 		if (window instanceof Frame && ((Frame)window).getState()==Frame.ICONIFIED)
 			((Frame)window).setState(Frame.NORMAL);
 		window.toFront();
 	}
-	    
+
 }

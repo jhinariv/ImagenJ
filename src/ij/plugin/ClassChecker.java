@@ -58,7 +58,7 @@ public class ClassChecker implements PlugIn {
 	}
 
 	void log(String path) {
-		IJ.log("Duplicate plugin: " + path);
+		IJMessage.log("Duplicate plugin: " + path);
 	}
 
 	/**

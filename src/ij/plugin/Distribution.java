@@ -28,11 +28,11 @@ public class Distribution implements PlugIn, TextListener {
 		ResultsTable rt=ResultsTable.getResultsTable();
 		int count = rt.size();
 		if (count==0) {
-			IJ.error("Distribution", "The \"Results\" table is empty");
+			IJMessage.error("Distribution", "The \"Results\" table is empty");
 			return;
 		}
 		String head= rt.getColumnHeadings();
-		//IJ.log(head);
+		//IJMessage.log(head);
 
 		StringTokenizer t = new StringTokenizer(head, "\t");
 		int tokens = t.countTokens()-1;
@@ -85,7 +85,7 @@ public class Distribution implements PlugIn, TextListener {
 		if (index>=0)
 			data = rt.getColumn(index);
 		if (data==null) {
-			IJ.error("Distribution", "No available results: \""+parameter+"\"");
+			IJMessage.error("Distribution", "No available results: \""+parameter+"\"");
 			return;
 		}
 
@@ -110,7 +110,7 @@ public class Distribution implements PlugIn, TextListener {
 		stats.histYMax = maxCount;
 		new HistogramWindow(parameter+" Distribution", imp, stats);
 	}
-	
+
 	int getIndex(String[] strings) {
 		for (int i=0; i<strings.length; i++) {
 			if (strings[i].equals(parameter))

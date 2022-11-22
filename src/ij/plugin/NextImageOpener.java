@@ -2,7 +2,7 @@
 This plugin, written by Jon Harmon, implements the File/Open Next command.
 It opens the "next" image in a directory, where "next" can be the
 succeeding or preceeding image in the directory list.
-Press shift-o to open the succeeding image or 
+Press shift-o to open the succeeding image or
 alt-shift-o to open the preceeding image.
 It can leave the previous file open, or close it.
 You may contact the author at Jonathan_Harman at yahoo.com
@@ -20,7 +20,7 @@ public class NextImageOpener implements PlugIn {
 	boolean forward = true; // default browse direction is forward
 	boolean closeCurrent = true; //default behavior is to close current window
 	ImagePlus imp0;
-	
+
 	public void run(String arg) {
 		/* get changes to defaults */
 		if (arg.equals("backward") || IJ.altKeyDown()) forward = false;
@@ -32,18 +32,18 @@ public class NextImageOpener implements PlugIn {
 			forward = true;
 			closeCurrent = false;
 		}
-				
+
 		// get current image; displays error and aborts if no image is open
  		imp0 = IJ.getImage();
  		// get current image directory
  		String currentPath = getDirectory(imp0);
-		if (IJ.debugMode) IJ.log("OpenNext.currentPath:" + currentPath);
+		if (IJDebugMode.debugMode) IJMessage.log("OpenNext.currentPath:" + currentPath);
 		if (currentPath==null) {
-			IJ.error("Next Image", "Directory information for \""+imp0.getTitle()+"\" not found.");
+			IJMessage.error("Next Image", "Directory information for \""+imp0.getTitle()+"\" not found.");
 			return;
 		}
 		String nextPath = getNext(currentPath, getName(imp0), forward);
-		if (IJ.debugMode) IJ.log("OpenNext.nextPath:" + nextPath);
+		if (IJDebugMode.debugMode) IJMessage.log("OpenNext.nextPath:" + nextPath);
 		// open
 		if (nextPath != null) {
 			String rtn = open(nextPath);
@@ -51,7 +51,7 @@ public class NextImageOpener implements PlugIn {
 				open(getNext(currentPath, (new File(nextPath)).getName(), forward));
 		}
 	}
-	
+
 	String getDirectory(ImagePlus imp) {
 		FileInfo fi = imp.getOriginalFileInfo();
 		if (fi==null) return null;
@@ -71,10 +71,10 @@ public class NextImageOpener implements PlugIn {
 		}
 		return name;
 	}
-	
+
 	String open(String nextPath) {
 		int nImages = WindowManager.getImageCount();
-		ImagePlus imp2 = IJ.openImage(nextPath);		
+		ImagePlus imp2 = IJ.openImage(nextPath);
 		if (imp2==null) {
 			if (WindowManager.getImageCount()>nImages)
 				return "ok";
@@ -108,7 +108,7 @@ public class NextImageOpener implements PlugIn {
 			imp0.setImage(imp2);
 		return "ok";
 	}
-	
+
 	/** gets the next image name in a directory list */
 	String getNext(String path, String imageName, boolean forward) {
 		File dir = new File(path);
@@ -122,9 +122,9 @@ public class NextImageOpener implements PlugIn {
 				break;
 			}
 		}
-		if (IJ.debugMode) IJ.log("OpenNext.thisfile:" + thisfile);
+		if (IJDebugMode.debugMode) IJMessage.log("OpenNext.thisfile:" + thisfile);
 		if(thisfile == -1) return null;// can't find current image
-		
+
 		// make candidate the index of the next file
 		int candidate = thisfile + 1;
 		if (!forward) candidate = thisfile - 1;
@@ -133,7 +133,7 @@ public class NextImageOpener implements PlugIn {
 		// keep on going until an image file is found or we get back to beginning
 		while (candidate!=thisfile) {
 			String nextPath = path + names[candidate];
-			if (IJ.debugMode) IJ.log("OpenNext: "+ candidate + "  " + names[candidate]);
+			if (IJDebugMode.debugMode) IJMessage.log("OpenNext: "+ candidate + "  " + names[candidate]);
 			File nextFile = new File(nextPath);
 			boolean canOpen = true;
 			if (names[candidate].startsWith(".") || nextFile.isDirectory())
@@ -155,9 +155,9 @@ public class NextImageOpener implements PlugIn {
 				if (candidate<0) candidate = names.length - 1;
 				if (candidate == names.length) candidate = 0;
 			}
-			
+
 		}
-		if (IJ.debugMode) IJ.log("OpenNext: Search failed");
+		if (IJDebugMode.debugMode) IJMessage.log("OpenNext: Search failed");
 		return null;
 	}
 

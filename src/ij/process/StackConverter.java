@@ -21,7 +21,7 @@ public class StackConverter {
 		width = imp.getWidth();
 		height = imp.getHeight();
 	}
-	
+
 	/** Converts this Stack to 8-bit grayscale. */
 	public void convertToGray8() {
 		ImageStack stack1 = imp.getStack();
@@ -42,7 +42,7 @@ public class StackConverter {
 			imp.setSlice(currentSlice);
 			return;
 		}
-		
+
 		ImageStack stack2 = new ImageStack(width, height);
 		Image img;
 		String label;
@@ -65,7 +65,7 @@ public class StackConverter {
 			stack2.addSlice(label, ip.convertToByte(scale));
 			if ((i%inc)==0) {
 				IJ.showProgress((double)i/nSlices);
-				IJ.showStatus("Converting to 8-bits: "+i+"/"+nSlices);
+				IJMessage.showStatus("Converting to 8-bits: "+i+"/"+nSlices);
 			}
 		}
 		imp.setStack(null, stack2);
@@ -102,7 +102,7 @@ public class StackConverter {
 			stack2.addSlice(label, ip.convertToByte(scale));
 			if ((i%inc)==0) {
 				IJ.showProgress((double)i/nSlices);
-				IJ.showStatus("Converting to 8-bits: "+i+"/"+nSlices);
+				IJMessage.showStatus("Converting to 8-bits: "+i+"/"+nSlices);
 			}
 		}
 		imp.setStack(null, stack2);
@@ -138,7 +138,7 @@ public class StackConverter {
 			stack2.addSlice(label, ip2);
 			if ((i%inc)==0) {
 				IJ.showProgress((double)i/nSlices);
-				IJ.showStatus("Converting to 16-bits: "+i+"/"+nSlices);
+				IJMessage.showStatus("Converting to 16-bits: "+i+"/"+nSlices);
 			}
 		}
 		IJ.showProgress(1.0);
@@ -173,7 +173,7 @@ public class StackConverter {
 			stack2.addSlice(label, ip2);
 			if ((i%inc)==0) {
 				IJ.showProgress((double)i/nSlices);
-				IJ.showStatus("Converting to 32-bits: "+i+"/"+nSlices);
+				IJMessage.showStatus("Converting to 32-bits: "+i+"/"+nSlices);
 			}
 		}
 		IJ.showProgress(1.0);
@@ -212,7 +212,7 @@ public class StackConverter {
 			stack2.addSlice(label, ip2);
 			if ((i%inc)==0) {
 				IJ.showProgress((double)i/nSlices);
-				IJ.showStatus("Converting to RGB: "+i+"/"+nSlices);
+				IJMessage.showStatus("Converting to RGB: "+i+"/"+nSlices);
 			}
 		}
 		IJ.showProgress(1.0);
@@ -221,7 +221,7 @@ public class StackConverter {
 		imp.setCalibration(imp.getCalibration()); //update calibration
 	}
 
-	/** Converts the stack (which must be RGB) to a 
+	/** Converts the stack (which must be RGB) to a
 		3 channel (red, green and blue) hyperstack. */
 	public void convertToRGBHyperstack() {
 		if (type!=ImagePlus.COLOR_RGB)
@@ -229,7 +229,7 @@ public class StackConverter {
 		new ij.plugin.CompositeConverter().run("composite");
 	}
 
-	/** Converts the stack (which must be RGB) to a 3 channel 
+	/** Converts the stack (which must be RGB) to a 3 channel
 		(hue, saturation and brightness) hyperstack. */
 	public void convertToHSBHyperstack() {
 		if (type!=ImagePlus.COLOR_RGB)
@@ -249,7 +249,7 @@ public class StackConverter {
 			stack2.addSlice(label,stackHSB.getProcessor(3));
 			if ((i%inc)==0) {
 				IJ.showProgress((double)i/nSlices);
-				IJ.showStatus("Converting to HSB: "+i+"/"+nSlices);
+				IJMessage.showStatus("Converting to HSB: "+i+"/"+nSlices);
 			}
 		}
 		IJ.showProgress(1.0);
@@ -262,7 +262,7 @@ public class StackConverter {
 		imp.hide();
 	}
 
-	/** Converts the stack (which must be RGB) to a 3 channel 
+	/** Converts the stack (which must be RGB) to a 3 channel
 		(hue, saturation and brightness) 32-bit hyperstack. */
 	public void convertToHSB32Hyperstack() {
 		if (type!=ImagePlus.COLOR_RGB)
@@ -282,7 +282,7 @@ public class StackConverter {
 			stack2.addSlice(label,stackHSB.getProcessor(3));
 			if ((i%inc)==0) {
 				IJ.showProgress((double)i/nSlices);
-				IJ.showStatus("Converting to HSB: "+i+"/"+nSlices);
+				IJMessage.showStatus("Converting to HSB: "+i+"/"+nSlices);
 			}
 		}
 		IJ.showProgress(1.0);
@@ -293,8 +293,8 @@ public class StackConverter {
 		ci.show();
 		imp.hide();
 	}
-	
-	/** Converts the stack (which must be RGB) to a 3 channel 
+
+	/** Converts the stack (which must be RGB) to a 3 channel
 		Lab hyperstack. */
 	public void convertToLabHyperstack() {
 		if (type!=ImagePlus.COLOR_RGB)

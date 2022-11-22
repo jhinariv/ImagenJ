@@ -34,10 +34,10 @@ public class StackWindow extends ImageWindow implements Runnable, AdjustmentList
 		ic = imp.getCanvas();
 		if (ic!=null)
 			ic.setMaxBounds();
-		if (IJ.isMacro() && !isVisible()) //'super' may have called show()
+		if (IJMacro.isMacro() && !isVisible()) //'super' may have called show()
 			imp.setDeactivated(); //prepare for waitTillActivated (imp may have been activated before)
 		show();
-		if (IJ.isMacro())
+		if (IJMacro.isMacro())
 			imp.waitTillActivated();
 		int previousSlice = imp.getCurrentSlice();
 		if (previousSlice>1 && previousSlice<=imp.getStackSize())
@@ -69,7 +69,7 @@ public class StackWindow extends ImageWindow implements Runnable, AdjustmentList
 		if (cSelector!=null||zSelector!=null||tSelector!=null)
 			removeScrollbars();
 		ImageJ ij = IJ.getInstance();
-		//IJ.log("StackWindow: "+hyperStack+" "+nChannels+" "+nSlices+" "+nFrames+" "+imp);
+		//IJMessage.log("StackWindow: "+hyperStack+" "+nChannels+" "+nSlices+" "+nFrames+" "+imp);
 		if (nChannels>1) {
 			cSelector = new ScrollbarWithLabel(this, 1, 1, 1, nChannels+1, 'c');
 			add(cSelector);
@@ -184,9 +184,9 @@ public class StackWindow extends ImageWindow implements Runnable, AdjustmentList
 			}
 			if (hyperStack) {
 				if (rotation>0)
-					IJ.run(imp, "Next Slice [>]", "");
+					IJPlugin.runimp, "Next Slice [>]", "");
 				else if (rotation<0)
-					IJ.run(imp, "Previous Slice [<]", "");
+					IJPlugin.runimp, "Previous Slice [<]", "");
 			} else {
 				int slice = imp.getCurrentSlice() + rotation;
 				if (slice<1)
@@ -316,7 +316,7 @@ public class StackWindow extends ImageWindow implements Runnable, AdjustmentList
 	private void setSlice(ImagePlus imp, int n) {
 		if (imp.isLocked()) {
 			IJ.beep();
-			IJ.showStatus("Image is locked");
+			IJMessage.showStatus("Image is locked");
 		} else
 			imp.setSlice(n);
 	}
@@ -325,7 +325,7 @@ public class StackWindow extends ImageWindow implements Runnable, AdjustmentList
 		int c = imp.getNChannels();
 		int z = imp.getNSlices();
 		int t = imp.getNFrames();
-		//IJ.log(c+" "+z+" "+t+" "+nChannels+" "+nSlices+" "+nFrames+" "+imp.getStackSize());
+		//IJMessage.log(c+" "+z+" "+t+" "+nChannels+" "+nSlices+" "+nFrames+" "+imp.getStackSize());
 		int size = imp.getStackSize();
 		if (c==size && c*z*t==size && nSlices==size && nChannels*nSlices*nFrames==size)
 			return true;

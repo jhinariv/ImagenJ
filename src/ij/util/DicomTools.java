@@ -10,7 +10,7 @@ public class DicomTools {
 
 	/** Sorts a DICOM stack by image number. */
 	public static ImageStack sort(ImageStack stack) {
-		if (IJ.debugMode) IJ.log("Sorting by DICOM image number");
+		if (IJDebugMode.debugMode) IJMessage.log("Sorting by DICOM image number");
 		if (stack.size()==1) return stack;
 		String[] strings = getSortStrings(stack, "0020,0013");
 		if (strings==null) return stack;
@@ -22,7 +22,7 @@ public class DicomTools {
 			stack2 = sortStack(stack, strings);
 		return stack2!=null?stack2:stack;
 	}
-	
+
 	private static ImageStack sortStack(ImageStack stack, String[] strings) {
 		ImageProcessor ip = stack.getProcessor(1);
 		ImageStack stack2 = new ImageStack(ip.getWidth(), ip.getHeight(), ip.getColorModel());
@@ -50,12 +50,12 @@ public class DicomTools {
 			sliceLabels[i-1] = tags;
 			double value = getNumericTag(tags, tag);
 			if (Double.isNaN(value)) {
-				if (IJ.debugMode) IJ.log("  "+tag+"  tag missing in slice "+i);
+				if (IJDebugMode.debugMode) IJMessage.log("  "+tag+"  tag missing in slice "+i);
 				if (showError) rescaleSlopeError(stack);
 				return null;
 			}
 			if (getSeriesNumber(tags)!=series) {
-				if (IJ.debugMode) IJ.log("  all slices must be part of the same series");
+				if (IJDebugMode.debugMode) IJMessage.log("  all slices must be part of the same series");
 				if (showError) rescaleSlopeError(stack);
 				return null;
 			}
@@ -69,7 +69,7 @@ public class DicomTools {
 		if (showError) rescaleSlopeError(stack);
 		return values;
 	}
-	
+
 	private static void rescaleSlopeError(ImageStack stack) {
 		((VirtualStack)stack).setBitDepth(32);
 	}
@@ -78,7 +78,7 @@ public class DicomTools {
 		String s = "       " + IJ.d2s(value,0);
 		return s.substring(s.length()-MAX_DIGITS);
 	}
-	
+
 	private static String getSliceLabel(ImageStack stack, int n) {
 		String info = stack.getSliceLabel(n);
 		if ((info==null || info.length()<100) && stack.isVirtual()) {
@@ -92,7 +92,7 @@ public class DicomTools {
 		return info;
 	}
 
-	/** Calculates the voxel depth of the specified DICOM stack based 
+	/** Calculates the voxel depth of the specified DICOM stack based
 		on the distance between the first and last slices. */
 	public static double getVoxelDepth(ImageStack stack) {
 		if (stack.isVirtual()) stack.getProcessor(1);
@@ -111,7 +111,7 @@ public class DicomTools {
 			double zn = Double.parseDouble(xyz[2]);
 			voxelDepth = Math.abs((zn - z0) / (stack.size() - 1));
 		}
-		if (IJ.debugMode) IJ.log("DicomTools.getVoxelDepth: "+voxelDepth+"  "+pos0+"  "+posn);
+		if (IJDebugMode.debugMode) IJMessage.log("DicomTools.getVoxelDepth: "+voxelDepth+"  "+pos0+"  "+posn);
 		return voxelDepth;
 	}
 
@@ -128,12 +128,12 @@ public class DicomTools {
 			metadata = (String)imp.getProperty("Info");
 		return getTag(metadata, id);
 	}
-	
+
 	/** Returns the name of the specified DICOM tag id. */
 	public static String getTagName(String id) {
 		return DICOM.getTagName(id);
 	}
-		
+
 	private static double getSeriesNumber(String tags) {
 		double series = getNumericTag(tags, "0020,0011");
 		if (Double.isNaN(series)) series = 0;
@@ -153,7 +153,7 @@ public class DicomTools {
 		if (hdr==null) return null;
 		int index1 = hdr.indexOf(tag);
 		if (index1==-1) return null;
-		//IJ.log(hdr.charAt(index1+11)+"   "+hdr.substring(index1,index1+20));
+		//IJMessage.log(hdr.charAt(index1+11)+"   "+hdr.substring(index1,index1+20));
 		if (hdr.charAt(index1+11)=='>') {
 			// ignore tags in sequences
 			index1 = hdr.indexOf(tag, index1+10);

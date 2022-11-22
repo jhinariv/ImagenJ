@@ -11,8 +11,8 @@ import ij.gui.*;
 import ij.measure.ResultsTable;
 
 
-/** Writes the XY coordinates and pixel values of all non-background 
-	pixels to a tab-delimited text file. Backround is assumed to be the 
+/** Writes the XY coordinates and pixel values of all non-background
+	pixels to a tab-delimited text file. Backround is assumed to be the
 	value of the pixel in the upper left corner of the image. */
 public class XYCoordinates implements PlugIn {
 
@@ -24,7 +24,7 @@ public class XYCoordinates implements PlugIn {
 		ImagePlus imp = IJ.getImage();
 		Roi roi = imp.getRoi();
 		String options = Macro.getOptions();
-		boolean legacyMacro = IJ.isMacro() && options!=null && options.contains("background=");
+		boolean legacyMacro = IJMacro.isMacro() && options!=null && options.contains("background=");
 		if (roi!=null && roi.isArea() && !legacyMacro) {
 			saveSelectionCoordinates(imp);
 			return;
@@ -44,7 +44,7 @@ public class XYCoordinates implements PlugIn {
 		    bg = " \n    Background value: " + bg + "\n";
 		}
 		imp.deleteRoi();
-		
+
 		int slices = imp.getStackSize();
 		String msg =
 			"This plugin writes to a text file the XY coordinates and\n"
@@ -53,7 +53,7 @@ public class XYCoordinates implements PlugIn {
 			+ "left corner of the image.\n \n"
 			+ "If there is a selection, this dialog is skipped and the\n"
 			+ "coordinates and values of pixels in the selection are saved.\n";
-				
+
 		GenericDialog gd = new GenericDialog("Save XY Coordinates");
 		gd.setInsets(0, 20, 0);
 		gd.addMessage(msg, null, Color.darkGray);
@@ -95,11 +95,11 @@ public class XYCoordinates implements PlugIn {
 			pw = new PrintWriter(bos);
 		}
 		catch (IOException e) {
-			IJ.error("Save XY Coordinates", "Error saving coordinates:\n   "+e.getMessage());
+			IJMessage.error("Save XY Coordinates", "Error saving coordinates:\n   "+e.getMessage());
 			return;
 		}
 
-		IJ.showStatus("Saving coordinates...");
+		IJMessage.showStatus("Saving coordinates...");
 		int count = 0;
 		float v;
 		int c,r,g,b;
@@ -132,14 +132,14 @@ public class XYCoordinates implements PlugIn {
 			if (slices>1) IJ.showProgress(z+1, slices);
 			String img = slices>1?"-"+(z+1):"";
 			if (!suppress)
-				IJ.log(imp.getTitle() + img+": " + count + " pixels (" + IJ.d2s(count*100.0/(width*height)) + "%)\n");
+				IJMessage.log(imp.getTitle() + img+": " + count + " pixels (" + IJ.d2s(count*100.0/(width*height)) + "%)\n");
 			count = 0;
 		} // z
 		IJ.showProgress(1.0);
-		IJ.showStatus("");
+		IJMessage.showStatus("");
 		pw.close();
 	}
-	
+
 	private void saveSelectionCoordinates(ImagePlus imp) {
 		SaveDialog sd = new SaveDialog("Save Coordinates as Text...", imp.getTitle(), ".csv");
 		String name = sd.getFileName();

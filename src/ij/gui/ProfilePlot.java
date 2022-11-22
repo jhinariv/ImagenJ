@@ -38,12 +38,12 @@ public class ProfilePlot {
 		this.imp = imp;
 		Roi roi = imp.getRoi();
 		if (roi==null) {
-			IJ.error("Profile Plot", "Selection required.");
+			IJMessage.error("Profile Plot", "Selection required.");
 			return;
 		}
 		int roiType = roi.getType();
 		if (!(roi.isLine() || roiType==Roi.RECTANGLE)) {
-			IJ.error("Line or rectangular selection required.");
+			IJMessage.error("Line or rectangular selection required.");
 			return;
 		}
 		Calibration cal = imp.getCalibration();
@@ -256,7 +256,7 @@ public class ProfilePlot {
 				dx = x-lastx;
 				dy = y-lasty;
 				distance2 = Math.sqrt(dx*dx+dy*dy);
-				//IJ.log(i+"   "+IJ.d2s(xinc,5)+"   "+IJ.d2s(yinc,5)+"   "+IJ.d2s(distance,2)+"   "+IJ.d2s(distance2,2)+"   "+IJ.d2s(x,2)+"   "+IJ.d2s(y,2)+"   "+IJ.d2s(lastx,2)+"   "+IJ.d2s(lasty,2)+"   "+n+"   "+n2);
+				//IJMessage.log(i+"   "+IJ.d2s(xinc,5)+"   "+IJ.d2s(yinc,5)+"   "+IJ.d2s(distance,2)+"   "+IJ.d2s(distance2,2)+"   "+IJ.d2s(x,2)+"   "+IJ.d2s(y,2)+"   "+IJ.d2s(lastx,2)+"   "+IJ.d2s(lasty,2)+"   "+n+"   "+n2);
 				if (distance2>=1.0-inc/2.0) {
 					if (interpolate)
 						value = ip.getInterpolatedValue(x, y);
@@ -296,7 +296,7 @@ public class ProfilePlot {
 		if (roi == null) return null;	//roi may have changed asynchronously
 		if ((roi instanceof PolygonRoi) && roi.getState()==Roi.CONSTRUCTING)
 			return null;				//don't disturb roi under construction by spline fit
-		roi = (Roi)roi.clone();		
+		roi = (Roi)roi.clone();
 		ImageProcessor ip2 = (new Straightener()).straightenLine(imp, lineWidth);
 		if (ip2==null)
 			return null;

@@ -31,25 +31,25 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 
 	/** Display results in the ImageJ console. */
 	public static final int SHOW_RESULTS = 1;
-	
+
 	/** Obsolete, replaced by  DISPLAY_SUMMARY */
 	public static final int SHOW_SUMMARY = 2;
-	
+
 	/** Display image containing outlines of measured particles. */
 	public static final int SHOW_OUTLINES = 4;
-	
+
 	/** Do not measure particles touching edge of image. */
 	public static final int EXCLUDE_EDGE_PARTICLES = 8;
-	
+
 	/** Display image containing grayscales masks that identify measured particles. */
 	public static final int SHOW_ROI_MASKS = 16;
-	
+
 	/** Display a progress bar. */
 	public static final int SHOW_PROGRESS = 32;
-	
+
 	/** Clear "Results" window before starting. */
 	public static final int CLEAR_WORKSHEET = 64;
-	
+
 	/** Record starting coordinates so outline can be recreated later using doWand(x,y). */
 	public static final int RECORD_STARTS = 128;
 
@@ -61,7 +61,7 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 
 	/** Flood fill to ignore interior holes. */
 	public static final int INCLUDE_HOLES = 1024;
-	
+
 	/** Add particles to ROI Manager. */
 	public static final int ADD_TO_MANAGER = 2048;
 
@@ -76,7 +76,7 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 
 	/** Display particle outlines as an overlay. */
 	public static final int SHOW_OVERLAY_OUTLINES = 32768;
-	
+
 	/** Display filled particle as an overlay. */
 	public static final int SHOW_OVERLAY_MASKS = 65536;
 
@@ -87,11 +87,11 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 	public static final int OVERLAY = 262144;
 
 	static final String OPTIONS = "ap.options";
-	
+
 	static final int BYTE=0, SHORT=1, FLOAT=2, RGB=3;
 	static final double DEFAULT_MIN_SIZE = 0.0;
 	static final double DEFAULT_MAX_SIZE = Double.POSITIVE_INFINITY;
-	
+
 	private static double staticMinSize = 0.0;
 	private static double staticMaxSize = DEFAULT_MAX_SIZE;
 	private static boolean pixelUnits;
@@ -100,7 +100,7 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 	private static String[] showStrings2 = {"Nothing", "Overlay", "Overlay Masks", "Outlines", "Bare Outlines", "Ellipses", "Masks", "Count Masks"};
 	private static int[] showStringOrder = {0, 6, 7, 1, 2, 3, 4, 5};
 	private static double staticMinCircularity=0.0, staticMaxCircularity=1.0;
-		
+
 	protected static final int NOTHING=0, OUTLINES=1, BARE_OUTLINES=2, ELLIPSES=3, MASKS=4, ROI_MASKS=5,
 		OVERLAY_OUTLINES=6, OVERLAY_MASKS=7;
 	protected static int staticShowChoice;
@@ -112,7 +112,7 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 	protected boolean showResults,excludeEdgeParticles,showSizeDistribution,
 		resetCounter,showProgress, recordStarts, displaySummary, floodFill,
 		addToManager, inSituShow, compositeRois, showOverlay;
-		
+
 	private boolean showResultsTable = true;
 	private boolean showSummaryTable = true;
 	private double level1, level2;
@@ -171,7 +171,7 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 	private boolean hyperstack;
 	private static LUT glasbeyLut;
 
-			
+
 	/** Constructs a ParticleAnalyzer.
 	 * @param options	a flag word created by Oring SHOW_RESULTS, EXCLUDE_EDGE_PARTICLES, etc.
 	 * @param measurements a flag word created by ORing constants defined in the Measurements interface
@@ -183,7 +183,7 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 	 * <pre>
 	 * // JavaScript example
 	 * imp = IJ.openImage("https://imagej.net/images/blobs.gif");
-	 * IJ.setAutoThreshold(imp, "Default"); 
+	 * IJ.setAutoThreshold(imp, "Default");
 	 * rt = new ResultsTable();
 	 * options = ParticleAnalyzer.SHOW_NONE;
 	 * measurements = Measurements.AREA + Measurements.PERIMETER;
@@ -224,7 +224,7 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 		nextLineWidth = 1;
 		calledByPlugin = true;
 	}
-	
+
 	/** Constructs a ParticleAnalyzer using the default min and max circularity values (0 and 1). */
 	public ParticleAnalyzer(int options, int measurements, ResultsTable rt, double minSize, double maxSize) {
 		this(options, measurements, rt, minSize, maxSize, 0.0, 1.0);
@@ -234,17 +234,17 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 	public ParticleAnalyzer() {
 		slice = 1;
 	}
-	
+
 	public int setup(String arg, ImagePlus imp) {
 		this.arg = arg;
 		this.imp = imp;
 		IJ.register(ParticleAnalyzer.class);
 		if (imp==null) {
-			IJ.noImage();
+			IJMacro.noImage();
 			return DONE;
 		}
 		if (imp.getBitDepth()==24 && !isThresholdedRGB(imp)) {
-			IJ.error("Particle Analyzer",
+			IJMessage.error("Particle Analyzer",
 			"RGB images must be thresholded using\n"
 			+"Image>Adjust>Color Threshold.");
 			return DONE;
@@ -265,7 +265,7 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 		nextLineWidth = 1;
 		return flags;
 	}
-	
+
 	public void run(ImageProcessor ip) {
 		if (canceled)
 			return;
@@ -276,7 +276,7 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 			ip = (ImageProcessor)imp.getProperty("Mask");
 			ip.setThreshold(255, 255, ImageProcessor.NO_LUT_UPDATE);
 			ip.setRoi(imp.getRoi());
-		}		
+		}
 		if (!analyze(imp, ip))
 			canceled = true;
 		if (slice==imp.getStackSize()) {
@@ -285,7 +285,7 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 			if (processStack) imp.setSlice(saveSlice);
 		}
 	}
-	
+
 	/** Displays a modal options dialog. */
 	public boolean showDialog() {
 		Calibration cal = imp!=null?imp.getCalibration():(new Calibration());
@@ -359,7 +359,7 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 		gd.showDialog();
 		if (gd.wasCanceled())
 			return false;
-			
+
 		gd.setSmartRecording(minSize==0.0&&maxSize==Double.POSITIVE_INFINITY);
 		String size = gd.getNextString(); // min-max size
 		if (scaled)
@@ -377,7 +377,7 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 		if (maxSize<minSize) maxSize = DEFAULT_MAX_SIZE;
 		staticMinSize = minSize;
 		staticMaxSize = maxSize;
-		
+
 		gd.setSmartRecording(minCircularity==0.0&&maxCircularity==1.0);
 		minAndMax = Tools.split(gd.getNextString(), " -"); // min-max circularity
 		double minc = minAndMax.length>=1?gd.parseDouble(minAndMax[0]):0.0;
@@ -391,9 +391,9 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 		if (minCircularity==1.0 && maxCircularity==1.0) minCircularity = 0.0;
 		staticMinCircularity = minCircularity;
 		staticMaxCircularity = maxCircularity;
-		
+
 		if (gd.invalidNumber()) {
-			IJ.error("Bins invalid.");
+			IJMessage.error("Bins invalid.");
 			canceled = true;
 			return false;
 		}
@@ -423,7 +423,7 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 			Analyzer.setMeasurements(Analyzer.getMeasurements()|AREA);
 		return true;
 	}
-	
+
 	private boolean isThresholdedRGB(ImagePlus imp) {
 		Object obj = imp.getProperty("Mask");
 		if (obj==null || !(obj instanceof ImageProcessor))
@@ -536,7 +536,7 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 				drawIP.setFont(new Font("SansSerif", Font.PLAIN, fontSize));
 				if (fontSize>12 && inSituShow)
 					drawIP.setAntialiasedText(true);
-			} 
+			}
 			outlines.addSlice(null, drawIP);
 
 			if (showChoice==ROI_MASKS || blackBackground) {
@@ -550,7 +550,7 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 			}
 		}
 		calibration = redirectImp!=null?redirectImp.getCalibration():imp.getCalibration();
-		
+
 		if (measurements==0)
 			measurements = Analyzer.getMeasurements();
 		measurements &= ~LIMIT;	 // ignore "Limit to Threshold"
@@ -559,7 +559,7 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 			if (!showResults && table!=null) {
 				rt = new ResultsTable();
 				if (resetCounter && table instanceof TextWindow) {
-					IJ.run("Clear Results");
+					IJMacro.run("Clear Results");
 					((TextWindow)table).close();
 					rt = Analyzer.getResultsTable();
 				}
@@ -651,7 +651,7 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 			showResults();
 		return true;
 	}
-	
+
 	void updateSliceSummary() {
 		int slices = imp.getStackSize();
 		if (slices==1) {
@@ -766,7 +766,7 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 					replaceColor = level2+1.0;
 					int maxColor = imageType==BYTE?255:65535;
 					if (replaceColor>maxColor || replaceColor==fillColor) {
-						IJ.error("Particle Analyzer", "Unable to remove edge particles");
+						IJMessage.error("Particle Analyzer", "Unable to remove edge particles");
 						return false;
 					}
 				}
@@ -778,12 +778,12 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 				}
 			}
 		}
-		ip.setValue(fillColor);		
+		ip.setValue(fillColor);
 		if (mask!=null) {
 			mask = mask.duplicate();
 			mask.invert();
 			ip.fill(mask);
-		}		
+		}
 		ip.setRoi(0, 0, r.x, height);
 		ip.fill();
 		ip.setRoi(r.x, 0, r.width, r.y);
@@ -811,7 +811,7 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 			noThreshold = true;
 			ImageStatistics stats = imp.getRawStatistics();
 			if (imageType!=BYTE || (stats.histogram[0]+stats.histogram[255]!=stats.pixelCount)) {
-				IJ.error("Particle Analyzer",
+				IJMessage.error("Particle Analyzer",
 					"A threshold has not been set using the\n"
 					+"Image->Adjust->Threshold tool or the \n"
 					+"setThreshold(min,max) macro function.");
@@ -826,11 +826,11 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 				level2 = 0;
 				fillColor = 192;
 			}
-			if (!IJ.isMacro()) {
+			if (!IJMacro.isMacro()) {
 				boolean blackBackground = imageType==BYTE && Prefs.blackBackground && level1==255 && level1==level2;
 				if (!blackBackground) {
 					String suffix = !Prefs.blackBackground?" (\"Black background\" not set)":"";
-					IJ.log("ParticleAnalyzer: threshold not set; assumed to be "+(int)level1+"-"+(int)level2+suffix);
+					IJMessage.log("ParticleAnalyzer: threshold not set; assumed to be "+(int)level1+"-"+(int)level2+suffix);
 				}
 			}
 		} else {
@@ -864,12 +864,12 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 		}
 		return true;
 	}
-		
+
 	void analyzeParticle(int x, int y, ImagePlus imp, ImageProcessor ip) {
 		ImageProcessor ip2 = redirectIP!=null?redirectIP:ip;
 		wand.autoOutline(x, y, level1, level2, wandMode);
 		if (wand.npoints==0)
-			{IJ.log("wand error: "+x+" "+y); return;}
+			{IJMessage.log("wand error: "+x+" "+y); return;}
 		Roi roi = new PolygonRoi(wand.xpoints, wand.ypoints, wand.npoints, roiType);
 		Rectangle r = roi.getBounds();
 		if (r.width>1 && r.height>1) {
@@ -967,7 +967,7 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 		if (showResultsTable && showResults)
 			rt.addResults();
 	}
-	
+
 	/** Adds the ROI to the ROI Manager. */
 	private void addToRoiManager(Roi roi, ImageProcessor mask, int particleNumber) {
 		if (roiManager==null) {
@@ -976,7 +976,7 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 			if (roiManager==null) {
 				Frame frame = WindowManager.getFrame("ROI Manager");
 				if (frame==null)
-					IJ.run("ROI Manager...");
+					IJMacro.run("ROI Manager...");
 				frame = WindowManager.getFrame("ROI Manager");
 				if (frame==null || !(frame instanceof RoiManager))
 					{addToManager=false; return;}
@@ -997,7 +997,7 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 			roi.setStrokeWidth(lineWidth);
 		roiManager.add(imp, roi, particleNumber);
 	}
-	
+
 	/** Draws a selected particle in a separate image.	This is
 		another method subclasses may want to override. */
 	protected void drawParticle(ImageProcessor drawIP, Roi roi, ImageStatistics stats, ImageProcessor mask) {
@@ -1079,7 +1079,7 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 				glasbeyLut = LutLoader.openLut("noerror:"+path);
 			}
 			if (glasbeyLut==null)
-				IJ.log("LUT not found: "+path);
+				IJMessage.log("LUT not found: "+path);
 		}
 		if (glasbeyLut!=null)
 			color = new Color(glasbeyLut.getRGB(index+5)); // skip problematic white and black entries
@@ -1092,7 +1092,7 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 
 	void drawRoiFilledParticle(ImageProcessor ip, Roi roi, ImageProcessor mask, int count) {
 		int grayLevel = (count < 65535) ? count : 65535;
-		ip.setValue((double) grayLevel); 
+		ip.setValue((double) grayLevel);
 		ip.setRoi(roi.getBounds());
 		ip.fill(mask);
 	}
@@ -1147,14 +1147,14 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 			Analyzer.lastParticle = Analyzer.getCounter()-1;
 		} else
 			Analyzer.firstParticle = Analyzer.lastParticle = 0;
-		if (showResults && rt.size()==0 && !(IJ.isMacro()||calledByPlugin) && (!processStack||slice==imp.getStackSize())) {
+		if (showResults && rt.size()==0 && !(IJMacro.isMacro()||calledByPlugin) && (!processStack||slice==imp.getStackSize())) {
 			int digits = (int)level1==level1&&(int)level2==level2?0:2;
 			String range = IJ.d2s(level1,digits)+"-"+IJ.d2s(level2,digits);
 			String assummed = noThreshold?"assumed":"";
-			IJ.showMessage("Particle Analyzer", "No particles were detected. The "+assummed+"\nthreshold ("+range+") may not be correct.");
+			IJMessage.showMessage("Particle Analyzer", "No particles were detected. The "+assummed+"\nthreshold ("+range+") may not be correct.");
 		}
 	}
-	
+
 	/** Returns the "Outlines", "Masks", "Elipses" or "Count Masks" image,
 		or null if "Nothing" is selected in the "Show:" menu. */
 	public ImagePlus getOutputImage() {
@@ -1180,22 +1180,22 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 	public static void setLineWidth(int width) {
 		nextLineWidth = width;
 	}
-	
-	/** Sets the RoiManager to be used by the next ParticleAnalyzer 
+
+	/** Sets the RoiManager to be used by the next ParticleAnalyzer
 		instance. There is a JavaScript example at
 		http://imagej.nih.gov/ij/macros/js/HiddenRoiManager.js
 	*/
 	public static void setRoiManager(RoiManager manager) {
 		staticRoiManager = manager;
 	}
-	
-	/** Sets the ResultsTable to be used by the next  
+
+	/** Sets the ResultsTable to be used by the next
 		ParticleAnalyzer instance.	*/
 	public static void setResultsTable(ResultsTable rt) {
 		staticResultsTable = rt;
 	}
 
-	/** Sets the ResultsTable to be used by the next  
+	/** Sets the ResultsTable to be used by the next
 		ParticleAnalyzer instance for the summary.	*/
 	public static void setSummaryTable(ResultsTable rt) {
 		staticSummaryTable = rt;

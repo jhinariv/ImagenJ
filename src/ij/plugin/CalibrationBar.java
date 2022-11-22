@@ -44,7 +44,7 @@ public class CalibrationBar implements PlugIn {
 	private static int sDecimalPlaces = 0;
 	private static boolean sFlatten;
 	private static boolean sBoldText;
-	
+
 	private String fillColor = sFillColor;
 	private String textColor = sTextColor;
 	private String location = sLocation;
@@ -79,7 +79,7 @@ public class CalibrationBar implements PlugIn {
 	float[] floatStorage;
 	String boxOutlineColor = colors[8];
 	String barOutlineColor = colors[3];
-	
+
 	ImageProcessor ip;
 	String[] fieldNames = null;
 	int insetPad;
@@ -88,7 +88,7 @@ public class CalibrationBar implements PlugIn {
 	public void run(String arg) {
 		imp = IJ.getImage();
 		if (imp.getBitDepth()==24 || imp.getCompositeMode()==IJ.COMPOSITE) {
-			IJ.error("Calibration Bar", "RGB and composite images are not supported");
+			IJMessage.error("Calibration Bar", "RGB and composite images are not supported");
 			return;
 		}
 		if (imp.getRoi()!=null && imp.getRoi().isArea())
@@ -103,7 +103,7 @@ public class CalibrationBar implements PlugIn {
 		if (insetPad<4)
 			insetPad = 4;
 		updateColorBar();
-		if (IJ.isMacro()) {
+		if (IJMacro.isMacro()) {
 			flatten = true;
 			fillColor = colors[0];
 			textColor = colors[3];
@@ -122,7 +122,7 @@ public class CalibrationBar implements PlugIn {
 			}
 			return;
 		}
-		updateColorBar();	
+		updateColorBar();
 		boolean separate = location.equals(locations[SEPARATE_IMAGE]);
 		if (flatten || separate) {
 			imp.deleteRoi();
@@ -133,9 +133,9 @@ public class CalibrationBar implements PlugIn {
 				imp2.setTitle(imp.getTitle()+" with bar");
 			}
 			Overlay overlay = imp.getOverlay();
-			if (overlay!=null) {	
-				if(separate){	
-					Overlay overlaySep = overlay.duplicate();	
+			if (overlay!=null) {
+				if(separate){
+					Overlay overlaySep = overlay.duplicate();
 					overlay.setIsCalibrationBar(false);
 					for (int jj=overlaySep.size()-1; jj>=0; jj--) {//isolate CB components
 						Roi roi = overlaySep.get(jj);
@@ -152,9 +152,9 @@ public class CalibrationBar implements PlugIn {
 				}
 				overlay.remove(CALIBRATION_BAR);
 				imp.draw();
-			}			
+			}
 			if(imp2 != null)
-				imp2.show();			
+				imp2.show();
 		}
 	}
 
@@ -210,7 +210,7 @@ public class CalibrationBar implements PlugIn {
 		boldText = gd.getNextBoolean();
 		flatten = !gd.getNextBoolean();
 		showUnit = gd.getNextBoolean();
-		if (!IJ.isMacro()) {
+		if (!IJMacro.isMacro()) {
 			sFlatten = flatten;
 			sFillColor = fillColor;
 			sTextColor = textColor;
@@ -264,7 +264,7 @@ public class CalibrationBar implements PlugIn {
 		}
 		imp.setOverlay(overlay);
 	}
-	
+
 	private void addVerticalColorBar(Overlay overlay, int x, int y, int thickness, int length) {
 		int width = thickness;
 		int height = length;
@@ -368,7 +368,7 @@ public class CalibrationBar implements PlugIn {
 			}
 			String todisplay = d2s(grayLabel)+" "+s;
 			if (overlay!=null) {
-				TextRoi label = new TextRoi(todisplay, x + 5, yLabel + fontHeight/2, font);				
+				TextRoi label = new TextRoi(todisplay, x + 5, yLabel + fontHeight/2, font);
 				label.setStrokeColor(c);
 				overlay.add(label, CALIBRATION_BAR);
 			}
@@ -378,7 +378,7 @@ public class CalibrationBar implements PlugIn {
 		}
 		return maxLength;
 	}
-		
+
 	String d2s(double d) {
 			return IJ.d2s(d,decimalPlaces);
 	}
@@ -409,19 +409,19 @@ public class CalibrationBar implements PlugIn {
 		else if (color.equals(colors[8]))
 			c = null;
 		return c;
-	}	 
+	}
 
 	void calculateWidth() {
 		drawBarAsOverlay(imp, -1, -1);
 	}
-	
+
 	private FontMetrics getFontMetrics(Font font) {
 		BufferedImage bi =new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
 		Graphics g = (Graphics2D)bi.getGraphics();
 		g.setFont(font);
 		return g.getFontMetrics(font);
 	}
-		
+
 	class LiveDialog extends GenericDialog {
 
 		LiveDialog(String title) {

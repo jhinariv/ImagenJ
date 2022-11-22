@@ -43,7 +43,7 @@ public class TextRoi extends Roi {
 	public TextRoi(int x, int y, String text) {
 		this(x, y, text, defaultFont);
 	}
-	
+
 	/** Use this constructor as a drop-in replacement for ImageProcessor.drawString(). */
 	public TextRoi(String text, double x, double y, Font font) {
 		super(x, y, 1, 1);
@@ -84,7 +84,7 @@ public class TextRoi extends Roi {
 		super(x, y, width, height);
 		init(text, font);
 	}
-	
+
 	/** Creates a TextRoi using the specified text and location. */
 	public static TextRoi create(String text, double x, double y, Font font) {
 		return new TextRoi(text, x, y, font);
@@ -117,7 +117,7 @@ public class TextRoi extends Roi {
 		super(x, y, 1, 1);
 		if (font==null) font = new Font(name, style, size);
 		this.font = font;
-		IJ.error("TextRoi", "API has changed. See updated example at\nhttp://imagej.nih.gov/ij/macros/js/TextOverlay.js");
+		IJMessage.error("TextRoi", "API has changed. See updated example at\nhttp://imagej.nih.gov/ij/macros/js/TextOverlay.js");
 	}
 
 	public TextRoi(int x, int y, ImagePlus imp) {
@@ -202,7 +202,7 @@ public class TextRoi extends Roi {
 		else
 			return font.deriveFont((float)(font.getSize()*mag));
 	}
-	
+
 	/** Renders the text on the image. Draws the text in
 	 * the foreground color if ip.setColor(Color) has
 	 * not been called.
@@ -243,7 +243,7 @@ public class TextRoi extends Roi {
 
 	/** Draws the text on the screen, clipped to the ROI. */
 	public void draw(Graphics g) {
-		if (IJ.debugMode) IJ.log("draw: "+theText[0]+"  "+this.width+","+this.height);
+		if (IJDebugMode.debugMode) IJMessage.log("draw: "+theText[0]+"  "+this.width+","+this.height);
 		if (Interpreter.isBatchMode() && ic!=null && ic.getDisplayList()!=null)
 			return;
 		Color c = getStrokeColor();
@@ -266,7 +266,7 @@ public class TextRoi extends Roi {
 				g.setClip(r.x, r.y, r.width, r.height);
 		}
 	}
-	
+
 	public void drawOverlay(Graphics g) {
 		drawText(g);
 	}
@@ -344,25 +344,25 @@ public class TextRoi extends Roi {
 	public static int getDefaultFontStyle() {
 		return style;
 	}
-	
+
 	/** Sets the current font. */
 	public void setFont(Font font) {
 		this.font = font;
 		updateBounds();
 	}
-	
+
 	/** Sets the size of the current font. */
 	public void setFontSize(int size) {
 		if (font==null)
 			font = defaultFont;
 		font = font.deriveFont((float)size);
 	}
-		
+
 	/** Returns the current font. */
 	public Font getCurrentFont() {
 		return font;
 	}
-	
+
 	/** Returns the state of the global 'antialiasedText' variable, which is used by the "Fonts" widget. */
 	public static boolean isAntialiased() {
 		return antialiasedText;
@@ -372,19 +372,19 @@ public class TextRoi extends Roi {
 	public static void setAntialiasedText(boolean antialiased) {
 		antialiasedText = antialiased;
 	}
-	
+
 	/** Sets the 'antiAlias' instance variable. */
 	public void setAntialiased(boolean antiAlias) {
 		setAntiAlias(antiAlias);
 		if (angle>0.0)
 			setAntiAlias(true);
 	}
-	
+
 	/** Returns the state of the 'antiAlias' instance variable. */
 	public boolean getAntialiased() {
 		return getAntiAlias();
 	}
-		
+
 	/** Sets the default text tool justification (LEFT, CENTER or RIGHT). */
 	public static void setGlobalJustification(int justification) {
 		if (justification<0 || justification>RIGHT)
@@ -399,7 +399,7 @@ public class TextRoi extends Roi {
 			}
 		}
 	}
-	
+
 	/** Returns the default text tool justification (LEFT, CENTER or RIGHT). */
 	public static int getGlobalJustification() {
 		return globalJustification;
@@ -414,7 +414,7 @@ public class TextRoi extends Roi {
 		if (imp!=null)
 			imp.draw();
 	}
-	
+
 	/** Returns the value of the 'justification' instance variable (LEFT, CENTER or RIGHT). */
 	public int getJustification() {
 		return justification;
@@ -425,8 +425,8 @@ public class TextRoi extends Roi {
 	public static void setFont(String fontName, int fontSize, int fontStyle) {
 		setFont(fontName, fontSize, fontStyle, true);
 	}
-	
-	/** Sets the font face, size, style and antialiasing mode that will 
+
+	/** Sets the font face, size, style and antialiasing mode that will
 		be used by TextROIs interactively created using the text tool. */
 	public static void setFont(String fontName, int fontSize, int fontStyle, boolean antialiased) {
 		name = fontName;
@@ -443,14 +443,14 @@ public class TextRoi extends Roi {
 				imp.draw();
 			}
 		}
-			
+
 	}
 
 	/** Sets the default font. */
 	public static void setDefaultFont(Font font) {
 		defaultFont = font;
 	}
-	
+
 	/** Sets the default font size. */
 	public static void setDefaultFontSize(int size) {
 		defaultFont = defaultFont.deriveFont((float)size);
@@ -484,8 +484,8 @@ public class TextRoi extends Roi {
 		if (this.width<5 || this.height<5)
 			imp.deleteRoi();
 	}
-	
-	/** Increases the size of bounding rectangle so it's large enough to hold the text. */ 
+
+	/** Increases the size of bounding rectangle so it's large enough to hold the text. */
 	private void updateBounds() {
 		if (firstChar )
 			return;
@@ -521,7 +521,7 @@ public class TextRoi extends Roi {
 		b.height = nLines*fontHeight+2;
 		setBounds(b);
 	}
-	
+
 	private Graphics getFontGraphics(Font font) {
 		if (fontGraphics==null) {
 			BufferedImage bi =new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
@@ -530,7 +530,7 @@ public class TextRoi extends Roi {
 		fontGraphics.setFont(font);
 		return  fontGraphics;
 	}
-	
+
 	void updateText() {
 		if (imp!=null) {
 			updateClipRect();
@@ -545,7 +545,7 @@ public class TextRoi extends Roi {
 		java.awt.geom.Rectangle2D r = metrics.getStringBounds(s, g);
 		return r.getWidth();
 	}
-	
+
 	/** Used by the Recorder for recording the text tool. */
 	public String getMacroCode(String cmd, ImagePlus imp) {
 		String code = "";
@@ -595,7 +595,7 @@ public class TextRoi extends Roi {
 		}
 		return (code);
 	}
-	
+
 	private String text() {
 		String text = "";
 		for (int i=0; i<MAX_LINES; i++) {
@@ -605,7 +605,7 @@ public class TextRoi extends Roi {
 		}
 		return text;
 	}
-	
+
 	private String getAddSelectionScript(String code) {
 		code += "roi = new TextRoi("+this.x+", "+this.y+", \""+text()+"\", font);\n";
 		code += "roi.setStrokeColor(new Color("+getColorArgs(getStrokeColor())+"));\n";
@@ -623,11 +623,11 @@ public class TextRoi extends Roi {
 		code += "overlay.add(roi);\n";
 		return code;
 	}
-	
+
 	private String getColorArgs(Color c) {
 		return IJ.d2s(c.getRed()/255.0,2)+", "+IJ.d2s(c.getGreen()/255.0,2)+", "+IJ.d2s(c.getBlue()/255.0,2);
 	}
-	
+
 	public String getText() {
 		String text = "";
 		for (int i=0; i<MAX_LINES; i++) {
@@ -659,7 +659,7 @@ public class TextRoi extends Roi {
 	public boolean isDrawingTool() {
 		return true;
 	}
-	
+
 	public void clear(ImageProcessor ip) {
 		if (font==null)
 			ip.fill();
@@ -696,11 +696,11 @@ public class TextRoi extends Roi {
 			tr.theText[i] = theText[i];
 		return tr;
 	}
-	
+
 	public double getAngle() {
 		return angle;
 	}
-	
+
 	public void setAngle(double angle) {
 		this.angle = angle;
 		if (angle!=0.0)
@@ -710,14 +710,14 @@ public class TextRoi extends Roi {
 	public boolean getDrawStringMode() {
 		return false;
 	}
-	
+
 	public void setDrawStringMode(boolean drawStringMode) {
 	}
-	
+
 	public void setPreviousTextRoi(Roi previousRoi) {
 		this.previousRoi = previousRoi;
 	}
-	
+
 	/** @deprecated Replaced by getDefaultFontName */
 	public static String getFont() {
 		return name;
@@ -732,12 +732,12 @@ public class TextRoi extends Roi {
 	public static int getStyle() {
 		return style;
 	}
-	
+
 	/** @deprecated Replaced by setFont(font) */
 	public void setCurrentFont(Font font) {
 		this.font = font;
 		updateBounds();
 	}
 
-        
+
 }

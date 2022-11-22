@@ -42,10 +42,10 @@ public class WandToolOptions implements PlugIn, DialogListener {
 			gd.setInsets(2,0,0);
 			gd.addMessage("Thresholded objects are traced and \"Tolerance\"\nis ignored when thresholding is enabled.");
 		}
-		gd.addDialogListener(this); 
+		gd.addDialogListener(this);
 		gd.showDialog();
 	}
-	
+
 	public boolean dialogItemChanged(GenericDialog gd, AWTEvent e) {
 		if (gd.wasCanceled())
 			return false;
@@ -54,7 +54,7 @@ public class WandToolOptions implements PlugIn, DialogListener {
 		if (showCheckbox) {
 			if (gd.getNextBoolean()) {
 				imp.deleteRoi();
-				IJ.run("Threshold...");
+				IJMacro.run("Threshold...");
 			}
 		}
 		Prefs.smoothWand = gd.getNextBoolean();
@@ -70,7 +70,7 @@ public class WandToolOptions implements PlugIn, DialogListener {
 	public static double getTolerance() {
 		return tolerance;
 	}
-	
+
 	public static final void setStart(int x, int y) {
 		startx = x;
 		starty = y;

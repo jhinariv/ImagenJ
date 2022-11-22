@@ -18,14 +18,14 @@ public class RoiScaler implements PlugIn {
 		ImagePlus imp = IJ.getImage();
 		Roi roi = imp.getRoi();
 		if (roi==null) {
-			IJ.error("Scale", "This command requires a selection");
+			IJMessage.error("Scale", "This command requires a selection");
 			return;
 		}
-		if (!IJ.isMacro() && !imp.okToDeleteRoi())
+		if (!IJMacro.isMacro() && !imp.okToDeleteRoi())
 			return;
 		if (!showDialog())
 			return;
-		if (!IJ.macroRunning()) {
+		if (!IJMacro.macroRunning()) {
 			defaultXScale = xscale;
 			defaultYScale = yscale;
 		}
@@ -37,7 +37,7 @@ public class RoiScaler implements PlugIn {
 		imp.setRoi(roi2);
 		Roi.setPreviousRoi(roi);
 	}
-	
+
 	public boolean showDialog() {
 		GenericDialog gd = new GenericDialog("Scale Selection");
 		gd.addNumericField("X scale factor:", defaultXScale, 2, 4, "");
@@ -51,14 +51,14 @@ public class RoiScaler implements PlugIn {
 		centered = gd.getNextBoolean();
 		return true;
 	}
-	
+
 	public static Roi scale(Roi roi, double xscale, double yscale, boolean centered) {
 		if (roi instanceof ShapeRoi)
 			return scaleShape((ShapeRoi)roi, xscale, yscale, centered);
 		else if (roi instanceof TextRoi)
 			return scaleText((TextRoi)roi, xscale, yscale, centered);
 		else if (roi instanceof ImageRoi)
-			return scaleImage((ImageRoi)roi, xscale, yscale, centered);		
+			return scaleImage((ImageRoi)roi, xscale, yscale, centered);
 		FloatPolygon poly = roi.getFloatPolygon();
 		int type = roi.getType();
 		if (type==Roi.LINE) {
@@ -116,7 +116,7 @@ public class RoiScaler implements PlugIn {
 			roi2.setStrokeWidth(width*xscale);
 		return roi2;
 	}
-	
+
 	private static Roi scaleShape(ShapeRoi roi, double xscale, double yscale, boolean centered) {
 		Rectangle r = roi.getBounds();
 		Shape shape = roi.getShape();
@@ -137,7 +137,7 @@ public class RoiScaler implements PlugIn {
 			roi2.setStrokeWidth(width*xscale);
 		return roi2;
 	}
-	
+
 	private static Roi scaleText(TextRoi roi, double xscale, double yscale, boolean centered) {
 		Rectangle bounds = roi.getBounds();
 		int x = (int)Math.round(bounds.x*xscale);
@@ -148,7 +148,7 @@ public class RoiScaler implements PlugIn {
 		roi2.copyAttributes(roi);
 		return roi2;
 	}
-	
+
 	private static Roi scaleImage(ImageRoi roi, double xscale, double yscale, boolean centered) {
 		roi = (ImageRoi)roi.clone();
 		ImageProcessor ip2 = roi.getProcessor();

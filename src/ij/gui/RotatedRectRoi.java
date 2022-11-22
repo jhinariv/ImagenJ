@@ -28,14 +28,14 @@ public class RotatedRectRoi extends PolygonRoi {
 		ystart = offScreenYD(sy);
 		ImageWindow win = imp.getWindow();
 		int pixels = win!=null?(int)(win.getSize().height/win.getCanvas().getMagnification()):imp.getHeight();
-		if (IJ.debugMode) IJ.log("RotatedRectRoi: "+(int)rectWidth+" "+pixels);
+		if (IJDebugMode.debugMode) IJMessage.log("RotatedRectRoi: "+(int)rectWidth+" "+pixels);
 		if (rectWidth>pixels)
 			rectWidth = pixels/3;
 		setDrawOffset(false);
 		bounds = null;
 	}
 
-	public void draw(Graphics g) {	
+	public void draw(Graphics g) {
 		super.draw(g);
 		if (!overlay && ic!=null) {
 			double mag = ic.getMagnification();
@@ -48,7 +48,7 @@ public class RotatedRectRoi extends PolygonRoi {
 			}
 		}
 	}
-	
+
 	private int hxs(int index) {
 		int indexPlus1 = index<3?index+1:0;
 		return xp2[index]+(xp2[indexPlus1]-xp2[index])/2;
@@ -77,7 +77,7 @@ public class RotatedRectRoi extends PolygonRoi {
 		makeRectangle(x1, y1, x2, y2);
 		imp.draw();
 	}
-		
+
 	void makeRectangle(double x1, double y1, double x2, double y2) {
 		double length = Math.sqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1));
 		double angle = Math.atan ((x2-x1)/(y2-y1));
@@ -99,7 +99,7 @@ public class RotatedRectRoi extends PolygonRoi {
 		DefaultRectWidth = rectWidth;
 		showStatus();
 	}
-	
+
 	public void showStatus() {
 		double[] p = getParams();
 		double dx = p[2] - p[0];
@@ -116,7 +116,7 @@ public class RotatedRectRoi extends PolygonRoi {
 			}
 		}
 		double angle = getFloatAngle(p[0], p[1], p[2], p[3]);
-		IJ.showStatus("length=" + IJ.d2s(length)+", width=" + IJ.d2s(width)+", angle=" + IJ.d2s(angle));
+		IJMessage.showStatus("length=" + IJ.d2s(length)+", width=" + IJ.d2s(width)+", angle=" + IJ.d2s(angle));
 	}
 
 	public void nudgeCorner(int key) {
@@ -152,7 +152,7 @@ public class RotatedRectRoi extends PolygonRoi {
 			ypf[i] = ypf[i]-y;
 		}
 	}
-	
+
 	protected void handleMouseUp(int screenX, int screenY) {
 		nPoints = 4;
 		state = NORMAL;
@@ -164,30 +164,30 @@ public class RotatedRectRoi extends PolygonRoi {
 				Recorder.record("makeRotatedRectangle", (int)p[0], (int)p[1], (int)p[2], (int)p[3], (int)p[4]);
 		}
 	}
-	
+
 	protected void moveHandle(int sx, int sy) {
-		double ox = offScreenXD(sx); 
+		double ox = offScreenXD(sx);
 		double oy = offScreenYD(sy);
 		double x1 = hx(3);
 		double y1 = hy(3);
 		double x2 = hx(1);
 		double y2 = hy(1);
 		switch(activeHandle) {
-			case 0: 
+			case 0:
 				double dx = hx(2) - ox;
 				double dy = hy(2) - oy;
 				rectWidth = Math.sqrt(dx*dx+dy*dy);
 				break;
-			case 1: 
+			case 1:
 				x2 = ox;
 				y2 = oy;
 				break;
-			case 2: 
+			case 2:
 				dx = hx(0) - ox;
 				dy = hy(0) - oy;
 				rectWidth = Math.sqrt(dx*dx+dy*dy);
 				break;
-			case 3: 
+			case 3:
 				x1 = ox;
 				y1 = oy;
 				break;
@@ -195,7 +195,7 @@ public class RotatedRectRoi extends PolygonRoi {
 		makeRectangle(x1, y1, x2, y2);
 		imp.draw();
 	}
-	
+
 	public int isHandle(int sx, int sy) {
 		int size = getHandleSize()+5;
 		int halfSize = size/2;
@@ -209,7 +209,7 @@ public class RotatedRectRoi extends PolygonRoi {
 		}
 		return index;
 	}
-	
+
 	/** Returns x1, y1, x2, y2 and width as a 5 element array. */
 	public double[] getParams() {
 		double[] params = new double[5];
@@ -220,7 +220,7 @@ public class RotatedRectRoi extends PolygonRoi {
 		params[4]  = rectWidth;
 		return params;
 	}
-	
+
 	/** Always returns true. */
 	public boolean subPixelResolution() {
 		return true;

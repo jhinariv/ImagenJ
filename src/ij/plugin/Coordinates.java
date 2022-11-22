@@ -15,7 +15,7 @@ import java.awt.geom.Rectangle2D;
  * Units for x and y can be also selected (2016-08-30, Michael Schmid).
  * Z unit of stacks can be selected (2019-09-30, Stein Rorvik).
  */
- 
+
 public class Coordinates implements PlugIn, DialogListener {
 
 	private static final String help = "<html>"
@@ -86,7 +86,7 @@ public class Coordinates implements PlugIn, DialogListener {
 			double x = gd.getNextNumber();
 			double y = gd.getNextNumber();
 			if (gd.invalidNumber()) {
-				IJ.error("Invalid number");
+				IJMessage.error("Invalid number");
 				return;
 			}
 			cal.xOrigin = coordinate2offset(x, bounds.x, cal.pixelWidth);
@@ -94,7 +94,7 @@ public class Coordinates implements PlugIn, DialogListener {
 			if (isStack) {
 				double z = gd.getNextNumber();
 				if (gd.invalidNumber()) {
-					IJ.error("Invalid number");
+					IJMessage.error("Invalid number");
 					return;
 				}
 				cal.zOrigin = coordinate2offset(z, currSlice-1, cal.pixelDepth);
@@ -105,7 +105,7 @@ public class Coordinates implements PlugIn, DialogListener {
 			double yt = gd.getNextNumber();
 			double yb = gd.getNextNumber();
 			if (gd.invalidNumber()) {
-				IJ.error("Invalid number");
+				IJMessage.error("Invalid number");
 				return;
 			}
 			cal.pixelWidth = (xr-xl)/bounds.width;
@@ -117,7 +117,7 @@ public class Coordinates implements PlugIn, DialogListener {
 				double zf = gd.getNextNumber();
 				double zl = gd.getNextNumber();
 				cal.pixelDepth = (zl-zf)/numSlices;
-				cal.zOrigin = coordinate2offset(zf, 0, cal.pixelDepth);	
+				cal.zOrigin = coordinate2offset(zf, 0, cal.pixelDepth);
 			}
 			if (cal.pixelHeight < 0)
 				cal.pixelHeight = -cal.pixelHeight;

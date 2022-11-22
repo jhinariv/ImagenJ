@@ -19,7 +19,7 @@ public class MacAdapter implements PlugIn, ApplicationListener, Runnable {
       app.setEnabledPreferencesMenu(true);
       app.addApplicationListener(this);
    }
-    
+
    public void handleAbout(ApplicationEvent event) {
       IJ.doCommand("About ImageJ...");
       event.setHandled(true);
@@ -33,14 +33,14 @@ public class MacAdapter implements PlugIn, ApplicationListener, Runnable {
    }
 
    public void handlePreferences(ApplicationEvent event) {
-      IJ.error("The ImageJ preferences are in the Edit>Options menu.");
+      IJMessage.error("The ImageJ preferences are in the Edit>Options menu.");
    }
 
    public void handleQuit(ApplicationEvent event) {
       new Executer("Quit", null); // works with the CommandListener
       //IJ.getInstance().quit();
    }
-  
+
     public void run() {
         if (paths.size() > 0) {
          (new Opener()).openAndAddToRecent((String) paths.remove(0));

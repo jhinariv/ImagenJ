@@ -23,21 +23,21 @@ public class ListVirtualStack extends VirtualStack implements PlugIn {
 		String name = od.getFileName();
 		if (name==null) return;
 		String  dir = od.getDirectory();
-		//IJ.log("ListVirtualStack: "+dir+"   "+name);
+		//IJMessage.log("ListVirtualStack: "+dir+"   "+name);
 		list = open(dir+name);
 		if (list==null) return;
 		nImages = list.length;
 		labels = new String[nImages];
 		//for (int i=0; i<list.length; i++)
-		//	IJ.log(i+"  "+list[i]);
+		//	IJMessage.log(i+"  "+list[i]);
 		if (list.length==0) {
-			IJ.error("Stack From List", "The file path list is empty");
+			IJMessage.error("Stack From List", "The file path list is empty");
 			return;
 		}
 		if (!list[0].startsWith("http://")) {
 			File f = new File(list[0]);
 			if (!f.exists()) {
-				IJ.error("Stack From List", "The first file on the list does not exist:\n \n"+list[0]);
+				IJMessage.error("Stack From List", "The first file on the list does not exist:\n \n"+list[0]);
 				return;
 			}
 		}
@@ -55,7 +55,7 @@ public class ListVirtualStack extends VirtualStack implements PlugIn {
 		imp2.setFileInfo(imp.getOriginalFileInfo());
 		imp2.show();
 	}
-	
+
 	boolean showDialog(ImagePlus imp) {
 		double bytesPerPixel = 1;
 		switch (imp.getType()) {
@@ -77,20 +77,20 @@ public class ListVirtualStack extends VirtualStack implements PlugIn {
 		virtual = gd.getNextBoolean();
 		return true;
 	}
-	
+
 	ImageStack convertToRealStack(ImagePlus imp) {
 		ImageStack stack2 = new ImageStack(imageWidth, imageHeight, imp.getProcessor().getColorModel());
 		int n = this.getSize();
 		for (int i=1; i<=this.getSize(); i++) {
 			IJ.showProgress(i, n);
-			IJ.showStatus("Opening: "+i+"/"+n);
+			IJMessage.showStatus("Opening: "+i+"/"+n);
 			ImageProcessor ip2 = this.getProcessor(i);
 			if (ip2!=null)
 				stack2.addSlice(this.getSliceLabel(i), ip2);
 		}
 		return stack2;
 	}
-	
+
 	String[] open(String path) {
 		if (path.startsWith("http://"))
 			return openUrl(path);
@@ -111,7 +111,7 @@ public class ListVirtualStack extends VirtualStack implements PlugIn {
     		return list;
 		}
 		catch (Exception e) {
-			IJ.error("Open List Error \n\""+e.getMessage()+"\"\n");
+			IJMessage.error("Open List Error \n\""+e.getMessage()+"\"\n");
 		}
 		return null;
 	}
@@ -119,12 +119,12 @@ public class ListVirtualStack extends VirtualStack implements PlugIn {
 	String[] openUrl(String url) {
 		String str = IJ.openUrlAsString(url);
 		if (str.startsWith("<Error: ")) {
-			IJ.error("Stack From List", str);
+			IJMessage.error("Stack From List", str);
 			return null;
 		} else
 			return Tools.split(str, "\n");
 	}
-	
+
 	/** Deletes the specified image, where {@literal 1<=n<=nslices}. */
 	public void deleteSlice(int n) {
 		if (n<1 || n>nImages)
@@ -135,7 +135,7 @@ public class ListVirtualStack extends VirtualStack implements PlugIn {
 		list[nImages-1] = null;
 		nImages--;
 	}
-	
+
 	/** Returns an ImageProcessor for the specified slice,
 		where {@literal 1<=n<=nslices}. Returns null if the stack is empty.
 	*/
@@ -177,7 +177,7 @@ public class ListVirtualStack extends VirtualStack implements PlugIn {
 			return ip;
 		}
 	 }
- 
+
 	 /** Returns the number of images in this stack. */
 	public int getSize() {
 		return nImages;
@@ -192,7 +192,7 @@ public class ListVirtualStack extends VirtualStack implements PlugIn {
 		else
 			return (new File(list[n-1])).getName();
 	}
-	
+
 	public int getWidth() {
 		return imageWidth;
 	}
@@ -200,7 +200,7 @@ public class ListVirtualStack extends VirtualStack implements PlugIn {
 	public int getHeight() {
 		return imageHeight;
 	}
-	
+
 	@Override
 	public void reduce(int factor) {
 		if (factor<2 || nImages/factor<1)

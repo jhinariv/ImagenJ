@@ -43,7 +43,7 @@ public class Translator implements ExtendedPlugInFilter, DialogListener {
 	public int showDialog(ImagePlus imp, String command, PlugInFilterRunner pfr) {
 		this.pfr = pfr;
 		int digits = xOffset==(int)xOffset&&yOffset==(int)yOffset?1:3;
-		if (IJ.isMacro())
+		if (IJMacro.isMacro())
 			interpolationMethod = ImageProcessor.NONE;
 		gd = new GenericDialog("Translate");
 		gd.addSlider("X offset:", -100, 100, xOffset, 0.1);
@@ -62,7 +62,7 @@ public class Translator implements ExtendedPlugInFilter, DialogListener {
 		previewing = false;
 		return IJ.setupDialog(imp, flags);
 	}
-	
+
 	public boolean dialogItemChanged(GenericDialog gd, AWTEvent e) {
 		xOffset = gd.getNextNumber();
 		yOffset = gd.getNextNumber();
@@ -70,7 +70,7 @@ public class Translator implements ExtendedPlugInFilter, DialogListener {
 		if (origOverlay!=null)
 			overlayOnly = gd.getNextBoolean();
 		if (gd.invalidNumber()) {
-			if (gd.wasOKed()) IJ.error("Offset is invalid.");
+			if (gd.wasOKed()) IJMessage.error("Offset is invalid.");
 			return false;
 		}
 		return true;

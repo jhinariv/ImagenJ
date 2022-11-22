@@ -19,7 +19,7 @@ public class WaitForUserDialog extends Dialog implements ActionListener, KeyList
 	protected MultiLineLabel label;
 	static protected int xloc=-1, yloc=-1;
 	private boolean escPressed;
-	
+
 	public WaitForUserDialog(String title, String text) {
 		super(IJ.getInstance(), title, false);
 		IJ.protectStatusBar(false);
@@ -34,22 +34,22 @@ public class WaitForUserDialog extends Dialog implements ActionListener, KeyList
         GridBagLayout gridbag = new GridBagLayout(); //set up the layout
         GridBagConstraints c = new GridBagConstraints();
         setLayout(gridbag);
-		c.insets = new Insets(6, 6, 0, 6); 
+		c.insets = new Insets(6, 6, 0, 6);
         c.gridx = 0; c.gridy = 0; c.anchor = GridBagConstraints.WEST;
-        add(label,c); 
-		
+        add(label,c);
+
 		button = new Button("  OK  ");
 		button.addActionListener(this);
 		button.addKeyListener(this);
-        c.insets = new Insets(2, 6, 6, 6); 
+        c.insets = new Insets(2, 6, 6, 6);
         c.gridx = 0; c.gridy = 1; c.anchor = GridBagConstraints.EAST;
         add(button, c);
 
-		if (IJ.isMacro()) {
+		if (IJMacro.isMacro()) {
 			cancelButton = new Button(" Cancel ");
 			cancelButton.addActionListener(this);
 			cancelButton.addKeyListener(this);
-			c.anchor = GridBagConstraints.WEST; //same as OK button but WEST	
+			c.anchor = GridBagConstraints.WEST; //same as OK button but WEST
         	add(cancelButton, c);
         }
 
@@ -63,7 +63,7 @@ public class WaitForUserDialog extends Dialog implements ActionListener, KeyList
 			setLocation(xloc, yloc);
 		setAlwaysOnTop(true);
 	}
-	
+
 	public WaitForUserDialog(String text) {
 		this("Action Required", text);
 	}
@@ -75,7 +75,7 @@ public class WaitForUserDialog extends Dialog implements ActionListener, KeyList
 			catch(InterruptedException e) {return;}
 		}
 	}
-	
+
     public void close() {
         synchronized(this) { notify(); }
         xloc = getLocation().x;
@@ -90,32 +90,32 @@ public class WaitForUserDialog extends Dialog implements ActionListener, KeyList
 		}
 		close();
 	}
-	
-	public void keyPressed(KeyEvent e) { 
-		int keyCode = e.getKeyCode(); 
-		IJ.setKeyDown(keyCode); 
+
+	public void keyPressed(KeyEvent e) {
+		int keyCode = e.getKeyCode();
+		IJ.setKeyDown(keyCode);
 		if (keyCode==KeyEvent.VK_ENTER || keyCode==KeyEvent.VK_ESCAPE) {
 			escPressed = keyCode==KeyEvent.VK_ESCAPE;
 			close();
 		}
 	}
-	
+
 	public boolean escPressed() {
 		return escPressed;
 	}
-	
+
 	public void keyReleased(KeyEvent e) {
-		int keyCode = e.getKeyCode(); 
-		IJ.setKeyUp(keyCode); 
+		int keyCode = e.getKeyCode();
+		IJ.setKeyUp(keyCode);
 	}
-	
+
 	public void keyTyped(KeyEvent e) {}
-	
+
 	/** Returns a reference to the 'OK' button */
 	public Button getButton() {
 		return button;
 	}
-	
+
 	/** Display the next WaitForUser dialog at the specified location. */
 	public static void setNextLocation(int x, int y) {
 		xloc = x;

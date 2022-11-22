@@ -7,8 +7,8 @@ import java.awt.*;
 import java.awt.image.*;
 
 /** This plugin implements the Image/Transform/Bin command.
- * It reduces the size of an image or stack by binning groups of 
- * pixels of user-specified sizes. The resulting pixel can be 
+ * It reduces the size of an image or stack by binning groups of
+ * pixels of user-specified sizes. The resulting pixel can be
  * calculated as average, median, maximum or minimum.
  *
  * @author Nico Stuurman
@@ -57,7 +57,7 @@ public class Binner implements PlugIn {
 		for (int z=1; z<=d; z++) {
 			IJ.showProgress(z, d);
 			ImageProcessor ip = stack.getProcessor(z);
-			if (ip.isInvertedLut()) 
+			if (ip.isInvertedLut())
 				ip.invert();
 			ImageProcessor ip2 = shrink(ip, method);
 			if (ip.isInvertedLut()) ip2.invert();
@@ -82,7 +82,7 @@ public class Binner implements PlugIn {
 		}
 		return imp2;
 	}
-	
+
 	private ImageStack shrinkZ(ImageStack stack, int zshrink) {
 		int w = stack.getWidth();
 		int h = stack.getHeight();
@@ -111,7 +111,7 @@ public class Binner implements PlugIn {
 		}
 		return stack2;
 	}
-	
+
 	public ImagePlus shrinkHyperstackZ(ImagePlus imp, int zshrink) {
 		int width = imp.getWidth();
 		int height = imp.getHeight();
@@ -129,7 +129,7 @@ public class Binner implements PlugIn {
 					ImageProcessor ip = stack.getProcessor(imp.getStackIndex(c, z, t));
 						tstack.addSlice(stack.getSliceLabel(i), ip);
 				}
-				//IJ.log("1: "+c+"  "+t+" "+tstack.size()+"  "+slices);
+				//IJMessage.log("1: "+c+"  "+t+" "+tstack.size()+"  "+slices);
 				tstack = shrinkZ(tstack, zshrink);
 				for (int i=1; i<=tstack.size(); i++)
 					stack2.addSlice(tstack.getSliceLabel(i), tstack.getProcessor(i));
@@ -140,7 +140,7 @@ public class Binner implements PlugIn {
 		IJ.showProgress(1.0);
 		return imp;
 	}
-	
+
 	public ImageProcessor shrink(ImageProcessor ip, int xshrink, int yshrink, int method) {
 		this.xshrink = xshrink;
 		this.yshrink = yshrink;
@@ -184,7 +184,7 @@ public class Binner implements PlugIn {
 		float sum = 0;
 		for (int y2=0; y2<yshrink; y2++) {
 			for (int x2=0;  x2<xshrink; x2++)
-				sum += ip.getf(x*xshrink+x2, y*yshrink+y2); 
+				sum += ip.getf(x*xshrink+x2, y*yshrink+y2);
 		}
 		return (float)(sum/(xshrink*yshrink));
 	}
@@ -196,7 +196,7 @@ public class Binner implements PlugIn {
 		// fill pixels within local neighborhood
 		for (int y2=0; y2<yshrink; y2++) {
 			for (int x2=0;  x2<xshrink; x2++)
-				pixels[p++]= ip.getf(x*xshrink+x2, y*yshrink+y2); 
+				pixels[p++]= ip.getf(x*xshrink+x2, y*yshrink+y2);
 		}
 		// find median value
 		int halfsize=shrinksize/2;
@@ -224,7 +224,7 @@ public class Binner implements PlugIn {
 		float pixel;
 		for (int y2=0; y2<yshrink; y2++) {
 			for (int x2=0;  x2<xshrink; x2++) {
-				pixel = ip.getf(x*xshrink+x2, y*yshrink+y2); 
+				pixel = ip.getf(x*xshrink+x2, y*yshrink+y2);
 				if (pixel<min)
 					min = pixel;
 			}
@@ -237,7 +237,7 @@ public class Binner implements PlugIn {
 		float pixel;
 		for (int y2=0; y2<yshrink; y2++) {
 			for (int x2=0;  x2<xshrink; x2++) {
-				pixel = ip.getf(x*xshrink+x2, y*yshrink+y2); 
+				pixel = ip.getf(x*xshrink+x2, y*yshrink+y2);
 				if (pixel>max)
 					max = pixel;
 			}
@@ -249,7 +249,7 @@ public class Binner implements PlugIn {
 		float sum = 0;
 		for (int y2=0; y2<yshrink; y2++) {
 			for (int x2=0;  x2<xshrink; x2++)
-				sum += ip.getf(x*xshrink+x2, y*yshrink+y2); 
+				sum += ip.getf(x*xshrink+x2, y*yshrink+y2);
 		}
 		if (maxValue>0f && sum>maxValue)
 			sum = maxValue;
@@ -273,7 +273,7 @@ public class Binner implements PlugIn {
 			gd.addMessage("This command supports Undo", null, Color.darkGray);
 		}
 		gd.showDialog();
-		if (gd.wasCanceled()) 
+		if (gd.wasCanceled())
 			return false;
 		xshrink = (int) gd.getNextNumber();
 		yshrink = (int) gd.getNextNumber();

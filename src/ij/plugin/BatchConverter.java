@@ -8,7 +8,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 
-/** This plugin implements the File/ /Convert command, 
+/** This plugin implements the File/ /Convert command,
 	which converts the images in a folder to a specified format. */
 	public class BatchConverter implements PlugIn, ActionListener {
 		private static final String[] formats = {"TIFF", "8-bit TIFF", "JPEG", "GIF", "PNG", "PGM", "BMP", "FITS", "Text Image", "ZIP", "Raw"};
@@ -27,22 +27,22 @@ import java.io.*;
 			return;
 		String inputPath = inputDir.getText();
 		if (inputPath.equals("")) {
-			IJ.error("Batch Converter", "Please choose an input folder");
+			IJMessage.error("Batch Converter", "Please choose an input folder");
 			return;
 		}
 		String outputPath = outputDir.getText();
 		if (outputPath.equals("")) {
-			IJ.error("Batch Converter", "Please choose an output folder");
+			IJMessage.error("Batch Converter", "Please choose an output folder");
 			return;
 		}
 		File f1 = new File(inputPath);
 		if (!f1.exists() || !f1.isDirectory()) {
-			IJ.error("Batch Converter", "Input does not exist or is not a folder\n \n"+inputPath);
+			IJMessage.error("Batch Converter", "Input does not exist or is not a folder\n \n"+inputPath);
 			return;
 		}
 		File f2 = new File(outputPath);
 		if (!outputPath.equals("") && (!f2.exists() || !f2.isDirectory())) {
-			IJ.error("Batch Converter", "Output does not exist or is not a folder\n \n"+outputPath);
+			IJMessage.error("Batch Converter", "Output does not exist or is not a folder\n \n"+outputPath);
 			return;
 		}
 		String[] list = (new File(inputPath)).list();
@@ -53,13 +53,13 @@ import java.io.*;
 		for (int i=0; i<list.length; i++) {
 			if (IJ.escapePressed())
 				break;
-			if (IJ.debugMode) IJ.log(i+"  "+list[i]);
+			if (IJDebugMode.debugMode) IJMessage.log(i+"  "+list[i]);
 			String path = inputPath + list[i];
 			if ((new File(path)).isDirectory())
 				continue;
 			if (list[i].startsWith(".")||list[i].endsWith(".avi")||list[i].endsWith(".AVI"))
 				continue;
-			IJ.showStatus(i+"/"+list.length);
+			IJMessage.showStatus(i+"/"+list.length);
 			IJ.showProgress(i+1, list.length);
 			ImagePlus imp = null;
 			IJ.redirectErrorMessages(true);
@@ -70,7 +70,7 @@ import java.io.*;
 			IJ.redirectErrorMessages(false);
 			if (imp==null) {
 				String reader = useBioFormats?"Bio-Formats not found or":"IJ.openImage()";
-				IJ.log(reader+" returned null: "+path);
+				IJMessage.log(reader+" returned null: "+path);
 				continue;
 			}
 			if (scale!=1.0) {
@@ -84,20 +84,20 @@ import java.io.*;
 			}
 			if (format.equals("8-bit TIFF") || format.equals("GIF")) {
 				if (imp.getBitDepth()==24)
-					IJ.run(imp, "8-bit Color", "number=256");
+					IJPlugin.runimp, "8-bit Color", "number=256");
 				else
-					IJ.run(imp, "8-bit", "");
+					IJPlugin.runimp, "8-bit", "");
 			}
 			IJ.saveAs(imp, format, outputPath+list[i]);
 			imp.close();
 			imp = null;
 		}
-		IJ.showStatus(list.length+" files converted in "+IJ.d2s((System.currentTimeMillis()-t0)/1000.0,2)+" seconds");
+		IJMessage.showStatus(list.length+" files converted in "+IJ.d2s((System.currentTimeMillis()-t0)/1000.0,2)+" seconds");
 		IJ.showProgress(1,1);
 		Prefs.set("batch.input", inputDir.getText());
 		Prefs.set("batch.output", outputDir.getText());
 	}
-			
+
 	private boolean showDialog() {
 		gd = new GenericDialog("Batch Convert");
 		addPanels(gd);
@@ -139,7 +139,7 @@ import java.io.*;
 		p.add(outputDir);
 		gd.addPanel(p);
 	}
-	
+
 	public void actionPerformed(ActionEvent e) {
 		Object source = e.getSource();
 		String s = source==input?"Input":"Output";

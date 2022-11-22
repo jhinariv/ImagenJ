@@ -18,7 +18,7 @@ public class StackEditor implements PlugIn {
     	nSlices = imp.getStackSize();
     	width = imp.getWidth();
     	height = imp.getHeight();
-    	
+
     	if (arg.equals("add"))
     		addSlice();
     	else if (arg.equals("delete"))
@@ -47,10 +47,10 @@ public class StackEditor implements PlugIn {
 		imp.changes = true;
 		if (id!=0) IJ.selectWindow(id); // prevents macros from failing
 	}
-	
+
 	void deleteSlice() {
 		if (nSlices<2)
-			{IJ.error("\"Delete Slice\" requires a stack"); return;}
+			{IJMessage.error("\"Delete Slice\" requires a stack"); return;}
 		if (imp.isHyperStack() || (imp.isComposite() && nSlices==imp.getNChannels())) {
 			deleteHyperstackChannelSliceOrFrame();
 			return;
@@ -142,7 +142,7 @@ public class StackEditor implements PlugIn {
 			for (int i=0; i<luts2.length; i++) {
 				if (i==c1)
 					luts2[i] = LUT.createLutFromColor(Color.white);
-				else 
+				else
 					luts2[i] = luts[index++];
 			}
 			CompositeImage cimp = (CompositeImage)imp;
@@ -158,7 +158,7 @@ public class StackEditor implements PlugIn {
 		}
 		imp.changes = true;
 	}
-	
+
 	void deleteHyperstackChannelSliceOrFrame() {
 		int channels = imp.getNChannels();
 		int slices = imp.getNSlices();
@@ -178,13 +178,13 @@ public class StackEditor implements PlugIn {
 		else if (slices>1)
 			choice = "slice";
     	String options = Macro.getOptions();
-		if (IJ.isMacro() && options!=null && !options.contains("delete=")) {
+		if (IJMacro.isMacro() && options!=null && !options.contains("delete=")) {
 			if (options.contains("delete"))
     			Macro.setOptions("delete=frame");
     		else
     			Macro.setOptions("delete=slice");
     	}
-		if (IJ.isMacro() && options==null && (imp.isComposite() && imp.getStackSize()==imp.getNChannels()))
+		if (IJMacro.isMacro() && options==null && (imp.isComposite() && imp.getStackSize()==imp.getNChannels()))
 			Macro.setOptions("delete=channel");
 		GenericDialog gd = new GenericDialog("Delete");
 		gd.addChoice("Delete current", choices, choice);
@@ -244,15 +244,15 @@ public class StackEditor implements PlugIn {
 			nSlices = imp.getStackSize();
 		}
 		if (nSlices<2) {
-			IJ.error("\"Convert Stack to Images\" requires a stack\n"+imp);
+			IJMessage.error("\"Convert Stack to Images\" requires a stack\n"+imp);
 			return;
 		}
 		if (!imp.lock())
 			return;
 		ImageStack stack = imp.getStack();
 		int size = stack.size();
-		if (size>30 && !IJ.isMacro()) {
-			boolean ok = IJ.showMessageWithCancel("Convert to Images?",
+		if (size>30 && !IJMacro.isMacro()) {
+			boolean ok = IJMessage.showMessageWithCancel("Convert to Images?",
 			"Are you sure you want to convert this\nstack to "
 			+size+" separate windows?");
 			if (!ok) {
@@ -313,8 +313,8 @@ public class StackEditor implements PlugIn {
 		String digits = "00000000"+n;
 		return getShortTitle(imp)+"-"+digits.substring(digits.length()-4,digits.length());
 	}
-	
-	/** Returns a shortened version of image name that does not 
+
+	/** Returns a shortened version of image name that does not
 		include spaces or a file name extension. */
 	private String getShortTitle(ImagePlus imp) {
 		String title = imp.getTitle();
@@ -326,6 +326,6 @@ public class StackEditor implements PlugIn {
 			title = title.substring(0, index);
 		return title;
     }
-	
+
 }
 

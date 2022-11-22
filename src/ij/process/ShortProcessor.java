@@ -31,7 +31,7 @@ public class ShortProcessor extends ImageProcessor {
 	public ShortProcessor(int width, int height) {
 		this(width, height, new short[width*height], null);
 	}
-	
+
 	/** Creates a ShortProcessor from a TYPE_USHORT_GRAY BufferedImage. */
 	public ShortProcessor(BufferedImage bi) {
 		if (bi.getType()!=BufferedImage.TYPE_USHORT_GRAY)
@@ -66,7 +66,7 @@ public class ShortProcessor extends ImageProcessor {
 	public ShortProcessor(int width, int height,  boolean unsigned) {
 		this(width, height);
 	}
-	
+
 	public void findMinAndMax() {
 		if (fixedScale || pixels==null)
 			return;
@@ -92,7 +92,7 @@ public class ShortProcessor extends ImageProcessor {
 			findMinAndMax();
 		boolean firstTime = pixels8==null;
 		boolean thresholding = minThreshold!=NO_THRESHOLD && lutUpdateMode<NO_LUT_UPDATE;
-		//ij.IJ.log("createImage: "+firstTime+"  "+lutAnimation+"  "+thresholding);
+		//ij.IJMessage.log("createImage: "+firstTime+"  "+lutAnimation+"  "+thresholding);
 		if (firstTime || !lutAnimation)
 			create8BitImage(thresholding&&lutUpdateMode==RED_LUT);
 		if (cm==null)
@@ -120,7 +120,7 @@ public class ShortProcessor extends ImageProcessor {
 		}
 		return createBufferedImage();
 	}
-	
+
 	// create 8-bit image by linearly scaling from 16-bits to 8-bits
 	private byte[] create8BitImage(boolean thresholding) {
 		int size = width*height;
@@ -196,7 +196,7 @@ public class ShortProcessor extends ImageProcessor {
 			snapshotPixels = new short[width * height];
 		System.arraycopy(pixels, 0, snapshotPixels, 0, width*height);
 	}
-	
+
 	public void reset() {
 		if (snapshotPixels==null)
 			return;
@@ -205,10 +205,10 @@ public class ShortProcessor extends ImageProcessor {
 		minMaxSet = true;
         System.arraycopy(snapshotPixels, 0, pixels, 0, width*height);
 	}
-	
+
 	public void reset(ImageProcessor mask) {
 		if (mask==null || snapshotPixels==null)
-			return;	
+			return;
 		if (mask.getWidth()!=roiWidth||mask.getHeight()!=roiHeight)
 			throw new IllegalArgumentException(maskSizeError(mask));
 		byte[] mpixels = (byte[])mask.getPixels();
@@ -225,7 +225,7 @@ public class ShortProcessor extends ImageProcessor {
 
 	/** Swaps the pixel and snapshot (undo) arrays. */
 	public void swapPixelArrays() {
-		if (snapshotPixels==null) return;	
+		if (snapshotPixels==null) return;
 		short pixel;
 		for (int i=0; i<pixels.length; i++) {
 			pixel = pixels[i];
@@ -261,7 +261,7 @@ public class ShortProcessor extends ImageProcessor {
 	pixel values are mapped to 0-255 screen values. With
 	signed 16-bit images, use IJ.setMinAndMax(imp,min,max).
 	@see #resetMinAndMax
-	@see ij.plugin.frame.ContrastAdjuster 
+	@see ij.plugin.frame.ContrastAdjuster
 	@see ij.IJ#setMinAndMax(ij.ImagePlus,double,double)
 	*/
 	public void setMinAndMax(double minimum, double maximum) {
@@ -279,9 +279,9 @@ public class ShortProcessor extends ImageProcessor {
 		minMaxSet = true;
 		resetThreshold();
 	}
-	
+
 	/** Recalculates the min and max values used to scale pixel
-		values to 0-255 for display. This ensures that this 
+		values to 0-255 for display. This ensures that this
 		ShortProcessor is set up to correctly display the image. */
 	public void resetMinAndMax() {
 		fixedScale = false;
@@ -312,7 +312,7 @@ public class ShortProcessor extends ImageProcessor {
 		pixels[index] = (short)value;
 	}
 
-	public final float getf(int x, int y) {		
+	public final float getf(int x, int y) {
 		return pixels[y*width+x]&0xffff;
 	}
 
@@ -370,7 +370,7 @@ public class ShortProcessor extends ImageProcessor {
 	}
 
 	/** Stores the specified real value at (x,y). Does nothing
-		if (x,y) is outside the image boundary. Values outside 
+		if (x,y) is outside the image boundary. Values outside
 		the range 0-65535 (-32768-32767 for signed images)
 		are clipped. Support for signed values requires a calibration
 		table, which is set up automatically with PlugInFilters.
@@ -395,7 +395,7 @@ public class ShortProcessor extends ImageProcessor {
 
 	/** Returns the value of the pixel at (x,y) as a float. For signed
 		images, returns a signed value if a calibration table has
-		been set using setCalibrationTable() (this is done automatically 
+		been set using setCalibrationTable() (this is done automatically
 		in PlugInFilters). */
 	public float getPixelValue(int x, int y) {
 		if (x>=0 && x<width && y>=0 && y<height) {
@@ -443,13 +443,13 @@ public class ShortProcessor extends ImageProcessor {
 		for (int i=0; i<length; i++)
 			data[i] = pixels[y*width+x+i]&0xffff;
 	}
-	
+
 	void putColumn2(int x, int y, int[] data, int length) {
 		int value;
 		for (int i=0; i<length; i++)
 			pixels[(y+i)*width+x] = (short)data[i];
 	}
-	
+
 	/** Copies the image contained in 'ip' to (xloc, yloc) using one of
 		the transfer modes defined in the Blitter interface. */
 	public void copyBits(ImageProcessor ip, int xloc, int yloc, int mode) {
@@ -463,7 +463,7 @@ public class ShortProcessor extends ImageProcessor {
 			new ShortBlitter(this).copyBits(ip, xloc, yloc, mode);
 		}
 	}
-	
+
 	/** Transforms the pixel data using a 65536 entry lookup table. */
 	public void applyTable(int[] lut) {
 		if (lut.length!=65536)
@@ -489,7 +489,7 @@ public class ShortProcessor extends ImageProcessor {
 		int max2 = (int)getMax() - offset;
 		int fgColor2 = fgColor - offset;
 		int intValue = (int)value;
-		
+
 		for (int y=roiY; y<(roiY+roiHeight); y++) {
 			int i = y * width + roiX;
 			for (int x=roiX; x<(roiX+roiWidth); x++) {
@@ -523,13 +523,13 @@ public class ShortProcessor extends ImageProcessor {
 					case GAMMA:
 						if (range<=0.0 || v1==min2)
 							v2 = v1;
-						else					
+						else
 							v2 = (int)(Math.exp(value*Math.log((v1-min2)/range))*range+min2);
 						break;
 					case LOG:
 						if (v1<=0)
 							v2 = 0;
-						else 
+						else
 							v2 = (int)(Math.log(v1)*(max2/Math.log(max2)));
 						break;
 					case EXP:
@@ -569,7 +569,7 @@ public class ShortProcessor extends ImageProcessor {
 			}
 		}
     }
-    
+
 	public void invert() {
 		int range = 65536;
 		int defaultRange = ij.ImagePlus.getDefault16bitRange();
@@ -729,7 +729,8 @@ public class ShortProcessor extends ImageProcessor {
 		double centerX = roiX + (roiWidth-1)/2.0;
 		double centerY = roiY + (roiHeight-1)/2.0;
 		int xMax = roiX + this.roiWidth - 1;
-		
+		double interpolaridad;
+
 		double angleRadians = -angle/(180.0/Math.PI);
 		double ca = Math.cos(angleRadians);
 		double sa = Math.sin(angleRadians);
@@ -741,8 +742,8 @@ public class ShortProcessor extends ImageProcessor {
 		double xlimit = width-1.0, xlimit2 = width-1.001;
 		double ylimit = height-1.0, ylimit2 = height-1.001;
 		// zero is 32768 for signed images
-		int background = isSigned16Bit()?bgValue+32768:bgValue; 
-		
+		int background = isSigned16Bit()?bgValue+32768:bgValue;
+
 		if (interpolationMethod==BICUBIC) {
 			for (int y=roiY; y<(roiY + roiHeight); y++) {
 				index = y*width + roiX;
@@ -758,31 +759,16 @@ public class ShortProcessor extends ImageProcessor {
 				}
 			}
 		} else {
-			for (int y=roiY; y<(roiY + roiHeight); y++) {
-				index = y*width + roiX;
-				tmp3 = tmp1 - y*sa + centerX;
-				tmp4 = tmp2 + y*ca + centerY;
-				for (int x=roiX; x<=xMax; x++) {
-					xs = x*ca + tmp3;
-					ys = x*sa + tmp4;
-					if ((xs>=-0.01) && (xs<dwidth) && (ys>=-0.01) && (ys<dheight)) {
-						if (interpolationMethod==BILINEAR) {
-							if (xs<0.0) xs = 0.0;
-							if (xs>=xlimit) xs = xlimit2;
-							if (ys<0.0) ys = 0.0;			
-							if (ys>=ylimit) ys = ylimit2;
-							pixels[index++] = (short)(getInterpolatedPixel(xs, ys, pixels2)+0.5);
-						} else {
-							ixs = (int)(xs+0.5);
-							iys = (int)(ys+0.5);
-							if (ixs>=width) ixs = width - 1;
-							if (iys>=height) iys = height -1;
-							pixels[index++] = pixels2[width*iys+ixs];
-						}
-					} else
-						pixels[index++] = (short)background;
-				}
-			}
+			interpolaridad = getInterpolatedPixel(xs, ys, pixels2)+0.5;
+			byte bgColor;
+			pixels = General.CalculatePixels(
+				roiX, roiY, roiHeight, roiWidth, height, width,
+				tmp1, tmp2, tmp3, tmp4,
+				sa, ca, centerX, centerY,
+    		xMax, dwidth, interpolationMethod,
+				xlimit, xlimit2, ylimit, ylimit2,
+				pixels, pixels2,
+				bgColor, interpolaridad);
 		}
 	}
 
@@ -799,7 +785,7 @@ public class ShortProcessor extends ImageProcessor {
 			}
 		}
 	}
-	
+
 	/** Scales the image or selection using the specified scale factors.
 		@see ImageProcessor#setInterpolationMethod
 	*/
@@ -848,7 +834,7 @@ public class ShortProcessor extends ImageProcessor {
 			for (int y=ymin; y<=ymax; y++) {
 				ys = (y-yCenter)/yScale + yCenter;
 				ysi = (int)ys;
-				if (ys<0.0) ys = 0.0;			
+				if (ys<0.0) ys = 0.0;
 				if (ys>=ylimit) ys = ylimit2;
 				index1 = y*width + xmin;
 				index2 = width*(int)ys;
@@ -957,14 +943,14 @@ public class ShortProcessor extends ImageProcessor {
 		}
         return ip2;
 	}
-	
-	/** Returns a duplicate of this image. */ 
-	public ImageProcessor duplicate() { 
-		ImageProcessor ip2 = createProcessor(width, height); 
-		short[] pixels2 = (short[])ip2.getPixels(); 
-		System.arraycopy(pixels, 0, pixels2, 0, width*height); 
-		return ip2; 
-	} 
+
+	/** Returns a duplicate of this image. */
+	public ImageProcessor duplicate() {
+		ImageProcessor ip2 = createProcessor(width, height);
+		short[] pixels2 = (short[])ip2.getPixels();
+		System.arraycopy(pixels, 0, pixels2, 0, width*height);
+		return ip2;
+	}
 
 	/** Sets the foreground fill/draw color. */
 	public void setColor(Color color) {
@@ -982,7 +968,7 @@ public class ShortProcessor extends ImageProcessor {
 			fgColor = (int)(getMin() + (getMax()-getMin())*(bestIndex/255.0));
 		fillValueSet = true;
 	}
-	
+
 	/** Sets the background fill/draw color. */
 	public void setBackgroundColor(Color color) {
 		int bestIndex = getBestIndex(color);
@@ -1048,8 +1034,8 @@ public class ShortProcessor extends ImageProcessor {
 		return histogram;
 	}
 
-	/** Creates a histogram of length maxof(max+1,256). For small 
-		images or selections, computations using these histograms 
+	/** Creates a histogram of length maxof(max+1,256). For small
+		images or selections, computations using these histograms
 		are faster compared to 65536 element histograms. */
 	int[] getHistogram2() {
 		if (mask!=null)
@@ -1082,7 +1068,7 @@ public class ShortProcessor extends ImageProcessor {
 			throw new IllegalArgumentException(maskSizeError(mask));
 		int roiX=this.roiX, roiY=this.roiY;
 		int roiWidth=this.roiWidth, roiHeight=this.roiHeight;
-		byte[] mpixels = (byte[])mask.getPixels();		
+		byte[] mpixels = (byte[])mask.getPixels();
 		int max = 0;
 		int value;
 		for (int y=roiY; y<(roiY+roiHeight); y++) {
@@ -1107,11 +1093,11 @@ public class ShortProcessor extends ImageProcessor {
 		}
 		return histogram;
 	}
-	
+
 	public void setLutAnimation(boolean lutAnimation) {
 		this.lutAnimation = false;
 	}
-	
+
 	public void setThreshold(double minThreshold, double maxThreshold, int lutUpdate) {
 		if (minThreshold==NO_THRESHOLD) {
 			resetThreshold();
@@ -1145,9 +1131,9 @@ public class ShortProcessor extends ImageProcessor {
 			super.resetThreshold();
 		this.minThreshold = Math.round(minThreshold);
 		this.maxThreshold = Math.round(maxThreshold);
-		//ij.IJ.log("setThreshold: "+lutUpdateMode+" "+this.minThreshold+" "+this.maxThreshold);
+		//ij.IJMessage.log("setThreshold: "+lutUpdateMode+" "+this.minThreshold+" "+this.maxThreshold);
 	}
-	
+
 	/** Performs a convolution operation using the specified kernel. */
 	public void convolve(float[] kernel, int kernelWidth, int kernelHeight) {
 		ImageProcessor ip2 = convertToFloat();
@@ -1183,7 +1169,7 @@ public class ShortProcessor extends ImageProcessor {
 		}
 		resetMinAndMax();
     }
-    
+
 	public void threshold(int level) {
 		for (int i=0; i<width*height; i++) {
 			if ((pixels[i]&0xffff)<=level)
@@ -1200,7 +1186,7 @@ public class ShortProcessor extends ImageProcessor {
 	*  also set for the FloatProcessor
 	*  @param channelNumber   Ignored (needed for compatibility with ColorProcessor.toFloat)
 	*  @param fp              Here a FloatProcessor can be supplied, or null. The FloatProcessor
-	*                         is overwritten by this method (re-using its pixels array 
+	*                         is overwritten by this method (re-using its pixels array
 	*                         improves performance).
 	*  @return A FloatProcessor with the converted image data
 	*/
@@ -1217,7 +1203,7 @@ public class ShortProcessor extends ImageProcessor {
 		fp.setThreshold(minThreshold, maxThreshold, ImageProcessor.NO_LUT_UPDATE);
 		return fp;
 	}
-	
+
 	/** Sets the pixels from a FloatProcessor, no scaling.
 	*  Also the min&max values are taken from the FloatProcessor.
 	*  @param channelNumber   Ignored (needed for compatibility with ColorProcessor.toFloat)
@@ -1235,7 +1221,7 @@ public class ShortProcessor extends ImageProcessor {
 		}
 		setMinAndMax(fp.getMin(), fp.getMax());
 	}
-		
+
 	/** Returns the maximum possible pixel value. */
 	public double maxValue() {
 		return 65535.0;
@@ -1249,7 +1235,7 @@ public class ShortProcessor extends ImageProcessor {
 	public boolean isSigned16Bit() {
 		return cTable!=null && cTable[0]==-32768f && cTable[1]==-32767f;
 	}
-	
+
 	/** Returns a binary mask, or null if a threshold is not set. */
 	public ByteProcessor createMask() {
 		if (getMinThreshold()==NO_THRESHOLD)
@@ -1265,7 +1251,7 @@ public class ShortProcessor extends ImageProcessor {
 		}
 		return mask;
 	}
-	
+
 	/** Not implemented. */
 	public void medianFilter() {}
 	/** Not implemented. */

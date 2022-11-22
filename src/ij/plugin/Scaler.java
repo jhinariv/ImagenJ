@@ -68,9 +68,9 @@ public class Scaler implements PlugIn, TextListener, FocusListener {
 			IJ.outOfMemory("Scale");
 		}
 		IJ.showProgress(1.0);
-		record(imp, newWidth, newHeight, newDepth, interpolationMethod);			
+		record(imp, newWidth, newHeight, newDepth, interpolationMethod);
 	}
-	
+
 	/** Returns a scaled copy of this image or ROI, where the
 		 'options'  string can contain 'none', 'bilinear'. 'bicubic',
 		'slice' and 'constrain'.
@@ -116,7 +116,7 @@ public class Scaler implements PlugIn, TextListener, FocusListener {
 		if (w==1 || h==1)
 			method = ImageProcessor.NONE;
 		for (int i=1; i<=nSlices; i++) {
-			IJ.showStatus("Scale: " + i + "/" + nSlices);
+			IJMessage.showStatus("Scale: " + i + "/" + nSlices);
 			ip1 = stack1.getProcessor(i);
 			String label = stack1.getSliceLabel(i);
 			if (crop) {
@@ -138,7 +138,7 @@ public class Scaler implements PlugIn, TextListener, FocusListener {
 			cal.pixelHeight *= 1.0/yscale;
 		}
 		cal.xOrigin *= xscale;
-		cal.yOrigin *= yscale;		
+		cal.yOrigin *= yscale;
 		Overlay overlay = imp.getOverlay();
 		if (overlay!=null && !imp.getHideOverlay() && !doZScaling) {
 			overlay = overlay.duplicate();
@@ -160,7 +160,7 @@ public class Scaler implements PlugIn, TextListener, FocusListener {
 			double oldSize = imp2.getStackSize();
 			Resizer resizer = new Resizer();
 			resizer.setAverageWhenDownsizing(averageWhenDownsizing);
-			imp2 = resizer.zScale(imp2, newDepth, interpolationMethod);			
+			imp2 = resizer.zScale(imp2, newDepth, interpolationMethod);
 			cal = imp2.getCalibration();
 			cal.zOrigin *= imp2.getStackSize()/oldSize;
 		}
@@ -179,7 +179,7 @@ public class Scaler implements PlugIn, TextListener, FocusListener {
 				cal.pixelHeight *= 1.0/yscale;
 			}
 			cal.xOrigin *= xscale;
-			cal.yOrigin *= yscale;		
+			cal.yOrigin *= yscale;
 			Overlay overlay = imp.getOverlay();
 			if (overlay!=null && !imp.getHideOverlay()) {
 				overlay = overlay.duplicate();
@@ -212,7 +212,7 @@ public class Scaler implements PlugIn, TextListener, FocusListener {
 			imp.changes = true;
 		}
 	}
-	
+
 	public static void record(ImagePlus imp, int w2, int h2, int d2, int method) {
 		if (!Recorder.scriptMode())
 			return;
@@ -225,7 +225,7 @@ public class Scaler implements PlugIn, TextListener, FocusListener {
 			options = "bilinear";
 		Recorder.recordCall("imp = imp.resize("+w2+", "+h2+(d2>0&&d2!=imp.getStackSize()?", "+d2:"")+", \""+options+"\");");
 	}
-	
+
 	boolean showDialog(ImageProcessor ip) {
 		String options = Macro.getOptions();
 		boolean isMacro = options!=null;
@@ -342,7 +342,7 @@ public class Scaler implements PlugIn, TextListener, FocusListener {
 		else if (newHeight!=0 && newWidth==0)
 			newWidth = (int)Math.round(newHeight * (double)r.width/r.height);
 		if (newWidth==0 || newHeight==0) {
-			IJ.error("Scaler", "Width or height is 0");
+			IJMessage.error("Scaler", "Width or height is 0");
 			return false;
 		}
 		if (xscale>0.0 && yscale>0.0) {

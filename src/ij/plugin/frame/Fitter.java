@@ -3,7 +3,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
 import java.io.*;
-import java.awt.datatransfer.*;	
+import java.awt.datatransfer.*;
 import ij.*;
 import ij.plugin.PlugIn;
 import ij.plugin.frame.*;
@@ -95,33 +95,33 @@ public class Fitter extends PlugInFrame implements PlugIn, ItemListener, ActionL
                 int params = cf.doCustomFit(eqn, null, settings.getState());
                 if (params==0) {
                     IJ.beep();
-                    IJ.log("Bad formula; should be:\n   y = function(x, a, ...)");
+                    IJMessage.log("Bad formula; should be:\n   y = function(x, a, ...)");
                     return false;
                 }
             } else
                 cf.doFit(fitType, settings.getState());
             if (cf.getStatus() == Minimizer.INITIALIZATION_FAILURE) {
                 IJ.beep();
-                IJ.showStatus(cf.getStatusString());
-                IJ.log("Curve Fitting Error:\n"+cf.getStatusString());
+                IJMessage.showStatus(cf.getStatusString());
+                IJMessage.log("Curve Fitting Error:\n"+cf.getStatusString());
                 return false;
             }
             if (Double.isNaN(cf.getSumResidualsSqr())) {
                 IJ.beep();
-                IJ.showStatus("Error: fit yields Not-a-Number");
+                IJMessage.showStatus("Error: fit yields Not-a-Number");
                 return false;
             }
-            
+
 		} catch (Exception e) {
             IJ.handleException(e);
             return false;
 		}
-        IJ.log(cf.getResultString());
+        IJMessage.log(cf.getResultString());
 		plot(cf);
-		this.fitType = fitType; 
+		this.fitType = fitType;
 		return true;
 	}
-	
+
 	String getEquation() {
 		GenericDialog gd = new GenericDialog("Formula");
 		gd.addStringField("Formula:", equation, 38);
@@ -131,18 +131,18 @@ public class Fitter extends PlugInFrame implements PlugIn, ItemListener, ActionL
 		equation = gd.getNextString();
 		return equation;
 	}
-	
+
 	public static void plot(CurveFitter cf) {
 		plot(cf, false);
 	}
-	
+
 	public static void plot(CurveFitter cf, boolean eightBitCalibrationPlot) {
 		Plot plot = cf.getPlot(eightBitCalibrationPlot?256:100);
-		plot.show();									
+		plot.show();
 	}
-	
+
 	double sqr(double x) {return x*x;}
-	
+
 	boolean getData() {
 		textArea.selectAll();
 		String text = textArea.getText();
@@ -151,7 +151,7 @@ public class Fitter extends PlugInFrame implements PlugIn, ItemListener, ActionL
 		StringTokenizer st = new StringTokenizer(text, " \t\n\r,");
 		int nTokens = st.countTokens();
 		if (nTokens<4 || (nTokens%2)!=0) {
-		    IJ.showStatus("Data error: min. two (x,y) pairs needed");
+		    IJMessage.showStatus("Data error: min. two (x,y) pairs needed");
 			return false;
 		}
 		int n = nTokens/2;
@@ -163,7 +163,7 @@ public class Fitter extends PlugInFrame implements PlugIn, ItemListener, ActionL
 			x[i] = Tools.parseDouble(xString);
 			y[i] = Tools.parseDouble(yString);
 			if (Double.isNaN(x[i]) || Double.isNaN(y[i])) {
-				IJ.showStatus("Data error:  Bad number at "+i+": "+xString+" "+yString);
+				IJMessage.showStatus("Data error:  Bad number at "+i+": "+xString+" "+yString);
 				return false;
 			}
 		}
@@ -173,16 +173,16 @@ public class Fitter extends PlugInFrame implements PlugIn, ItemListener, ActionL
 	/** create a duplicate of an image where the fit function is applied to the pixel values */
 	void applyFunction() {
 		if (cf==null || fitType < 0) {
-			IJ.error("No function available");
+			IJMessage.error("No function available");
 			return;
 		}
 		ImagePlus img = WindowManager.getCurrentImage();
 		if (img==null) {
-			IJ.noImage();
+			IJMacro.noImage();
 			return;
 		}
 		if (img.getTitle().matches("y\\s=.*")) { //title looks like a fit function
-			IJ.error("First select the image to be transformed");
+			IJMessage.error("First select the image to be transformed");
 			return;
 		}
 		double[] p = cf.getParams();
@@ -222,15 +222,15 @@ public class Fitter extends PlugInFrame implements PlugIn, ItemListener, ActionL
 			r.close();
 		}
 		catch (Exception e) {
-			IJ.error(e.getMessage());
+			IJMessage.error(e.getMessage());
 			return;
 		}
 	}
-	
+
 	public void itemStateChanged(ItemEvent e) {
 		fitTypeStr = fit.getSelectedItem();
 	}
-	
+
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() instanceof MenuItem) {
 			String cmd = e.getActionCommand();
@@ -259,9 +259,9 @@ public class Fitter extends PlugInFrame implements PlugIn, ItemListener, ActionL
                 applyFunction();
             else
                 open();
-		} catch (Exception ex) {IJ.log(""+ex);}
+		} catch (Exception ex) {IJMessage.log(""+ex);}
 	}
-	
+
 	String zapGremlins(String text) {
 		char[] chars = new char[text.length()];
 		chars = text.toCharArray();
@@ -285,8 +285,8 @@ public class Fitter extends PlugInFrame implements PlugIn, ItemListener, ActionL
         if (e.getKeyCode() == KeyEvent.VK_ESCAPE)
             IJ.getInstance().keyPressed(e);
     }
-    
-	private boolean copy() { 
+
+	private boolean copy() {
 		String s = textArea.getSelectedText();
 		Clipboard clip = getToolkit().getSystemClipboard();
 		if (clip!=null) {
@@ -296,20 +296,20 @@ public class Fitter extends PlugInFrame implements PlugIn, ItemListener, ActionL
 		} else
 			return false;
 	}
- 
-	  
+
+
 	private void cut() {
 		if (copy()) {
 			int start = textArea.getSelectionStart();
 			int end = textArea.getSelectionEnd();
 			textArea.replaceRange("", start, end);
-		}	
+		}
 	}
 
 	private void paste() {
 		String s;
 		s = textArea.getSelectedText();
-		Clipboard clipboard = getToolkit( ). getSystemClipboard(); 
+		Clipboard clipboard = getToolkit( ). getSystemClipboard();
 		Transferable clipData = clipboard.getContents(s);
 		try {
 			s = (String)(clipData.getTransferData(DataFlavor.stringFlavor));
@@ -322,7 +322,7 @@ public class Fitter extends PlugInFrame implements PlugIn, ItemListener, ActionL
 		if (IJ.isMacOSX())
 			textArea.setCaretPosition(start+s.length());
     }
-    
+
 	public void lostOwnership (Clipboard clip, Transferable cont) {}
 
 }

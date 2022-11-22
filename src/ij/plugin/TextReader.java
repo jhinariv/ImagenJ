@@ -10,17 +10,17 @@ import ij.plugin.frame.Recorder;
 
 
 /** This plugin opens a tab or comma delimeted text file as an image.
-	Modified to accept commas as delimiters on 4/22/08 by 
+	Modified to accept commas as delimiters on 4/22/08 by
 	Jay Unruh, Stowers Institute for Medical Research. */
 public class TextReader implements PlugIn {
     int words = 0, chars = 0, lines = 0, width=1;;
     String directory, name, path;
     boolean hideErrorMessages;
     String firstTok;
-    
+
 	public void run(String arg) {
 		if (showDialog()) {
-			IJ.showStatus("Opening: " + path);
+			IJMessage.showStatus("Opening: " + path);
 			ImageProcessor ip = open(path);
 			if (ip!=null)
 				new ImagePlus(name, ip).show();
@@ -30,7 +30,7 @@ public class TextReader implements PlugIn {
 			}
 		}
 	}
-    
+
     boolean showDialog() {
         OpenDialog od = new OpenDialog("Open Text Image...", null);
         directory = od.getDirectory();
@@ -39,7 +39,7 @@ public class TextReader implements PlugIn {
             path = directory + name;
         return name!=null;
     }
-    
+
     /** Displays a file open dialog and opens the specified text file as a float image. */
     public ImageProcessor open() {
         if (showDialog())
@@ -47,7 +47,7 @@ public class TextReader implements PlugIn {
         else
             return null;
     }
-    
+
     /** Opens the specified text file as a float image. */
     public ImageProcessor open(String path) {
         ImageProcessor ip = null;
@@ -80,13 +80,13 @@ public class TextReader implements PlugIn {
             if (msg==null || msg.equals(""))
                 msg = ""+e;
 			IJ.showProgress(1.0);
-            if (!hideErrorMessages) 
-            	IJ.error("Text Reader", msg);
+            if (!hideErrorMessages)
+            	IJMessage.error("Text Reader", msg);
             ip = null;
         }
         return ip;
     }
-    
+
     public void hideErrorMessages() {
         hideErrorMessages = true;
     }
@@ -131,7 +131,7 @@ public class TextReader implements PlugIn {
                     break;
             }
         }
-        if (wordsPerLine==width) 
+        if (wordsPerLine==width)
             lines++; // last line does not end with EOL
    }
 

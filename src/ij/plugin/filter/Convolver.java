@@ -41,7 +41,7 @@ public class Convolver implements ExtendedPlugInFilter, DialogListener, ActionLi
  		this.imp = imp;
         mainThread = Thread.currentThread();
 		if (imp==null)
-			{IJ.noImage(); return DONE;}
+			{IJMacro.noImage(); return DONE;}
 		if (arg.equals("final")&&imp.getRoi()==null) {
 			imp.getProcessor().resetMinAndMax();
 			imp.updateAndDraw();
@@ -99,7 +99,7 @@ public class Convolver implements ExtendedPlugInFilter, DialogListener, ActionLi
 		normalize = normalizeFlag;
 		kernelError = !decodeKernel(kernelText);
 		if (!kernelError) {
-			IJ.showStatus("Convolve: "+kw+"x"+kh+" kernel");
+			IJMessage.showStatus("Convolve: "+kw+"x"+kh+" kernel");
 			return true;
 		} else
 			return !gd.isPreviewActive();
@@ -131,7 +131,7 @@ public class Convolver implements ExtendedPlugInFilter, DialogListener, ActionLi
 			messageLabel.setText(kw+"x"+kh+" kernel");
 		} else {
 			if (done)
-				IJ.error("Convolver", err);
+				IJMessage.error("Convolver", err);
 			else
 				messageLabel.setText(err);
 			return false;
@@ -169,7 +169,7 @@ public class Convolver implements ExtendedPlugInFilter, DialogListener, ActionLi
 			gd.getTextArea1().setText(new String(sb));
 			return true;
 		} else {
-			IJ.error("Kernel must be square with odd width. This one is "+kw+"x"+kh+".");
+			IJMessage.error("Kernel must be square with odd width. This one is "+kw+"x"+kh+".");
 			return false;
 		}
 	}
@@ -279,7 +279,7 @@ public class Convolver implements ExtendedPlugInFilter, DialogListener, ActionLi
 					for(int u = -uc; u <= uc; u++) {
 						if (edgePixel) {
  							if (i>=kernel.length) // work around for JIT compiler bug on Linux
- 								IJ.log("kernel index error: "+i);
+ 								IJMessage.log("kernel index error: "+i);
 							sum += getPixel(x+u, y+v, pixels2, width, height)*kernel[i++];
 						} else
 							sum += pixels2[offset+u]*kernel[i++];
@@ -387,7 +387,7 @@ public class Convolver implements ExtendedPlugInFilter, DialogListener, ActionLi
 			pw = new PrintWriter(bos);
 		}
 		catch (IOException e) {
-			IJ.error("" + e);
+			IJMessage.error("" + e);
 			return;
 		}
 		IJ.wait(250);  // give system time to redraw ImageJ window
@@ -409,7 +409,7 @@ public class Convolver implements ExtendedPlugInFilter, DialogListener, ActionLi
 		int width = ip.getWidth();
 		int height = ip.getHeight();
 		if ((width&1)!=1 || (height&1)!=1) {
-			IJ.error("Convolver", "Kernel must be have odd width and height");
+			IJMessage.error("Convolver", "Kernel must be have odd width and height");
 			return;
 		}
 		StringBuffer sb = new StringBuffer();

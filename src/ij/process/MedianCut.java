@@ -9,7 +9,7 @@ import ij.*; //??
     September, 1994 issue of Dr. Dobbs Journal.
 */
 public class MedianCut {
-	
+
 	static final int MAXCOLORS = 256;	// maximum # of output colors
 	static final int HSIZE = 32768;		// size of image histogram
 	private int[] hist;					// RGB histogram and reverse color lookup table
@@ -17,7 +17,7 @@ public class MedianCut {
 	private Cube[] list;				// list of cubes
 	private int[] pixels32;
 	private int width, height;
-	private IndexColorModel cm; 
+	private IndexColorModel cm;
 
 	public MedianCut(int[] pixels, int width, int height) {
 		int color16;
@@ -25,28 +25,28 @@ public class MedianCut {
 		pixels32 = pixels;
 		this.width = width;
 		this.height = height;
-		
+
 		//build 32x32x32 RGB histogram
 		IJ.showProgress(0.3);
-		IJ.showStatus("Building 32x32x32 RGB histogram");
+		IJMessage.showStatus("Building 32x32x32 RGB histogram");
 		hist = new int[HSIZE];
 		for (int i=0; i<width*height; i++) {
 			color16 = rgb(pixels32[i]);
 			hist[color16]++;
 		}
 	}
-	
+
 	public MedianCut(ColorProcessor ip) {
 		this((int[])ip.getPixels(), ip.getWidth(), ip.getHeight());
 	}
-	
+
 	int getColorCount() {
 		int count = 0;
 		for (int i=0; i<HSIZE; i++)
 			if (hist[i]>0) count++;
 		return count;
 	}
-	
+
 
 	Color getModalColor() {
 		int max=0;
@@ -58,7 +58,7 @@ public class MedianCut {
 			}
 		return new Color(red(c), green(c), blue(c));
 	}
-	
+
 
 	// Convert from 24-bit to 15-bit color
 	private final int rgb(int c) {
@@ -67,17 +67,17 @@ public class MedianCut {
 		int b = (c&0xf8)<<7;
 		return b | g | r;
 	}
-	
+
 	// Get red component of a 15-bit color
 	private final int red(int x) {
 		return (x&31)<<3;
 	}
-	
+
 	// Get green component of a 15-bit color
 	private final int green(int x) {
 		return (x>>2)&0xf8;
 	}
-	
+
 	// Get blue component of a 15-bit color
 	private final int blue(int x) {
 		return (x>>7)&0xf8;
@@ -102,9 +102,9 @@ public class MedianCut {
 		int num, width;
 		int longdim=0;	//longest dimension of cube
 		Cube cube, cubeA, cubeB;
-		
+
 		// Create initial cube
-		IJ.showStatus("Median cut");
+		IJMessage.showStatus("Median cut");
 		list = new Cube[MAXCOLORS];
 		histPtr = new int[HSIZE];
 		ncubes = 0;
@@ -121,12 +121,12 @@ public class MedianCut {
 		list[ncubes++] = cube;
 
 		//Main loop
-		while (ncubes < maxcubes) { 
+		while (ncubes < maxcubes) {
 
 			// Search the list of cubes for next cube to split, the lowest level cube
-			level = 255; splitpos = -1; 
+			level = 255; splitpos = -1;
 			for (k=0; k<=ncubes-1; k++) {
-				if (list[k].lower == list[k].upper)  
+				if (list[k].lower == list[k].upper)
 					;	// single color; cannot be split
 				else if (list[k].level < level) {
 					level = list[k].level;
@@ -144,7 +144,7 @@ public class MedianCut {
 			if (lr >= lg && lr >= lb) longdim = 0;
 			if (lg >= lr && lg >= lb) longdim = 1;
 			if (lb >= lr && lb >= lg) longdim = 2;
-			
+
 			// Sort along "longdim"
 			reorderColors(histPtr, cube.lower, cube.upper, longdim);
 			quickSort(histPtr, cube.lower, cube.upper);
@@ -162,7 +162,7 @@ public class MedianCut {
 			// Now split "cube" at the median and add the two new
 			// cubes to the list of cubes.
 			cubeA = new Cube();
-			cubeA.lower = cube.lower; 
+			cubeA.lower = cube.lower;
 			cubeA.upper = median-1;
 			cubeA.count = count;
 			cubeA.level = cube.level + 1;
@@ -170,8 +170,8 @@ public class MedianCut {
 			list[splitpos] = cubeA;				// add in old slot
 
 			cubeB = new Cube();
-			cubeB.lower = median; 
-			cubeB.upper = cube.upper; 
+			cubeB.lower = median;
+			cubeB.upper = cube.upper;
 			cubeB.count = cube.count - count;
 			cubeB.level = cube.level + 1;
 			Shrink(cubeB);
@@ -188,7 +188,7 @@ public class MedianCut {
 		IJ.showProgress(0.95);
 		return makeImage();
 	}
-	
+
 	void Shrink(Cube cube) {
 	// Encloses "cube" with a tight-fitting cube by updating the
 	// (rmin,gmin,bmin) and (rmax,gmax,bmax) members of "cube".
@@ -232,7 +232,7 @@ public class MedianCut {
 		byte[] gLUT = new byte[256];
 		byte[] bLUT = new byte[256];
 
-		IJ.showStatus("Making inverse map");
+		IJMessage.showStatus("Making inverse map");
 		for (int k=0; k<=ncubes-1; k++) {
 			cube = list[k];
 			rsum = gsum = bsum = (float)0.0;
@@ -257,8 +257,8 @@ public class MedianCut {
 			bLUT[k] = (byte)b;
 		}
 		cm = new IndexColorModel(8, ncubes, rLUT, gLUT, bLUT);
-		
-		// For each color in each cube, load the corre- 
+
+		// For each color in each cube, load the corre-
 		// sponding slot in "hist" with the centroid of the cube.
 		for (int k=0; k<=ncubes-1; k++) {
 			cube = list[k];
@@ -268,12 +268,12 @@ public class MedianCut {
 			}
 		}
 	}
-	
+
 
 	void reorderColors(int[] a, int lo, int hi, int longDim) {
 	// Change the ordering of the 5-bit colors in each word of int[]
 	// so we can sort on the 'longDim' color
-	
+
 		int c, r, g, b;
 		switch (longDim) {
 			case 0: //red
@@ -296,11 +296,11 @@ public class MedianCut {
 				break;
 		}
 	}
-	
+
 
 	void restoreColorOrder(int[] a, int lo, int hi, int longDim) {
 	// Restore the 5-bit colors to the original order
-	
+
 		int c, r, g, b;
 		switch (longDim){
 			case 0: //red
@@ -323,11 +323,11 @@ public class MedianCut {
 				break;
 		}
 	}
-	
-	
+
+
 	void quickSort(int a[], int lo0, int hi0) {
    // Based on the QuickSort method by James Gosling from Sun's SortDemo applet
-   
+
       int lo = lo0;
       int hi = hi0;
       int mid, t;
@@ -340,7 +340,7 @@ public class MedianCut {
             while( ( hi > lo0 ) && ( a[hi] > mid ) )
                --hi;
             if( lo <= hi ) {
-		      t = a[lo]; 
+		      t = a[lo];
 		      a[lo] = a[hi];
 		      a[hi] = t;
                ++lo;
@@ -358,12 +358,12 @@ public class MedianCut {
 
 	ImageProcessor makeImage() {
 	// Generate 8-bit image
-	
+
 		Image img8;
 		byte[] pixels8;
 		int color16;
-		
-		IJ.showStatus("Creating 8-bit image");
+
+		IJMessage.showStatus("Creating 8-bit image");
 	    pixels8 = new byte[width*height];
 	    for (int i=0; i<width*height; i++) {
 	    	color16 = rgb(pixels32[i]);
@@ -373,8 +373,8 @@ public class MedianCut {
         IJ.showProgress(1.0);
 		return ip;
 	}
-	
-	
+
+
 } //class MedianCut
 
 
@@ -386,10 +386,10 @@ class Cube {			// structure for a cube in color space
 	int  rmin, rmax;
 	int  gmin, gmax;
 	int  bmin, bmax;
-	
+
 	Cube() {
 		count = 0;
-	}   
+	}
 
 	public String toString() {
 		String s = "lower=" + lower + " upper=" + upper;
@@ -399,6 +399,6 @@ class Cube {			// structure for a cube in color space
 		s = s + " bmin=" + bmin + " bmax=" + bmax;
 		return s;
 	}
-	
+
 }
 

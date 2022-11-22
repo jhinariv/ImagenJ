@@ -41,7 +41,7 @@ public class ContrastEnhancer implements PlugIn, Measurements {
 	}
 
 	boolean showDialog(ImagePlus imp) {
-		String options = IJ.isMacro()?Macro.getOptions():null;
+		String options = IJMacro.isMacro()?Macro.getOptions():null;
 		if (options!=null && options.contains("normalize_all"))
 			Macro.setOptions(options.replaceAll("normalize_all", "process_all"));
 		boolean isMacro = options!=null;
@@ -80,7 +80,7 @@ public class ContrastEnhancer implements PlugIn, Measurements {
 		if (areaRoi) {
 			entireImage = gd.getNextBoolean();
 			updateSelectionOnly = !entireImage;
-			if (!normalize && bitDepth!=24) 
+			if (!normalize && bitDepth!=24)
 				updateSelectionOnly = false;
 		}
 		equalize = gd.getNextBoolean();
@@ -96,7 +96,7 @@ public class ContrastEnhancer implements PlugIn, Measurements {
 		}
 		return true;
 	}
- 
+
 	public void stretchHistogram(ImagePlus imp, double saturated) {
 		ImageStatistics stats = null;
 		if (useStackHistogram)
@@ -123,7 +123,7 @@ public class ContrastEnhancer implements PlugIn, Measurements {
 				stretchHistogram(ip, saturated, stats);
 		}
 	}
-	
+
 	public void stretchHistogram(ImageProcessor ip, double saturated) {
 		useStackHistogram = false;
 		stretchHistogram(new ImagePlus("", ip), saturated);
@@ -154,7 +154,7 @@ public class ContrastEnhancer implements PlugIn, Measurements {
 			}
 		}
 	}
-	
+
 	void stretchCompositeImageHistogram(CompositeImage imp, double saturated, ImageStatistics stats) {
 		ImageProcessor ip = imp.getProcessor();
 		int[] a = getMinAndMax(ip, saturated, stats);
@@ -191,7 +191,7 @@ public class ContrastEnhancer implements PlugIn, Measurements {
 			found = count>threshold;
 		} while (!found && i<maxindex);
 		hmin = i;
-				
+
 		i = hsize;
 		count = 0;
 		do {
@@ -204,7 +204,7 @@ public class ContrastEnhancer implements PlugIn, Measurements {
 		a[0]=hmin; a[1]=hmax;
 		return a;
 	}
-	
+
 	void normalize(ImageProcessor ip, double min, double max) {
 		int min2 = 0;
 		int max2 = 255;
@@ -224,7 +224,7 @@ public class ContrastEnhancer implements PlugIn, Measurements {
 		}
 		applyTable(ip, lut);
 	}
-	
+
 	void applyTable(ImageProcessor ip, int[] lut) {
 		if (updateSelectionOnly) {
 			ImageProcessor mask = ip.getMask();
@@ -251,7 +251,7 @@ public class ContrastEnhancer implements PlugIn, Measurements {
 
 	public void equalize(ImagePlus imp) {
 		if (imp.getBitDepth()==32) {
-			IJ.showMessage("Contrast Enhancer", "Equalization of 32-bit images not supported.");
+			IJMessage.showMessage("Contrast Enhancer", "Equalization of 32-bit images not supported.");
 			return;
 		}
 		classicEqualization = IJ.altKeyDown();
@@ -287,16 +287,16 @@ public class ContrastEnhancer implements PlugIn, Measurements {
 			imp.getProcessor().resetMinAndMax();
 	}
 
-	/**	
-		Changes the tone curves of images. 
+	/**
+		Changes the tone curves of images.
 		It should bring up the detail in the flat regions of your image.
-		Histogram Equalization can enhance meaningless detail and hide 
+		Histogram Equalization can enhance meaningless detail and hide
 		important but small high-contrast features. This method uses a
-		similar algorithm, but uses the square root of the histogram 
-		values, so its effects are less extreme. Hold the alt key down 
+		similar algorithm, but uses the square root of the histogram
+		values, so its effects are less extreme. Hold the alt key down
 		to use the standard histogram equalization algorithm.
 		This code was contributed by Richard Kirk (rak@cre.canon.co.uk).
-	*/ 
+	*/
 	public void equalize(ImageProcessor ip) {
 		equalize(ip, ip.getHistogram());
 	}
@@ -334,11 +334,11 @@ public class ContrastEnhancer implements PlugIn, Measurements {
 		if (h<2 || classicEqualization) return (double)h;
 		return Math.sqrt((double)(h));
 	}
-	
+
 	public void setNormalize(boolean normalize) {
 		this.normalize = normalize;
 	}
-	
+
 	public void setProcessStack(boolean processStack) {
 		this.processStack = processStack;
 		this.normalize = true;

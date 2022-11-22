@@ -16,67 +16,67 @@ public class EventListener implements PlugIn, IJEventListener, ImageListener, Ro
 		Executer.addCommandListener(this);
 		ImagePlus.addImageListener(this);
 		Roi.addRoiListener(this);
-		IJ.log("EventListener started");
+		IJMessage.log("EventListener started");
 	}
-	
+
 	public void eventOccurred(int eventID) {
 		switch (eventID) {
 			case IJEventListener.FOREGROUND_COLOR_CHANGED:
 				String c = Integer.toHexString(Toolbar.getForegroundColor().getRGB());
 				c = "#"+c.substring(2);
-				IJ.log("Changed foreground color to "+c);
+				IJMessage.log("Changed foreground color to "+c);
 				break;
 			case IJEventListener.BACKGROUND_COLOR_CHANGED:
 				c = Integer.toHexString(Toolbar.getBackgroundColor().getRGB());
 				c = "#"+c.substring(2);
-				IJ.log("Changed background color to "+c);
+				IJMessage.log("Changed background color to "+c);
 				break;
 			case IJEventListener.TOOL_CHANGED:
 				String name = IJ.getToolName();
-				IJ.log("Switched to the "+name+(name.endsWith("Tool")?"":" tool"));
+				IJMessage.log("Switched to the "+name+(name.endsWith("Tool")?"":" tool"));
 				break;
 			case IJEventListener.COLOR_PICKER_CLOSED:
-				IJ.log("Color picker closed");
+				IJMessage.log("Color picker closed");
 				break;
 			case IJEventListener.LOG_WINDOW_CLOSED:
 				IJ.removeEventListener(this);
 				Executer.removeCommandListener(this);
 				ImagePlus.removeImageListener(this);
 				Roi.removeRoiListener(this);
-				IJ.showStatus("Log window closed; EventListener stopped");
+				IJMessage.showStatus("Log window closed; EventListener stopped");
 				break;
 		}
 	}
 
 	// called when an image is opened
 	public void imageOpened(ImagePlus imp) {
-		IJ.log("Image opened: \""+imp.getTitle()+"\""+edt());
+		IJMessage.log("Image opened: \""+imp.getTitle()+"\""+edt());
 	}
 
 	// Called when an image is closed
 	public void imageClosed(ImagePlus imp) {
-		IJ.log("Image closed: \""+imp.getTitle()+"\""+edt());
+		IJMessage.log("Image closed: \""+imp.getTitle()+"\""+edt());
 	}
 
 	// Called when an image's pixel data is updated
 	public void imageUpdated(ImagePlus imp) {
-		IJ.log("Image updated: \""+imp.getTitle()+"\""+edt());
+		IJMessage.log("Image updated: \""+imp.getTitle()+"\""+edt());
 	}
-	
+
 	// Called when an image is saved
 	public void imageSaved(ImagePlus imp) {
-		IJ.log("Image saved: \""+imp.getTitle()+"\""+edt());
+		IJMessage.log("Image saved: \""+imp.getTitle()+"\""+edt());
 	}
 
 	private String edt() {
 		return EventQueue.isDispatchThread()?" (EDT)":" (not EDT)";
 	}
-	
+
 	public String commandExecuting(String command) {
-		IJ.log("Command executed: \""+command+"\" command");
+		IJMessage.log("Command executed: \""+command+"\" command");
 		return command;
 	}
-	
+
 	public  void roiModified(ImagePlus img, int id) {
 		String type = "UNKNOWN";
 		switch (id) {
@@ -87,7 +87,7 @@ public class EventListener implements PlugIn, IJEventListener, ImageListener, Ro
 			case COMPLETED: type="COMPLETED"; break;
 			case DELETED: type="DELETED"; break;
 		}
-		IJ.log("ROI modified: "+(img!=null?img.getTitle():"")+", "+type);
+		IJMessage.log("ROI modified: "+(img!=null?img.getTitle():"")+", "+type);
 	}
 
 

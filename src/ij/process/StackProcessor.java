@@ -20,14 +20,14 @@ public class StackProcessor {
 	int[] table;
 	double fillValue;
 	float[] voxels;
-	    
+
     /** Constructs a StackProcessor from a stack. */
     public StackProcessor(ImageStack stack) {
     	this(stack, null);
     }
 
     /** Constructs a StackProcessor from a stack. 'ip' is the
-    	processor that will be used to process the slices. 
+    	processor that will be used to process the slices.
     	'ip' can be null when using crop(). */
     public StackProcessor(ImageStack stack, ImageProcessor ip) {
     	this.stack = stack;
@@ -36,9 +36,9 @@ public class StackProcessor {
  	    if (nSlices>1 && ip!=null)
  	    	ip.setProgressBar(null);
    }
-	
+
 	static final int FLIPH=0, FLIPV=1, SCALE=2, INVERT=3, APPLY_TABLE=4, SCALE_WITH_FILL=5;
-	
+
 	void process(int command) {
 	    String s = "";
  	   	ImageProcessor ip2 = stack.getProcessor(1);
@@ -73,15 +73,15 @@ public class StackProcessor {
 	public void invert() {
 		process(INVERT);
 	}
-	
+
 	public void flipHorizontal() {
 		process(FLIPH);
 	}
-	
+
 	public void flipVertical() {
 		process(FLIPV);
 	}
-	
+
 	public void applyTable(int[] table) {
 		this.table = table;
 		process(APPLY_TABLE);
@@ -174,15 +174,15 @@ public class StackProcessor {
 			IJ.showProgress(1.0);
 		return stack2;
 	}
-	
+
 	public ImageStack rotateRight() {
 		return rotate90Degrees(true);
  	}
- 	
+
 	public ImageStack rotateLeft() {
 		return rotate90Degrees(false);
  	}
- 	
+
  	public void copyBits(ImageProcessor src, int xloc, int yloc, int mode) {
  		copyBits(src, null, xloc, yloc, mode);
  	}
@@ -204,11 +204,11 @@ public class StackProcessor {
 	    }
 		IJ.showProgress(1.0);
  	}
- 	
+
  	void showStatus(String s, int n, int total) {
- 		IJ.showStatus(s+n+"/"+total);
- 	}	
- 	
+ 		IJMessage.showStatus(s+n+"/"+total);
+ 	}
+
     /**
      * Thomas Boudier Create a kernel neighorhood as an ellipsoid
      *
@@ -365,5 +365,5 @@ public class StackProcessor {
         pix.setSize(index);
         return pix;
     }
-    
+
  }

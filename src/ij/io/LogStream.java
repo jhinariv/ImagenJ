@@ -5,8 +5,8 @@ import java.io.PrintStream;
 
 /**
  * This class provides the functionality to divert output sent to the System.out
- * and System.err streams to ImageJ's log console. The purpose is to allow 
- * use of existing Java classes or writing new generic Java classes that only 
+ * and System.err streams to ImageJ's log console. The purpose is to allow
+ * use of existing Java classes or writing new generic Java classes that only
  * output to System.out and are thus less dependent on ImageJ.
  * See the ImageJ plugin Redirect_System_Streams at
  *    http://staff.fh-hagenberg.at/burger/imagej/
@@ -16,15 +16,15 @@ import java.io.PrintStream;
  * See Also: Redirect_System_Streams (http://staff.fh-hagenberg.at/burger/imagej/)
  */
 public class LogStream extends PrintStream {
-	
+
 	private static String outPrefix = "out> ";	// prefix string for System.out
 	private static String errPrefix = "err >";	// prefix string for System.err
-	
+
 	private static PrintStream originalSystemOut = null;
 	private static PrintStream originalSystemErr = null;
 	private static PrintStream temporarySystemOut = null;
 	private static PrintStream temporarySystemErr = null;
-	
+
 	/**
 	 * Redirects all output sent to <code>System.out</code> and <code>System.err</code> to ImageJ's log console
 	 * using the default prefixes.
@@ -35,11 +35,11 @@ public class LogStream extends PrintStream {
 		else
 			revertSystem();
 	}
-	
+
 	/**
 	 * Redirects all output sent to <code>System.out</code> and <code>System.err</code> to ImageJ's log console
 	 * using the default prefixes.
-	 * Alternatively use 
+	 * Alternatively use
 	 * {@link #redirectSystemOut(String)} and {@link #redirectSystemErr(String)}
 	 * to redirect the streams separately and to specify individual prefixes.
 	 */
@@ -50,8 +50,8 @@ public class LogStream extends PrintStream {
 
 	/**
 	 * Redirects all output sent to <code>System.out</code> to ImageJ's log console.
-	 * @param prefix The prefix string inserted at the start of each output line. 
-	 * Pass <code>null</code>  to use the default prefix or an empty string to 
+	 * @param prefix The prefix string inserted at the start of each output line.
+	 * Pass <code>null</code>  to use the default prefix or an empty string to
 	 * remove the prefix.
 	 */
 	public static void redirectSystemOut(String prefix) {
@@ -61,11 +61,11 @@ public class LogStream extends PrintStream {
 			System.setOut(temporarySystemOut);
 		}
 	}
-	
+
 	/**
 	 * Redirects all output sent to <code>System.err</code> to ImageJ's log console.
-	 * @param prefix The prefix string inserted at the start of each output line. 
-	 * Pass <code>null</code>  to use the default prefix or an empty string to 
+	 * @param prefix The prefix string inserted at the start of each output line.
+	 * Pass <code>null</code>  to use the default prefix or an empty string to
 	 * remove the prefix.
 	 */
 	public static void redirectSystemErr(String prefix) {
@@ -75,10 +75,10 @@ public class LogStream extends PrintStream {
 			System.setErr(temporarySystemErr);
 		}
 	}
-	
+
 	/**
 	 * Returns the redirection stream for {@code System.out} if it exists.
-	 * Note that a reference to the current output stream can also be obtained directly from 
+	 * Note that a reference to the current output stream can also be obtained directly from
 	 * the {@code System.out} field.
 	 * @return A reference to the {@code PrintStream} object currently substituting {@code System.out}
 	 * or {@code null} of if {@code System.out} is currently not redirected.
@@ -86,10 +86,10 @@ public class LogStream extends PrintStream {
 	public static PrintStream getCurrentOutStream() {
 		return temporarySystemOut;
 	}
-	
+
 	/**
 	 * Returns the redirection stream for {@code System.err} if it exists.
-	 * Note that a reference to the current output stream can also be obtained directly from 
+	 * Note that a reference to the current output stream can also be obtained directly from
 	 * the {@code System.err} field.
 	 * @return A reference to the {@code PrintStream} object currently substituting {@code System.err}
 	 * or {@code null} of if {@code System.err} is currently not redirected.
@@ -97,9 +97,9 @@ public class LogStream extends PrintStream {
 	public static PrintStream getCurrentErrStream() {
 		return temporarySystemErr;
 	}
-	
+
 	/**
-	 * Use this method to revert both <code>System.out</code> and <code>System.err</code> 
+	 * Use this method to revert both <code>System.out</code> and <code>System.err</code>
 	 * to their original output streams.
 	 */
 	public static void revertSystem() {
@@ -120,7 +120,7 @@ public class LogStream extends PrintStream {
 			temporarySystemOut = null;
 		}
 	}
-	
+
 	/**
 	 * Use this method to revert<code>System.err</code>
 	 * to the original output stream.
@@ -134,14 +134,14 @@ public class LogStream extends PrintStream {
 			temporarySystemErr = null;
 		}
 	}
-	
+
 	// ----------------------------------------------------------------
-	
-	private final String endOfLineSystem = System.getProperty("line.separator"); 
-	private final String endOfLineShort = String.format("\n"); 	
+
+	private final String endOfLineSystem = System.getProperty("line.separator");
+	private final String endOfLineShort = String.format("\n");
 	private final ByteArrayOutputStream byteStream;
 	private final String prefix;
-	
+
 	public LogStream() {
 		super(new ByteArrayOutputStream());
 		this.byteStream = (ByteArrayOutputStream) this.out;
@@ -153,13 +153,13 @@ public class LogStream extends PrintStream {
 		this.byteStream = (ByteArrayOutputStream) this.out;
 		this.prefix = (prefix == null) ? "" : prefix;
 	}
-	
+
 	@Override
 	// ever called?
 	public void write(byte[] b) {
 		this.write(b, 0, b.length);
 	}
-	
+
 	@Override
 	public void write(byte[] b, int off, int len) {
 		String msg = new String(b, off, len);
@@ -173,7 +173,7 @@ public class LogStream extends PrintStream {
 			}
 		}
 	}
-	
+
 	@Override
 	// ever called?
 	public void write(int b) {
@@ -189,15 +189,15 @@ public class LogStream extends PrintStream {
 		}
 		super.flush();
 	}
-	
+
 	@Override
 	public void close() {
 		super.close();
 	}
-	
+
 	private void ejectBuffer() {
-		IJ.log(prefix + byteStream.toString());
+		IJMessage.log(prefix + byteStream.toString());
 		byteStream.reset();
 	}
-	
+
 }

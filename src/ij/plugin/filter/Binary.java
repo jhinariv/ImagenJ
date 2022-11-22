@@ -6,7 +6,7 @@ import ij.plugin.frame.ThresholdAdjuster;
 import java.awt.*;
 
 /** Implements the Erode, Dilate, Open, Close, Outline, Skeletonize
-    and Fill Holes commands in the Process/Binary submenu. 
+    and Fill Holes commands in the Process/Binary submenu.
     Gabriel Landini contributed the clever binary fill algorithm
     that fills holes in objects by filling the background.
     Version 2009-06-23 preview added, interations can be aborted by escape (Michael Schmid)
@@ -77,7 +77,7 @@ public class Binary implements ExtendedPlugInFilter, DialogListener {
             return operation.equals(NO_OPERATION) ? DONE : IJ.setupDialog(imp, flags);
         } else {   //no dialog, 'arg' is operation type
             if (!((ByteProcessor)imp.getProcessor()).isBinary()) {
-                IJ.error("8-bit binary (black and white only) image required.");
+                IJMessage.error("8-bit binary (black and white only) image required.");
                 return DONE;
             }
             return IJ.setupDialog(imp, flags);
@@ -140,7 +140,7 @@ public class Binary implements ExtendedPlugInFilter, DialogListener {
     void doIterations (ImageProcessor ip, String mode) {
         if (escapePressed) return;
         if (!previewing && iterations>1)
-            IJ.showStatus(arg+"... press ESC to cancel");
+            IJMessage.showStatus(arg+"... press ESC to cancel");
         for (int i=0; i<iterations; i++) {
             if (Thread.currentThread().isInterrupted()) return;
             if (IJ.escapePressed()) {
@@ -154,7 +154,7 @@ public class Binary implements ExtendedPlugInFilter, DialogListener {
                 ((ByteProcessor)ip).dilate(count, background);
         }
     }
-    
+
     void outline(ImageProcessor ip) {
         if (Prefs.blackBackground) ip.invert();
         ((ByteProcessor)ip).outline();

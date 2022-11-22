@@ -26,10 +26,10 @@ import java.util.concurrent.atomic.AtomicLong;
  * - For increased speed, except for small blur radii, the lines (rows or
  * columns of the image) are downscaled before convolution and upscaled
  * to their original length thereafter.
- * 
+ *
  * Version 03-Jun-2007 M. Schmid with preview, progressBar stack-aware,
  * snapshot via snapshot flag; restricted range for resetOutOfRoi
- * 
+ *
  * 20-Feb-2010 S. Saalfeld inner multi-threading, modified 29-Aug-2019 M. Schmid
  *
  */
@@ -52,7 +52,7 @@ public class GaussianBlur implements ExtendedPlugInFilter, DialogListener {
     private int pass;                        // Current pass
     private boolean noProgress;      // Do not show progress bar
     private boolean calledAsPlugin;
-    
+
     /** Method to return types supported
      * @param arg unused
      * @param imp The ImagePlus, used to get the spatial calibration
@@ -68,7 +68,7 @@ public class GaussianBlur implements ExtendedPlugInFilter, DialogListener {
         }
         return flags;
     }
-    
+
     /** Ask the user for the parameters
      */
     public int showDialog(ImagePlus imp, String command, PlugInFilterRunner pfr) {
@@ -191,7 +191,7 @@ public class GaussianBlur implements ExtendedPlugInFilter, DialogListener {
             resetOutOfRoi(ip, (int)Math.ceil(5*sigmaY)); // reset out-of-Rectangle pixels above and below roi
         return;
     }
-    
+
     /** Gaussian Filtering of a FloatProcessor. This method does NOT include
      *  resetOutOfRoi(ip), i.e., pixels above and below the roi rectangle will
      *  be also subject to filtering in x direction and must be restored
@@ -216,12 +216,12 @@ public class GaussianBlur implements ExtendedPlugInFilter, DialogListener {
      * @param sigma     Standard deviation of the Gaussian
      * @param accuracy  Accuracy of kernel, should not be > 0.02
      * @param xDirection True for bluring in x direction, false for y direction
-     * @param extraLines Number of lines (parallel to the blurring direction) 
+     * @param extraLines Number of lines (parallel to the blurring direction)
      *                  below and above the roi bounds that should be processed.
      */
     public void blur1Direction( final FloatProcessor ip, final double sigma, final double accuracy,
             final boolean xDirection, final int extraLines) {
-        
+
         final int UPSCALE_K_RADIUS = 2;                     //number of pixels to add for upscaling
         final double MIN_DOWNSCALED_SIGMA = 4.;             //minimum standard deviation in the downscaled image
         final float[] pixels = (float[])ip.getPixels();
@@ -241,7 +241,7 @@ public class GaussianBlur implements ExtendedPlugInFilter, DialogListener {
         else lineTo = lineToA;
         final int writeFrom = xDirection? roi.x : roi.y;    //first point of a line that needs to be written
         final int writeTo = xDirection ? roi.x+roi.width : roi.y+roi.height;
-        
+
         /* large radius (sigma): scale down, then convolve, then scale up */
         final boolean doDownscaling = sigma > 2*MIN_DOWNSCALED_SIGMA + 0.5;
         final int reduceBy = doDownscaling ?                //downscale by this factor
@@ -266,7 +266,7 @@ public class GaussianBlur implements ExtendedPlugInFilter, DialogListener {
                 : length;
         final int unscaled0 = readFrom - (UPSCALE_K_RADIUS + 1)*reduceBy; //input point corresponding to cache index 0
         //the following is relevant for upscaling only
-        //IJ.log("reduce="+reduceBy+", newLength="+newLength+", unscaled0="+unscaled0+", sigmaG="+(float)sigmaGauss+", kRadius="+gaussKernel[0].length);
+        //IJMessage.log("reduce="+reduceBy+", newLength="+newLength+", unscaled0="+unscaled0+", sigmaG="+(float)sigmaGauss+", kRadius="+gaussKernel[0].length);
         final float[] downscaleKernel = doDownscaling ? makeDownscaleKernel(reduceBy) : null;
         final float[] upscaleKernel = doDownscaling ? makeUpscaleKernel(reduceBy) : null;
 
@@ -277,11 +277,11 @@ public class GaussianBlur implements ExtendedPlugInFilter, DialogListener {
         final Callable[] callables = new Callable[numThreads];
         final AtomicInteger nextLine = new AtomicInteger(lineFrom);
         final AtomicLong lastShowProgressTime = new AtomicLong(System.currentTimeMillis());
-           
+
         for ( int t = 0; t < numThreads; t++ ) {
             final float[] cache1 = new float[newLength];  //holds data before convolution (after downscaling, if any)
             final float[] cache2 = doDownscaling ? new float[newLength] : null;  //holds data after convolution
-            
+
             callables[t] = new Callable() {
                 final public Void call() { /*try{*/
                     while (!Thread.currentThread().isInterrupted()) {
@@ -305,14 +305,14 @@ public class GaussianBlur implements ExtendedPlugInFilter, DialogListener {
                                 cache1[i] = pixels[p];
                             convolveLine(cache1, pixels, gaussKernel, readFrom, readTo, writeFrom, writeTo, pixel0, pointInc);
                         }
-                            
+
                     }
                     return null;
                 } /*catch(Exception ex) {IJ.handleException(ex);} }*/
             };
         }
         ThreadUtil.startAndJoin(callables);
-            
+
         showProgress(1.0);
         pass++;
         if (pass > nPasses) pass = 1;
@@ -494,7 +494,7 @@ public class GaussianBlur implements ExtendedPlugInFilter, DialogListener {
                 result += kern[k] * (input[i-k] + input[i+k]);
             pixels[p] = result;
         }
-        for (; i<writeTo; i++,p+=pointInc) {    //while the sum would include pixels >= length 
+        for (; i<writeTo; i++,p+=pointInc) {    //while the sum would include pixels >= length
             float result = input[i]*kern0;
             if (i<kRadius) result += kernSum[i]*first;
             if (i+kRadius>=length) result += kernSum[length-i-1]*last;
@@ -561,14 +561,14 @@ public class GaussianBlur implements ExtendedPlugInFilter, DialogListener {
                 sum += 2*kernel[0][i];
         } else
             sum = sigma * Math.sqrt(2*Math.PI);
-        
+
         double rsum = 0.5 + 0.5*kernel[0][0]/sum;
         for (int i=0; i<kRadius; i++) {
             double v = (kernel[0][i]/sum);
             kernel[0][i] = (float)v;
             rsum -= v;
             kernel[1][i] = (float)rsum;
-            //IJ.log("k["+i+"]="+(float)v+" sum="+(float)rsum);
+            //IJMessage.log("k["+i+"]="+(float)v+" sum="+(float)rsum);
         }
         return kernel;
     }
@@ -579,7 +579,7 @@ public class GaussianBlur implements ExtendedPlugInFilter, DialogListener {
 	* (If the roi is non-rectangular and the SUPPORTS_MASKING flag is set).
 	* @param ip The image to be processed
 	* @param radius The range above and below the roi that should be processed
-	*/    
+	*/
 	public static void resetOutOfRoi(ImageProcessor ip, int radius) {
 		Rectangle roi = ip.getRoi();
 		int width = ip.getWidth();
@@ -595,15 +595,15 @@ public class GaussianBlur implements ExtendedPlugInFilter, DialogListener {
 		for (int y=roi.y+roi.height,p=width*y+roi.x; y<yEnd; y++,p+=width)
 			System.arraycopy(snapshot, p, pixels, p, roi.width);
 	}
-    
+
     private void showProgress(double percent) {
     	if (noProgress) return;
         percent = (pass + percent)/nPasses;
         IJ.showProgress(percent);
     }
-    
+
     public void showProgress(boolean showProgressBar) {
     	noProgress = !showProgressBar;
     }
-    
+
 }

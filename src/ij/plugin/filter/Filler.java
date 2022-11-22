@@ -7,7 +7,7 @@ import java.awt.*;
 
 /** This plugin implements ImageJ's Fill, Clear, Clear Outside and Draw commands. */
 public class Filler implements PlugInFilter, Measurements {
-	
+
 	String arg;
 	Roi roi;
 	ImagePlus imp;
@@ -19,18 +19,18 @@ public class Filler implements PlugInFilter, Measurements {
 		this.arg = arg;
 		this.imp = imp;
 		if (imp!=null)
-			roi = imp.getRoi();			
+			roi = imp.getRoi();
 		isTextRoi = roi!=null && (roi instanceof TextRoi);
 	 	if (isTextRoi && (arg.equals("draw") || arg.equals("fill")) && ((TextRoi)roi).getAngle()!=0.0) {
 	 		String s = IJ.isMacOSX()?"command+b":"ctrl+b";
-	 		IJ.error("Draw rotated text by pressing "+s+" (Image>Overlay>Add Selection).");
+	 		IJMessage.error("Draw rotated text by pressing "+s+" (Image>Overlay>Add Selection).");
 	 		return DONE;
 		}
 		IJ.register(Filler.class);
 		int baseCapabilities = DOES_ALL+ROI_REQUIRED;
 	 	if (arg.equals("clear")) {
 	 		if (roi!=null && roi.getType()==Roi.POINT) {
-	 			IJ.error("Clear", "Area selection required");
+	 			IJMessage.error("Clear", "Area selection required");
 	 			return DONE;
 	 		}
 	 		if (isTextRoi || isLineSelection())
@@ -47,7 +47,7 @@ public class Filler implements PlugInFilter, Measurements {
 		} else if (arg.equals("outside"))
 				return IJ.setupDialog(imp,baseCapabilities);
 		else if (roi!=null && roi.getType()==Roi.POINT && arg.equals("fill")) {
-	 			IJ.error("Fill", "Area selection required");
+	 			IJMessage.error("Fill", "Area selection required");
 	 			return DONE;
 	 	} else
 			return IJ.setupDialog(imp,baseCapabilities+SUPPORTS_MASKING);
@@ -71,11 +71,11 @@ public class Filler implements PlugInFilter, Measurements {
 	boolean isLineSelection() {
 		return roi!=null && roi.isLine();
 	}
-	
+
 	boolean isStraightLine() {
 		return roi!=null && roi.getType()==Roi.LINE;
 	}
-	
+
 	public void clear(ImageProcessor ip) {
 	 	ip.setGlobalBackgroundColor();
 		if (isLineSelection()) {
@@ -89,13 +89,13 @@ public class Filler implements PlugInFilter, Measurements {
 	 		ip.fill(); // fill with background color
 		ip.setGlobalForegroundColor();
 	}
-		
+
 	/**
 	* @deprecated
 	* replaced by ImageProcessor.fill(Roi)
 	*/
 	public void fill(ImageProcessor ip) {
-		if (!IJ.isMacro() || !ip.fillValueSet())
+		if (!IJMacro.isMacro() || !ip.fillValueSet())
 			ip.setGlobalForegroundColor();
 		if (isLineSelection()) {
 			if (isStraightLine() && roi.getStrokeWidth()>1 && !(roi instanceof Arrow)) {
@@ -108,7 +108,7 @@ public class Filler implements PlugInFilter, Measurements {
 		} else
 			ip.fill(); // fill with foreground color
 	}
-	 			 		
+
 	/**
 	* @deprecated
 	* replaced by ImageProcessor.draw(Roi)
@@ -121,12 +121,12 @@ public class Filler implements PlugInFilter, Measurements {
  	}
 
 	public void label(ImageProcessor ip) {
-		if (!IJ.isMacro()) {
-			IJ.error("Label", "To label a selection, enable \"Add to overlay\" in Analyze>\nSet Measurements and press 'm' (Analyze>Measure).");
+		if (!IJMacro.isMacro()) {
+			IJMessage.error("Label", "To label a selection, enable \"Add to overlay\" in Analyze>\nSet Measurements and press 'm' (Analyze>Measure).");
 			return;
 		}
 		if (Analyzer.getCounter()==0) {
-			IJ.error("Label", "Measurement counter is zero");
+			IJMessage.error("Label", "Measurement counter is zero");
 			return;
 		}
 		if (Analyzer.firstParticle<Analyzer.lastParticle)
@@ -156,12 +156,12 @@ public class Filler implements PlugInFilter, Measurements {
 		if (count==0 || first>=count || last>=count)
 			return;
 		if (!rt.columnExists(ResultsTable.X_CENTROID)) {
-			IJ.error("Label", "\"Centroids\" required to label particles");
+			IJMessage.error("Label", "\"Centroids\" required to label particles");
 			return;
 		}
 		for (int i=first; i<=last; i++) {
-			int x = (int)rt.getValueAsDouble(ResultsTable.X_CENTROID, i);		
-			int y = (int)rt.getValueAsDouble(ResultsTable.Y_CENTROID, i);		
+			int x = (int)rt.getValueAsDouble(ResultsTable.X_CENTROID, i);
+			int y = (int)rt.getValueAsDouble(ResultsTable.Y_CENTROID, i);
 			drawLabel(imp, ip, i+1, new Rectangle(x,y,0,0));
 		}
 	}
@@ -201,7 +201,7 @@ public class Filler implements PlugInFilter, Measurements {
 		ip.resetRoi();
 		ip.setColor(foreground);
 		ip.drawString(label, x, y);
-	} 
+	}
 
 	/**
 	* @deprecated
@@ -209,14 +209,14 @@ public class Filler implements PlugInFilter, Measurements {
 	*/
 	public synchronized void clearOutside(ImageProcessor ip) {
 		if (isLineSelection()) {
-			IJ.error("\"Clear Outside\" does not work with line selections.");
+			IJMessage.error("\"Clear Outside\" does not work with line selections.");
 			return;
 		}
  		sliceCount++;
  		Rectangle r = ip.getRoi();
  		if (mask==null)
  			makeMask(ip, r);
-   		ip.setGlobalBackgroundColor();  		
+   		ip.setGlobalBackgroundColor();
  		int stackSize = imp.getStackSize();
  		if (stackSize>1)
  			ip.snapshot();

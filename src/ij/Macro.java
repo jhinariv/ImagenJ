@@ -16,7 +16,7 @@ public class Macro {
 
 	public static final String MACRO_CANCELED = "Macro canceled";
 
-	// A table of Thread as keys and String as values, so  
+	// A table of Thread as keys and String as values, so
 	// Macro options are local to each calling thread.
 	static private Hashtable table = new Hashtable();
 	static boolean abort;
@@ -30,7 +30,7 @@ public class Macro {
 		ImagePlus img = o.openImage(path);
 		if (img==null)
 			return false;
-		img.show();	
+		img.show();
 		return true;
 	}
 
@@ -56,7 +56,7 @@ public class Macro {
 		else
 			return path;
 	}
-	
+
 	public static String getDir(String path) {
 		int i = path.lastIndexOf('/');
 		if (i==-1)
@@ -66,10 +66,10 @@ public class Macro {
 		else
 			return "";
 	}
-	
-	/** Aborts the currently running macro or any plugin using IJ.run(). */
+
+	/** Aborts the currently running macro or any plugin using IJMacro.run(). */
 	public static void abort() {
-		//IJ.log("Abort: "+Thread.currentThread().getName());
+		//IJMessage.log("Abort: "+Thread.currentThread().getName());
 		abort = true;
 		if (Thread.currentThread().getName().endsWith("Macro$")) {
 			table.remove(Thread.currentThread());
@@ -85,7 +85,7 @@ public class Macro {
 	*/
 	public static String getOptions() {
 		String threadName = Thread.currentThread().getName();
-		//IJ.log("getOptions: "+threadName+" "+Thread.currentThread().hashCode()); //ts
+		//IJMessage.log("getOptions: "+threadName+" "+Thread.currentThread().hashCode()); //ts
 		if (threadName.startsWith("Run$_")||threadName.startsWith("RMI TCP")) {
 			Object options = table.get(Thread.currentThread());
 			return options==null?null:options+" ";
@@ -95,7 +95,7 @@ public class Macro {
 
 	/** Define a set of Macro options for the current Thread. */
 	public static void setOptions(String options) {
-		//IJ.log("setOptions: "+Thread.currentThread().getName()+" "+Thread.currentThread().hashCode()+" "+options); //ts
+		//IJMessage.log("setOptions: "+Thread.currentThread().getName()+" "+Thread.currentThread().hashCode()+" "+options); //ts
 		if (options==null || options.equals(""))
 			table.remove(Thread.currentThread());
 		else
@@ -155,7 +155,7 @@ public class Macro {
 				return options.substring(0, index);
 		}
 	}
-	
+
 	public static String trimKey(String key) {
 		int index = key.indexOf(" ");
 		if (index>-1)
@@ -166,9 +166,9 @@ public class Macro {
 		key = key.toLowerCase(Locale.US);
 		return key;
 	}
-	
-	/** Evaluates 'code' and returns the output, or any error, 
-	 * as a String (e.g., Macro.eval("2+2") returns "4").	
+
+	/** Evaluates 'code' and returns the output, or any error,
+	 * as a String (e.g., Macro.eval("2+2") returns "4").
 	*/
 	public static String eval(String code) {
 		return new Interpreter().eval(code);

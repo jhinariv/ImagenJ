@@ -152,7 +152,7 @@ public class SyncWindows extends PlugInFrame implements
 	*/
 	public void displayChanged(DisplayChangeEvent e) {
 		//if (e!=null) throw new IllegalArgumentException();
-		//IJ.log("displayChanged: "+e);
+		//IJMessage.log("displayChanged: "+e);
 		if (vwins == null) return;
 
 		Object source = e.getSource();

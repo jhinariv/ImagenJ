@@ -6,7 +6,7 @@ public class BinaryProcessor extends ByteProcessor {
 
 	private ByteProcessor parent;
 	private int foreground;
-	
+
 	/** Creates a BinaryProcessor from a ByteProcessor. The ByteProcessor
 		must contain a binary image (pixels values are either 0 or 255).
 		Backgound is assumed to be white. */
@@ -17,7 +17,7 @@ public class BinaryProcessor extends ByteProcessor {
 	}
 
 	static final int OUTLINE=0;
-	
+
 	void process(int type, int count) {
 		int p1, p2, p3, p4, p5, p6, p7, p8, p9;
 		int bgColor = 255;
@@ -54,7 +54,7 @@ public class BinaryProcessor extends ByteProcessor {
 						}
 						break;
 				}
-				
+
 				pixels[offset++] = (byte)v;
 			}
 		}
@@ -72,7 +72,7 @@ public class BinaryProcessor extends ByteProcessor {
 		  3,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 		  2,3,1,3,0,0,1,3,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 		  2,3,0,1,0,0,0,1,0,0,0,0,0,0,0,0,3,3,0,1,0,0,0,0,2,2,0,0,2,0,0,0};
-		  
+
 	// 2013/12/02: 16,6 2->0
 	// 2013/12/02: 24,5 0->2
 	private static int[] table2  =
@@ -129,7 +129,7 @@ public class BinaryProcessor extends ByteProcessor {
 		moveTo(width-1,0); lineTo(width-1,height-1);
 		moveTo(0,height-1); lineTo(width/*-1*/,height-1);
 		ij.ImageStack movie=null;
-		boolean debug = ij.IJ.debugMode;
+		boolean debug = ij.IJDebugMode.debugMode;
 		if (debug) movie = new ij.ImageStack(width, height);
 		if (debug) movie.addSlice("-", duplicate());
 		do {
@@ -173,7 +173,7 @@ public class BinaryProcessor extends ByteProcessor {
         }
         return edgePixels;
     }
-    
+
     private BinaryProcessor expand(boolean hasEdgePixels) {
         if (hasEdgePixels) {
             ByteProcessor ip2 = (ByteProcessor)createProcessor(getWidth()+2, getHeight()+2);
@@ -248,9 +248,9 @@ public class BinaryProcessor extends ByteProcessor {
 		}
 		return pixelsRemoved;
 	}
-	
+
 	public void outline() {
 		process(OUTLINE, 0);
 	}
-	
+
 }

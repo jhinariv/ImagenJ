@@ -44,7 +44,7 @@ public class Calibrator implements PlugInFilter, Measurements, ActionListener {
 	private boolean showPlotFlag;
 	private static String unitSaved = Calibration.DEFAULT_VALUE_UNIT;
 	private CurveFitter curveFitter;
-	
+
 	public int setup(String arg, ImagePlus imp) {
 		this.imp = imp;
 		return DOES_ALL-DOES_RGB+NO_CHANGES;
@@ -61,7 +61,7 @@ public class Calibrator implements PlugInFilter, Measurements, ActionListener {
 			if (choiceIndex==0)
 				imp.getCalibration().setValueUnit(unit);
 			else
-				IJ.error("Calibrate", "Function must be \"None\" for 32-bit images,\nbut you can change the Unit.");
+				IJMessage.error("Calibrate", "Function must be \"None\" for 32-bit images,\nbut you can change the Unit.");
 		} else
 			calibrate(imp);
 	}
@@ -88,18 +88,18 @@ public class Calibrator implements PlugInFilter, Measurements, ActionListener {
 			defaultChoice=CUSTOM;
 		else
 			defaultChoice=NONE;
-			
+
 		String tmpText = getMeans();
-		if (!importedValues && !tmpText.equals(""))	
-			xText = tmpText;	
+		if (!importedValues && !tmpText.equals(""))
+			xText = tmpText;
 		gd = new GenericDialog("Calibrate...");
 		gd.addChoice("Function:", functions, defaultChoice);
 		gd.addStringField("Unit:", unit, 16);
 		gd.addTextAreas(xText, yText, 20, 14);
 		//gd.addMessage("Left column contains uncalibrated measured values,\n right column contains known values (e.g., OD).");
 		gd.addPanel(makeButtonPanel(gd));
-		gd.addCheckbox("Global calibration", IJ.isMacro()?false:global1);
-		gd.addCheckbox("Show plot", IJ.isMacro()?false:showPlotFlagSaved);
+		gd.addCheckbox("Global calibration", IJMacro.isMacro()?false:global1);
+		gd.addCheckbox("Show plot", IJMacro.isMacro()?false:showPlotFlagSaved);
 		//gd.addCheckbox("Show Simplex Settings", showSettings);
 		gd.addHelp(IJ.URL+"/docs/menus/analyze.html#cal");
 		gd.showDialog();
@@ -145,7 +145,7 @@ public class Calibrator implements PlugInFilter, Measurements, ActionListener {
 		curveFitter = null;
 		if (choiceIndex<=0) {
 			if (oldFunction==Calibration.NONE&&!yText.equals("")&&!xText.equals("")) {
-				IJ.error("Calibrate", "Please select a function");
+				IJMessage.error("Calibrate", "Please select a function");
 			    return;
 			}
 			function = Calibration.NONE;
@@ -163,7 +163,7 @@ public class Calibrator implements PlugInFilter, Measurements, ActionListener {
 			if (!cal.calibrated() || y.length!=0 || function!=oldFunction) {
 				parameters = doCurveFitting(x, y, function);
 				if (parameters==null) { //minimization failed
-				    IJ.error(curveFitError);
+				    IJMessage.error(curveFitError);
 				    function = Calibration.NONE;
 					return;
 				}
@@ -184,7 +184,7 @@ public class Calibrator implements PlugInFilter, Measurements, ActionListener {
 			unit = "Inverted Gray Value";
 		} else if (choiceIndex==odIndex) {
 			if (is16Bits) {
-				IJ.error("Calibrate", "Uncalibrated OD is not supported on 16-bit images.");
+				IJMessage.error("Calibrate", "Uncalibrated OD is not supported on 16-bit images.");
 				return;
 			}
 			function = Calibration.UNCALIBRATED_OD;
@@ -217,7 +217,7 @@ public class Calibrator implements PlugInFilter, Measurements, ActionListener {
 				showPlot(x, y, cal, fitGoodness);
 		}
 	}
-	
+
 	private boolean validateXValues(ImagePlus imp, double[] x) {
 		int bitDepth = imp.getBitDepth();
 		if (bitDepth==32 || x==null)
@@ -229,7 +229,7 @@ public class Calibrator implements PlugInFilter, Measurements, ActionListener {
 			if (x[i]<0 || x[i]>max) {
 			    String title = (bitDepth==8?"8-bit":"16-bit") + " Calibration";
 				String msg = "Measured (uncalibrated) values in the left\ncolumn must be in the range 0-";
-				IJ.error(title, msg+max+".");
+				IJMessage.error(title, msg+max+".");
 				return false;
 			}
 		}
@@ -238,7 +238,7 @@ public class Calibrator implements PlugInFilter, Measurements, ActionListener {
 
 	double[] doCurveFitting(double[] x, double[] y, int fitType) {
 		if (x.length!=y.length || y.length==0) {
-			IJ.error("Calibrate",
+			IJMessage.error("Calibrate",
 				"To create a calibration curve, the left column must\n"
 				+"contain a list of measured mean pixel values and the\n"
 				+"right column must contain the same number of calibration\n"
@@ -253,18 +253,18 @@ public class Calibrator implements PlugInFilter, Measurements, ActionListener {
 		int n = x.length;
 		double xmin=0.0,xmax;
 		if (imp.getType()==ImagePlus.GRAY16)
-			xmax=65535.0; 
+			xmax=65535.0;
 		else
 			xmax=255.0;
 		double[] a = Tools.getMinMax(y);
-		double ymin=a[0], ymax=a[1]; 
+		double ymin=a[0], ymax=a[1];
 		CurveFitter cf = new CurveFitter(x, y);
 		cf.doFit(fitType, showSettings);
 		if (cf.getStatus() == Minimizer.INITIALIZATION_FAILURE) {
 		    curveFitError = cf.getStatusString();
 		    return null;
 		}
-        if (IJ.debugMode) IJ.log(cf.getResultString());
+        if (IJDebugMode.debugMode) IJMessage.log(cf.getResultString());
 		int np = cf.getNumParams();
 		double[] p = cf.getParams();
 		fitGoodness = IJ.d2s(cf.getRSquared(),6);
@@ -272,9 +272,9 @@ public class Calibrator implements PlugInFilter, Measurements, ActionListener {
 		double[] parameters = new double[np];
 		for (int i=0; i<np; i++)
 			parameters[i] = p[i];
-		return parameters;									
+		return parameters;
 	}
-	
+
 	void showPlot(double[] x, double[] y, Calibration cal, String rSquared) {
 		if (!showPlotFlag || !cal.calibrated())
 			return;
@@ -324,12 +324,12 @@ public class Calibrator implements PlugInFilter, Measurements, ActionListener {
 			{drawLabel(plot, "R^2="+rSquared); rSquared=null;}
 		plot.show();
 	}
-	
+
 	void drawLabel(Plot plot, String label) {
 		plot.addLabel(lx, ly, label);
 		ly += 0.08;
 	}
-	
+
 
 	double sqr(double x) {return x*x;}
 
@@ -343,11 +343,11 @@ public class Calibrator implements PlugInFilter, Measurements, ActionListener {
 		list[spacerIndex] = "-";
 		list[inverterIndex] = INVERTER;
 		list[odIndex] = UNCALIBRATED_OD;
-		if (custom) 
+		if (custom)
 			list[customIndex] = CUSTOM;
 		return list;
  	}
-	
+
 	String getMeans() {
 		float[] umeans = Analyzer.getUMeans();
 		int count = Analyzer.getCounter();
@@ -383,7 +383,7 @@ public class Calibrator implements PlugInFilter, Measurements, ActionListener {
 		}
 		return data;
 	}
-	
+
 	double getNum(StringTokenizer st) {
 		Double d;
 		String token = st.nextToken();
@@ -394,7 +394,7 @@ public class Calibrator implements PlugInFilter, Measurements, ActionListener {
 		else
 			return 0.0;
 	}
-	
+
 	void save() {
 		TextArea ta1 = gd.getTextArea1();
 		TextArea ta2 = gd.getTextArea2();
@@ -418,7 +418,7 @@ public class Calibrator implements PlugInFilter, Measurements, ActionListener {
 			pw = new PrintWriter(bos);
 		}
 		catch (IOException e) {
-			IJ.error("" + e);
+			IJMessage.error("" + e);
 			return;
 		}
 		IJ.wait(250);  // give system time to redraw ImageJ window
@@ -430,7 +430,7 @@ public class Calibrator implements PlugInFilter, Measurements, ActionListener {
 		}
 		pw.close();
 	}
-	
+
 	void open() {
 		OpenDialog od = new OpenDialog("Open Calibration...", "");
 		String directory = od.getDirectory();
@@ -445,7 +445,7 @@ public class Calibrator implements PlugInFilter, Measurements, ActionListener {
 		int width = ip.getWidth();
 		int height = ip.getHeight();
 		if (!((width==1||width==2)&&height>1)) {
-			IJ.error("Calibrate", "This appears to not be a one or two column text file");
+			IJMessage.error("Calibrate", "This appears to not be a one or two column text file");
 			return;
 		}
 		StringBuffer sb = new StringBuffer();
@@ -482,5 +482,5 @@ public class Calibrator implements PlugInFilter, Measurements, ActionListener {
 		else if (source==open)
 			open();
 	}
-	
+
 }

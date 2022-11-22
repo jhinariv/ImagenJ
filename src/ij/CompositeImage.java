@@ -40,14 +40,14 @@ public class CompositeImage extends ImagePlus {
 	public CompositeImage(ImagePlus imp) {
 		this(imp, COLOR);
 	}
-	
+
 	public CompositeImage(ImagePlus imp, int mode) {
 		if (mode<COMPOSITE || mode>GRAYSCALE)
 			mode = COLOR;
 		this.mode = mode;
 		int channels = imp.getNChannels();
 		bitDepth = getBitDepth();
-		if (IJ.debugMode) IJ.log("CompositeImage: "+imp+" "+mode+" "+channels);
+		if (IJDebugMode.debugMode) IJMessage.log("CompositeImage: "+imp+" "+mode+" "+channels);
 		ImageStack stack2;
 		boolean isRGB = imp.getBitDepth()==24;
 		if (isRGB) {
@@ -76,14 +76,14 @@ public class CompositeImage extends ImagePlus {
 		setCalibration(imp.getCalibration());
 		FileInfo fi = imp.getOriginalFileInfo();
 		if (fi!=null) {
-			displayRanges = fi.displayRanges; 
+			displayRanges = fi.displayRanges;
 			channelLuts = fi.channelLuts;
 		}
 		setFileInfo(fi);
 		Object info = imp.getProperty("Info");
 		if (info!=null)
 			setProperty("Info", imp.getProperty("Info"));
-		setProperties(imp.getPropertiesAsArray());		
+		setProperties(imp.getPropertiesAsArray());
 		if (mode==COMPOSITE) {
 			for (int i=0; i<MAX_CHANNELS; i++)
 				active[i] = true;
@@ -102,12 +102,12 @@ public class CompositeImage extends ImagePlus {
 			updateImage();
 		return img;
 	}
-	
+
 	public void updateChannelAndDraw() {
 		if (!customLuts) singleChannel = true;
 		updateAndDraw();
 	}
-	
+
 	public void updateAllChannelsAndDraw() {
 		if (mode!=COMPOSITE)
 			updateChannelAndDraw();
@@ -171,7 +171,7 @@ public class CompositeImage extends ImagePlus {
 			displayRanges = null;
 		}
 	}
-	
+
 	public void resetDisplayRanges() {
 		int channels = getNChannels();
 		if (lut==null)
@@ -203,8 +203,8 @@ public class CompositeImage extends ImagePlus {
 		int nChannels = getNChannels();
 		int redValue, greenValue, blueValue;
 		int ch = getChannel();
-		
-		//IJ.log("updateImage: "+ch+"/"+nChannels+" "+currentSlice+" "+currentFrame);
+
+		//IJMessage.log("updateImage: "+ch+"/"+nChannels+" "+currentSlice+" "+currentFrame);
 		if (ch>nChannels) ch = nChannels;
 		boolean newChannel = false;
 		if (ch-1!=currentChannel) {
@@ -224,7 +224,7 @@ public class CompositeImage extends ImagePlus {
 					if (!(cm.min==0.0&&cm.max==0.0))
 						ip.setMinAndMax(cm.min, cm.max);
 				}
-				if (!IJ.isMacro()) ContrastAdjuster.update();
+				if (!IJMacro.isMacro()) ContrastAdjuster.update();
 				for (int i=0; i<MAX_CHANNELS; i++)
 					active[i] = i==currentChannel?true:false;
 				Channels.updateChannels();
@@ -242,7 +242,7 @@ public class CompositeImage extends ImagePlus {
 				img = ip.createImage();
 			return;
 		}
-	
+
 		if (cip==null||cip[0].getWidth()!=width||cip[0].getHeight()!=height||getBitDepth()!=bitDepth) {
 			setup(nChannels, getImageStack());
 			rgbPixels = null;
@@ -254,13 +254,13 @@ public class CompositeImage extends ImagePlus {
 			}
 			bitDepth = getBitDepth();
 		}
-		
+
 		if (newChannel) {
 			getProcessor().setMinAndMax(cip[currentChannel].getMin(), cip[currentChannel].getMax());
-			if (!IJ.isMacro()) ContrastAdjuster.update();
+			if (!IJMacro.isMacro()) ContrastAdjuster.update();
 		}
-		//IJ.log(nChannels+" "+ch+" "+currentChannel+"  "+newChannel);
-				
+		//IJMessage.log(nChannels+" "+ch+" "+currentChannel+"  "+newChannel);
+
 		if (getSlice()!=currentSlice || getFrame()!=currentFrame) {
 			currentSlice = getSlice();
 			currentFrame = getFrame();
@@ -288,7 +288,7 @@ public class CompositeImage extends ImagePlus {
 			else if (prop.contains("Invert")||prop.contains("invert"))
 				projectionMode = ImageProcessor.INVERT_PROJECTION;
 		}
-		long t0 = IJ.debugMode?System.nanoTime():0L;
+		long t0 = IJDebugMode.debugMode?System.nanoTime():0L;
 		if (singleChannel && nChannels<=3) {
 			switch (currentChannel) {
 				case 0: cip[0].updateComposite(rgbPixels, ImageProcessor.UPDATE_RED); break;
@@ -321,13 +321,13 @@ public class CompositeImage extends ImagePlus {
 			for (int i=1; i<nChannels; i++)
 				if (active[i]) cip[i].updateComposite(rgbPixels, projectionMode);
 		}
-		if (IJ.debugMode) IJ.log(""+(System.nanoTime()-t0)/1000L);
+		if (IJDebugMode.debugMode) IJMessage.log(""+(System.nanoTime()-t0)/1000L);
 		createBufferedImage();
 		if (img==null && awtImage!=null)
 			img = awtImage;
 		singleChannel = false;
-	}		
-    
+	}
+
 	// Creates multi-channel composite view with inverted LUTs
 	// https://forum.image.sc/t/multi-channel-composite-view-with-inverted-luts-in-imagej-fiji/61163
 	// Peter Haub, 12'2021
@@ -336,13 +336,13 @@ public class CompositeImage extends ImagePlus {
 		int w = getWidth();
 		int h = getHeight();
 		int nChn = getNChannels();
-		
+
 		int nChnActive = 0;
 		for (int c=0; c<nChn; c++){
 			if (chnActive[c])
 				nChnActive++;
-		}		
-		
+		}
+
 		byte[][] in8 = null;
 		short[][] in16 = null;
 		float[][] in32 = null;
@@ -353,26 +353,26 @@ public class CompositeImage extends ImagePlus {
 		}
 		double[] mins = new double[nChn];
 		double[] maxs = new double[nChn];
-		double[] scale = new double[nChn];		
+		double[] scale = new double[nChn];
 		LUT[] luts = getLuts();
-		
+
 		for (int c=0; c<nChn; c++){
 			mins[c] = cip[c].getMin();
 			maxs[c] = cip[c].getMax();
-			scale[c] = (255.0 / (maxs[c] - mins[c]));			
+			scale[c] = (255.0 / (maxs[c] - mins[c]));
 			switch (bitDepth) {
 				case 8: in8[c] = (byte[]) cip[c].getPixels(); break;
 				case 16: in16[c] = (short[]) cip[c].getPixels(); break;
 				case 32: in32[c] = (float[]) cip[c].getPixels(); break;
 			}
-		} 
-		      			
+		}
+
 		int value;
 		int[] v = new int[nChn];
 		int[] r = new int[nChn]; int[] g = new int[nChn]; int[] b = new int[nChn];
 		int sumR, sumG, sumB;
 		int newR, newG, newB;
-		
+
 		for (int idx=0; idx<w*h; idx++) {
 			for (int c=0; c<nChn; c++){
 				switch (bitDepth) {
@@ -384,13 +384,13 @@ public class CompositeImage extends ImagePlus {
 				v[c] = Math.max(v[c], 0);
 				r[c] = luts[c].getRed(v[c]);
 				g[c] = luts[c].getGreen(v[c]);
-				b[c] = luts[c].getBlue(v[c]);                   
+				b[c] = luts[c].getBlue(v[c]);
 			}
 
 			// Modify 'composite merge' condition here
 			sumR = sumG = sumB = 0;
 			for (int c=0; c<nChn; c++){
-				if (chnActive[c]){				
+				if (chnActive[c]){
 					sumR += r[c];
 					sumG += g[c];
 					sumB += b[c];
@@ -405,9 +405,9 @@ public class CompositeImage extends ImagePlus {
 			newB = Math.max(newB, 0);
 			value = newR*256*256 + newG*256 + newB;
 			rgbPixels[idx] = value;
-		}   
+		}
     }
-       
+
 	void createImage() {
 		if (imageSource==null) {
 			rgbCM = new DirectColorModel(32, 0xff0000, 0xff00, 0xff);
@@ -420,7 +420,7 @@ public class CompositeImage extends ImagePlus {
 			imageSource.newPixels(rgbPixels, rgbCM, 0, width);
 			newPixels = false;
 		} else
-			imageSource.newPixels();	
+			imageSource.newPixels();
 	}
 
 	void createBufferedImage() {
@@ -453,8 +453,8 @@ public class CompositeImage extends ImagePlus {
 		byte[] b = new byte[size];
 		((ColorProcessor)ip).getRGB(r, g, b);
 		ImageStack stack = new ImageStack(w, h);
-		stack.addSlice("Red", r);	
-		stack.addSlice("Green", g);	
+		stack.addSlice("Red", r);
+		stack.addSlice("Green", g);
 		stack.addSlice("Blue", b);
 		stack.setColorModel(ip.getDefaultColorModel());
 		return stack;
@@ -463,7 +463,7 @@ public class CompositeImage extends ImagePlus {
 	public LUT createLutFromColor(Color color) {
 		return LUT.createLutFromColor(color);
 	}
-	
+
 	LUT createLutFromBytes(byte[] bytes) {
 		if (bytes==null || bytes.length!=768)
 			return createLutFromColor(Color.white);
@@ -487,7 +487,7 @@ public class CompositeImage extends ImagePlus {
 		int r = cm.getRed(index);
 		int g = cm.getGreen(index);
 		int b = cm.getBlue(index);
-		//IJ.log(index+" "+r+" "+g+" "+b);
+		//IJMessage.log(index+" "+r+" "+g+" "+b);
 		if (r<100 || g<100 || b<100)
 			return new Color(r, g, b);
 		else
@@ -504,7 +504,7 @@ public class CompositeImage extends ImagePlus {
 	public boolean[] getActiveChannels() {
 		return active;
 	}
-	
+
 	public synchronized void setMode(int mode) {
 		if (mode<COMPOSITE || mode>GRAYSCALE)
 			return;
@@ -537,7 +537,7 @@ public class CompositeImage extends ImagePlus {
 	public int getMode() {
 		return mode;
 	}
-	
+
 	public String getModeAsString() {
 		switch (mode) {
 			case COMPOSITE: return "composite";
@@ -546,7 +546,7 @@ public class CompositeImage extends ImagePlus {
 		}
 		return "";
 	}
-	
+
 	/* Returns the LUT used by the specified channel. */
 	public LUT getChannelLut(int channel) {
 		int channels = getNChannels();
@@ -555,13 +555,13 @@ public class CompositeImage extends ImagePlus {
 			throw new IllegalArgumentException("Channel out of range: "+channel);
 		return lut[channel-1];
 	}
-	
+
 	/* Returns the LUT used by the current channel. */
 	public LUT getChannelLut() {
 		int c = getChannelIndex();
 		return lut[c];
 	}
-	
+
 	/* Returns a copy of this image's channel LUTs as an array. */
 	public LUT[] getLuts() {
 		int channels = getNChannels();
@@ -586,7 +586,7 @@ public class CompositeImage extends ImagePlus {
 		for (int i=0; i<channels; i++)
 			setChannelLut(luts[i], i+1);
 	}
-	
+
 	/** Copies the LUTs and display mode of 'imp' to this image. Does
 		nothing if 'imp' is not a CompositeImage or 'imp' and this
 		image do not have the same number of channels. */
@@ -617,19 +617,19 @@ public class CompositeImage extends ImagePlus {
 		int index = getChannel()-1;
 		return index;
 	}
-	
+
 	public void reset() {
 		int nChannels = getNChannels();
 		if (nChannels>MAX_CHANNELS && getMode()==COMPOSITE)
 			setMode(COLOR);
 		setup(nChannels, getImageStack());
 	}
-	
+
 	public void completeReset() {
 		cip = null;
 		lut = null;
 	}
-	
+
 	/* Sets the LUT of the current channel. */
 	public void setChannelLut(LUT table) {
 		int c = getChannelIndex();
@@ -647,9 +647,9 @@ public class CompositeImage extends ImagePlus {
 		currentChannel = -1;
 		getProcessor().setLut(table);
 		customLuts = true;
-		if (!IJ.isMacro()) ContrastAdjuster.update();
+		if (!IJMacro.isMacro()) ContrastAdjuster.update();
 	}
-	
+
 	/* Sets the LUT of the specified channel using a clone of 'table'. */
 	public synchronized void setChannelLut(LUT table, int channel) {
 		int channels = getNChannels();
@@ -670,7 +670,7 @@ public class CompositeImage extends ImagePlus {
 	public void setChannelColorModel(IndexColorModel cm) {
 		setChannelLut(new LUT(cm,0.0,0.0));
 	}
-	
+
 	public void setDisplayRange(double min, double max) {
 		ip.setMinAndMax(min, max);
 		int c = getChannelIndex();
@@ -711,11 +711,11 @@ public class CompositeImage extends ImagePlus {
 			lut[c].max = ip.getMax();
 		}
 	}
-	
+
 	public boolean hasCustomLuts() {
 		return customLuts && mode!=GRAYSCALE;
 	}
-	
+
 	public void close() {
 		super.close();
 		rgbPixels = null;

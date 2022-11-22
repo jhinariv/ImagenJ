@@ -9,7 +9,7 @@ public class StartupRunner implements Runnable {
 	/** Runs the RunAtStartup and AutoRun macros, on the current thread
 		if 'batchMode' true, otherwise on a separate thread. */
 	public void run(boolean batchMode) {
-		if (IJ.debugMode) IJ.log("StartupRunner: "+batchMode);
+		if (IJDebugMode.debugMode) IJMessage.log("StartupRunner: "+batchMode);
 		if (batchMode)
 			run();
 		else {
@@ -23,10 +23,10 @@ public class StartupRunner implements Runnable {
  		if (macro!=null && macro.length()>4) {
  			if (macro.contains("setForegroundColor"))
  				IJ.wait(100);
- 			IJ.runMacro(macro);
+ 			IJPlugin.runMacro(macro);
  		}
 		MacroInstaller.autoRun();
  	}
- 	
+
 }
 

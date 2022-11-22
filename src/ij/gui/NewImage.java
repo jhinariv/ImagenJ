@@ -15,7 +15,7 @@ public class NewImage {
 	public static final int FILL_BLACK=1, FILL_RAMP=2, FILL_NOISE=3, FILL_RANDOM=3,
 		FILL_WHITE=4, CHECK_AVAILABLE_MEMORY=8,  SIGNED_INT=16;
 	private static final int OLD_FILL_WHITE=0;
-	
+
     static final String TYPE = "new.type";
     static final String FILL = "new.fill";
 	static final String WIDTH = "new.width";
@@ -29,13 +29,13 @@ public class NewImage {
     private static int staticType = Prefs.getInt(TYPE, GRAY8);
     private static int staticFillWith = Prefs.getInt(FILL, FILL_BLACK);
     private static String[] types = {"8-bit", "16-bit", "32-bit", "RGB"};
-    private static String[] fill = {"White", "Black", "Ramp", "Noise"}; 
+    private static String[] fill = {"White", "Black", "Ramp", "Noise"};
     private int gwidth, gheight, gslices, gtype, gfill;
-	
+
     public NewImage() {
     	openImage();
     }
-    
+
 	static boolean createStack(ImagePlus imp, ImageProcessor ip, int nSlices, int type, int options) {
 		int fill = getFill(options);
 		int width = imp.getWidth();
@@ -57,10 +57,10 @@ public class NewImage {
 				inUse = IJ.currentMemory();
 				available = max-inUse;
 				if (size>available) {
-					IJ.error("Insufficient Memory", "There is not enough free memory to allocate a \n"
+					IJMessage.error("Insufficient Memory", "There is not enough free memory to allocate a \n"
 					+ size2+" stack.\n \n"
-					+ "Memory available: "+available/(1024*1024)+"MB\n"		
-					+ "Memory in use: "+IJ.freeMemory()+"\n \n"	
+					+ "Memory available: "+available/(1024*1024)+"MB\n"
+					+ "Memory in use: "+IJ.freeMemory()+"\n \n"
 					+ "More information can be found in the \"Memory\"\n"
 					+ "sections of the ImageJ installation notes at\n"
 					+ "\""+IJ.URL+"/docs/install/\".");
@@ -75,7 +75,7 @@ public class NewImage {
 		int inc = nSlices/40;
 		if (inc<1) inc = 1;
 		if (bigStack)
-			IJ.showStatus("Allocating "+size2+". Press 'Esc' to abort.");
+			IJMessage.showStatus("Allocating "+size2+". Press 'Esc' to abort.");
 		IJ.resetEscape();
 		try {
 			stack.addSlice(null, ip);
@@ -115,7 +115,7 @@ public class NewImage {
 			IJ.outOfMemory(imp.getTitle());
 			stack.trim();
 		}
-		IJ.showStatus("");
+		IJMessage.showStatus("");
 		if (bigStack)
 			IJ.showProgress(nSlices, nSlices);
 		if (stack.size()>1)
@@ -124,7 +124,7 @@ public class NewImage {
 	}
 
 	static int getFill(int options) {
-		int fill = options&7; 
+		int fill = options&7;
 		if (fill==OLD_FILL_WHITE)
 			fill = FILL_WHITE;
 		if (fill==7||fill==6||fill==5)
@@ -167,7 +167,7 @@ public class NewImage {
 		}
 		return imp;
 	}
-	
+
 	private static void fillNoiseByte(ImageProcessor ip) {
 		ip.add(127);
 		ip.noise(31);
@@ -212,7 +212,7 @@ public class NewImage {
 		}
 		return imp;
 	}
-	
+
 	public static ImagePlus createIntImage(String title, int width, int height, int slices, int options) {
 		int fill = getFill(options);
 		int size = getSize(width, height);
@@ -232,7 +232,7 @@ public class NewImage {
 						pixels[offset++] = ramp[x];
 				}
 				break;
-				
+
 			case FILL_NOISE:
 				fillNoiseInt(new IntProcessor(width,height,(int[])pixels));
 				break;
@@ -362,7 +362,7 @@ public class NewImage {
 	private static int getSize(int width, int height) {
 		long size = (long)width*height;
 		if (size>Integer.MAX_VALUE) {
-			IJ.error("Image is too large. ImageJ does not support\nsingle images larger than 2 gigapixels.");
+			IJMessage.error("Image is too large. ImageJ does not support\nsingle images larger than 2 gigapixels.");
 			return -1;
 		} else
 			return (int)size;
@@ -376,9 +376,9 @@ public class NewImage {
 		long startTime = System.currentTimeMillis();
 		ImagePlus imp = createImage(title, width, height, nSlices, bitDepth, options);
 		if (imp!=null) {
-			WindowManager.checkForDuplicateName = true;          
+			WindowManager.checkForDuplicateName = true;
 			imp.show();
-			IJ.showStatus(IJ.d2s(((System.currentTimeMillis()-startTime)/1000.0),2)+" seconds");
+			IJMessage.showStatus(IJ.d2s(((System.currentTimeMillis()-startTime)/1000.0),2)+" seconds");
 		}
 	}
 
@@ -398,7 +398,7 @@ public class NewImage {
 		}
 		return imp;
 	}
-	
+
 	boolean showDialog() {
 		if (staticType<GRAY8|| staticType>RGB)
 			staticType = GRAY8;
@@ -430,10 +430,10 @@ public class NewImage {
 		gslices = (int)gd.getNextNumber();
 		if (gslices<1) gslices = 1;
 		if (gwidth<1 || gheight<1) {
-			IJ.error("New Image", "Width and height must be >0");
+			IJMessage.error("New Image", "Width and height must be >0");
 			return false;
 		} else {
-			if (!IJ.isMacro()) {
+			if (!IJMacro.isMacro()) {
 				staticWidth = gwidth;
 				staticHeight = gheight;
 				staticSlices = gslices;
@@ -453,7 +453,7 @@ public class NewImage {
 			IJ.outOfMemory("New Image...");
 		}
 	}
-	
+
 	/** Called when ImageJ quits. */
 	public static void savePreferences(Properties prefs) {
 		prefs.put(TYPE, Integer.toString(staticType));

@@ -33,8 +33,8 @@ public class ImagesToStack implements PlugIn {
 	private ImagePlus[] images;
 	private String name = "Stack";
 	private Color fillColor;
-	
-	/** Converts the images in 'images' to a stack, using the 
+
+	/** Converts the images in 'images' to a stack, using the
 		default settings ("copy center" and "titles as labels"). */
 	public static ImagePlus run(ImagePlus[] images) {
 		ImagesToStack itos = new ImagesToStack();
@@ -50,7 +50,7 @@ public class ImagesToStack implements PlugIn {
 		boolean scale = false;
 		int[] wList = WindowManager.getIDList();
 		if (wList==null) {
-			IJ.error("No images are open.");
+			IJMessage.error("No images are open.");
 			return;
 		}
 
@@ -63,12 +63,12 @@ public class ImagesToStack implements PlugIn {
 				images[count++] = imp;
 			else
 				stackCount++;
-		}		
+		}
 		if (count<2) {
 			String msg = "";
 			if (stackCount>1)
 				msg = "\n \nUse the Image>Stacks>Tools>Concatenate\ncommand to combine stacks.";
-			IJ.error("Images to Stack", "There must be at least two open 2D images."+msg);
+			IJMessage.error("Images to Stack", "There must be at least two open 2D images."+msg);
 			return;
 		}
 
@@ -77,11 +77,11 @@ public class ImagesToStack implements PlugIn {
 		boolean sizesDiffer = width!=minWidth||height!=minHeight;
 		boolean showDialog = true;
 		String macroOptions = Macro.getOptions();
-		if (IJ.macroRunning() && macroOptions==null) {
+		if (IJMacro.macroRunning() && macroOptions==null) {
 			if (sizesDiffer) {
-				IJ.error("Images are not all the same size");
+				IJMessage.error("Images are not all the same size");
 				return;
-			} 
+			}
 			showDialog = false;
 		}
 		if (showDialog) {
@@ -118,10 +118,10 @@ public class ImagesToStack implements PlugIn {
 			if (filter!=null) {
 				count = findMinMaxSize(images, count);
 				if (count==0) {
-					IJ.error("Images to Stack", "None of the images have a title containing \""+filter+"\"");
+					IJMessage.error("Images to Stack", "None of the images have a title containing \""+filter+"\"");
 				}
 			}
-			if (!IJ.isMacro()) {
+			if (!IJMacro.isMacro()) {
 				staticMethod = method;
 				staticBicubic = bicubic;
 				staticKeep = keep;
@@ -142,8 +142,8 @@ public class ImagesToStack implements PlugIn {
 		if (stack!=null)
 			stack.show();
 	}
-	
-	private ImagePlus convert(ImagePlus[] images, int count) {		
+
+	private ImagePlus convert(ImagePlus[] images, int count) {
 		double min = Double.MAX_VALUE;
 		double max = -Double.MAX_VALUE;
 		ImageStack stack = new ImageStack(width, height);
@@ -191,7 +191,7 @@ public class ImagesToStack implements PlugIn {
 						if (fillColor!=null) {
 							ip2.setColor(fillColor);
 							ip2.fill();
-						}							
+						}
 						int xoff=0, yoff=0;
 						if (method==COPY_CENTER) {
 							xoff = (width-ip.getWidth())/2;
@@ -242,7 +242,7 @@ public class ImagesToStack implements PlugIn {
 			imp.setOverlay(overlay);
 		return imp;
 	}
-	
+
 	private int findMinMaxSize(ImagePlus[] images, int count) {
 		int index = 0;
 		stackType = 8;
@@ -290,6 +290,6 @@ public class ImagesToStack implements PlugIn {
 	final boolean exclude(String title) {
 		return filter!=null && title!=null && title.indexOf(filter)==-1;
 	}
-	
+
 }
 

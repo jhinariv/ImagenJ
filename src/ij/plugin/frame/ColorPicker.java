@@ -17,10 +17,10 @@ public class ColorPicker extends PlugInDialog {
 	private int rows = 20;
 	private static final String LOC_KEY = "cp.loc";
 	private static ColorPicker instance;
-	private ColorGenerator cg; 
+	private ColorGenerator cg;
 	private Canvas colorCanvas;
 	TextField colorField;
-	
+
     public ColorPicker() {
 		super("CP");
 		if (instance!=null) {
@@ -56,14 +56,14 @@ public class ColorPicker extends PlugInDialog {
 			GUI.centerOnImageJScreen(this);
 		show();
 	}
-    
+
     public void close() {
 	 	super.close();
 		instance = null;
 		Prefs.saveLocation(LOC_KEY, getLocation());
 		IJ.notifyEventListeners(IJEventListener.COLOR_PICKER_CLOSED);
 	}
-	
+
 	public static void update() {
 		ColorPicker cp = instance;
 		if (cp!=null && cp.colorCanvas!=null) {
@@ -73,7 +73,7 @@ public class ColorPicker extends PlugInDialog {
 			cp.colorField.setText(Colors.colorToString(Toolbar.getForegroundColor()));
 		}
 	}
-	
+
 }
 
 class ColorGenerator extends ColorProcessor {
@@ -85,7 +85,7 @@ class ColorGenerator extends ColorProcessor {
         super(width, height, pixels);
         setAntialiasedText(true);
     }
-    
+
     void drawColors(int colorWidth, int colorHeight, int columns, int rows) {
         w = colorWidth;
         h = colorHeight;
@@ -96,7 +96,7 @@ class ColorGenerator extends ColorProcessor {
         resetBW();
         flipper();
         //drawLine(0, 256, 110, 256);
-        
+
         refreshBackground(false);
         refreshForeground(false);
 
@@ -106,7 +106,7 @@ class ColorGenerator extends ColorProcessor {
         for (int x=2; x<10; x++) {
             for (int y=0; y<32; y++) {
                 hue = (float)(y/(2*h)-.15);
-                if (x<6) { 
+                if (x<6) {
                     saturation = 1f;
                     brightness = (float)(x*4/w);
                 } else {
@@ -119,10 +119,10 @@ class ColorGenerator extends ColorProcessor {
                 fill();
             }
         }
-        drawSpectrum(h);        
+        drawSpectrum(h);
         resetRoi();
     }
-       
+
     void drawColor(int x, int y, Color c) {
         setRoi(x*w, y*h, w, h);
         setColor(c);
@@ -156,7 +156,7 @@ class ColorGenerator extends ColorProcessor {
         if (backgroundInFront)
         	drawLabel("F", fg, 12, ybase+268+14);
     }
-    
+
     private void drawLabel(String label, Color c, int x, int y) {
 		int intensity = (c.getRed()+c.getGreen()+c.getBlue())/3;
 		c = intensity<128?Color.white:Color.black;
@@ -168,7 +168,7 @@ class ColorGenerator extends ColorProcessor {
 		Color c;
 		for ( int x=5; x<7; x++) {
 			for ( int y=0; y<32; y++) {
-				float hue = (float)(y/(2*h)-.15);        
+				float hue = (float)(y/(2*h)-.15);
 				c = Color.getHSBColor(hue, 1f, 1f);
 				setRoi(x*(int)(w/2), ybase+y*(int)(h/2), (int)w/2, (int)h/2);
 				setColor(c);
@@ -216,8 +216,8 @@ class ColorGenerator extends ColorProcessor {
     }
 
     void flipper() {   //Paints the Flipper Button
-        int xa = 90; 
-        int ya = ybase+272; 
+        int xa = 90;
+        int ya = ybase+272;
         setColor(0x000000);
         drawLine(xa, ya, xa+9, ya+9);//Main Body
         drawLine(xa+1, ya, xa+9, ya+8);
@@ -231,8 +231,8 @@ class ColorGenerator extends ColorProcessor {
         drawLine(xa+9, ya+9, xa+4, ya+9);
         drawLine(xa+8, ya+8, xa+3, ya+8);
     }
-    
-} 
+
+}
 
 class ColorCanvas extends Canvas implements MouseListener, MouseMotionListener {
 	private static Cursor defaultCursor = new Cursor(Cursor.DEFAULT_CURSOR);
@@ -252,7 +252,7 @@ class ColorCanvas extends Canvas implements MouseListener, MouseMotionListener {
 	ColorPicker cp;
 	double scale;
 	String status = "";
-			
+
 	public ColorCanvas(int width, int height, ColorPicker cp, ColorGenerator ip, double scale) {
 		this.width=width; this.height=height;
 		this.ip = ip;
@@ -263,21 +263,21 @@ class ColorCanvas extends Canvas implements MouseListener, MouseMotionListener {
 		setSize(width, height);
 		this.scale = scale;
 	}
-	
+
 	public Dimension getPreferredSize() {
 		return new Dimension(width, height);
 	}
-	
+
 	public void update(Graphics g) {
 		paint(g);
 	}
-	
+
 	public void paint(Graphics g) {
 		g.drawImage(ip.createImage(), 0, 0, (int)(ip.getWidth()*scale), (int)(ip.getHeight()*scale), null);
 	}
 
 	public void mousePressed(MouseEvent e) {
-		//IJ.log("mousePressed "+e);
+		//IJMessage.log("mousePressed "+e);
 		ip.setLineWidth(1);
 		if (Toolbar.getToolId()==Toolbar.DROPPER)
 			IJ.setTool(Toolbar.RECTANGLE );
@@ -313,7 +313,7 @@ class ColorCanvas extends Canvas implements MouseListener, MouseMotionListener {
 			else {
 				setDrawingColor(x, y, background);
 			showStatus(" ", Toolbar.getForegroundColor().getRGB());
-			} 
+			}
 		}
 		Color color;
 		if (background) {
@@ -350,7 +350,7 @@ class ColorCanvas extends Canvas implements MouseListener, MouseMotionListener {
 		while (str.length()<3)
 		str = "0" + str;
 		return str;
-	}	
+	}
 
 	void setDrawingColor(int x, int y, boolean setBackground) {
 		int p = ip.getPixel(x, y);
@@ -378,27 +378,27 @@ class ColorCanvas extends Canvas implements MouseListener, MouseMotionListener {
 		else
 			Toolbar.setForegroundColor(c);
 	}
-	
+
 	public void refreshColors() {
 		ip.refreshBackground(false);
 		ip.refreshForeground(false);
 		repaint();
 	}
-	
+
 	private void showStatus(String msg, int rgb) {
 		if (msg.length()>1)
-			IJ.showStatus(msg);
+			IJMessage.showStatus(msg);
 		else {
 			int r = (rgb&0xff0000)>>16;
 			int g = (rgb&0xff00)>>8;
 			int b = rgb&0xff;
 			String hex = Colors.colorToString(new Color(r,g,b));
-			IJ.showStatus("red="+pad(r)+", green="+pad(g)+", blue="+pad(b)+" ("+hex+") "+msg);
+			IJMessage.showStatus("red="+pad(r)+", green="+pad(g)+", blue="+pad(b)+" ("+hex+") "+msg);
 		}
 	}
-	
+
 	public void mouseExited(MouseEvent e) {
-		IJ.showStatus("");
+		IJMessage.showStatus("");
 		setCursor(defaultCursor);
 	}
 
@@ -409,6 +409,6 @@ class ColorCanvas extends Canvas implements MouseListener, MouseMotionListener {
 	public void mouseReleased(MouseEvent e) {}
 	public void mouseClicked(MouseEvent e) {}
 	public void mouseDragged(MouseEvent e) {}
-	
+
 }
 

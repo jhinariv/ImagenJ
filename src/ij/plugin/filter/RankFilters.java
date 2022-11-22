@@ -92,7 +92,7 @@ public class RankFilters implements ExtendedPlugInFilter, DialogListener {
 		else if (arg.equals("nan")) {
 			filterType = REMOVE_NAN;
 			if (imp!=null && imp.getBitDepth()!=32) {
-				IJ.error("RankFilters","\"Remove NaNs\" requires a 32-bit image");
+				IJMessage.error("RankFilters","\"Remove NaNs\" requires a 32-bit image");
 				return DONE;
 			}
 		} else if (arg.equals("final")) {	//after variance && tophat filter, adjust brightness&contrast
@@ -101,7 +101,7 @@ public class RankFilters implements ExtendedPlugInFilter, DialogListener {
 			showMasks();
 			return DONE;
 		} else {
-			IJ.error("RankFilters","Argument missing or undefined: "+arg);
+			IJMessage.error("RankFilters","Argument missing or undefined: "+arg);
 			return DONE;
 		}
 		if (isMultiStepFilter(filterType) && imp!=null) {  //composite filter: 'open maxima' etc:
@@ -422,7 +422,7 @@ public class RankFilters implements ExtendedPlugInFilter, DialogListener {
 			int y = nextY.getAndIncrement();		// y of the next line that needs processing
 			if (y >= 0)
 				yForThread.set(threadNumber, y);
-			//IJ.log("thread "+threadNumber+" @y="+y+" needs"+(y-kHeight/2)+"-"+(y+kHeight/2)+" highestYinC="+highestYinCache.get());
+			//IJMessage.log("thread "+threadNumber+" @y="+y+" needs"+(y-kHeight/2)+"-"+(y+kHeight/2)+" highestYinC="+highestYinCache.get());
 			boolean threadFinished = y >= roi.y+roi.height || y < 0;	// y<0 if aborted
 			if (numThreads>1 && (nThreadsWaiting.get()>0 || threadFinished))		// 'if' is not synchronized to avoid overhead
 				//If nThreadsWaiting gets incremented to 1 after the 'if' by another thread, there will be no notifyAll.
@@ -430,7 +430,7 @@ public class RankFilters implements ExtendedPlugInFilter, DialogListener {
 				//will not see the current thread being slow any more, so that other thread will not wait.
 				synchronized(this) {
 					notifyAll();					// we may have blocked another thread
-					//IJ.log("thread "+threadNumber+" @y="+y+" notifying");
+					//IJMessage.log("thread "+threadNumber+" @y="+y+" notifying");
 				}
 			if (threadFinished)
 				return;								// all done, break the loop
@@ -462,7 +462,7 @@ public class RankFilters implements ExtendedPlugInFilter, DialogListener {
 						if (y - slowestThreadY + kHeight > cacheHeight) {
 							do {
 								//notifyAll();			// avoid deadlock: wake up others waiting
-								//IJ.log("Thread "+threadNumber+" waiting @y="+y+" slowest@y="+slowestThreadY);
+								//IJMessage.log("Thread "+threadNumber+" waiting @y="+y+" slowest@y="+slowestThreadY);
 								try {
 									wait();
 									if (nextY.get() < 0) return;
@@ -505,7 +505,7 @@ public class RankFilters implements ExtendedPlugInFilter, DialogListener {
 					smallKernel, sumFilter, minOrMax, minOrMaxOrOutliers, threshold);
 			if (!isFloat)		//Float images: data are written already during 'filterLine'
 				writeLineToPixels(values, pixels, roi.x+y*width, roi.width, colorChannel);	// W R I T E
-			//IJ.log("thread "+threadNumber+" @y="+y+" line done");
+			//IJMessage.log("thread "+threadNumber+" @y="+y+" line done");
 		} // while (true); loop over y (lines)
 	}
 
@@ -879,7 +879,7 @@ public class RankFilters implements ExtendedPlugInFilter, DialogListener {
 		}
 		kernel[kernel.length-2] = nPoints;
 		kernel[kernel.length-1] = kRadius;
-		//for (int i=0; i<kHeight;i++)IJ.log(i+": "+kernel[2*i]+"-"+kernel[2*i+1]);
+		//for (int i=0; i<kHeight;i++)IJMessage.log(i+": "+kernel[2*i]+"-"+kernel[2*i+1]);
 		return kernel;
 	}
 

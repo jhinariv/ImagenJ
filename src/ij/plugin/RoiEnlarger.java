@@ -22,7 +22,7 @@ public class RoiEnlarger implements PlugIn, DialogListener {
 		ImagePlus imp = IJ.getImage();
 		Roi roi = imp.getRoi();
 		if (roi==null || roi.isLine()) {
-			IJ.error("Enlarge", "This command requires an area selection");
+			IJMessage.error("Enlarge", "This command requires an area selection");
 			return;
 		}
 		if (!imp.okToDeleteRoi())

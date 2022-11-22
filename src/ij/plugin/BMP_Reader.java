@@ -8,10 +8,10 @@ import ij.io.*;
 
 
 /** This plugin reads BMP files. If 'arg' is empty, it
-        displays a file open dialog and opens and displays the 
-        selected file. If 'arg' is a path, it opens the 
+        displays a file open dialog and opens and displays the
+        selected file. If 'arg' is a path, it opens the
         specified file and the calling routine can display it using
-        "((ImagePlus)IJ.runPlugIn("ij.plugin.BMP_Reader", path)).show()".
+        "((ImagePlus)IJPlugin.runPlugIn(("ij.plugin.BMP_Reader", path)).show()".
         */
 public class BMP_Reader extends ImagePlus implements PlugIn {
 
@@ -23,7 +23,7 @@ public class BMP_Reader extends ImagePlus implements PlugIn {
                         return;
                 String path = directory + name;
 
-                //IJ.showStatus("Opening: " + path);
+                //IJMessage.showStatus("Opening: " + path);
                 BMPDecoder bmp = new BMPDecoder();
                 FileInputStream  is = null;
                 try {
@@ -41,7 +41,7 @@ public class BMP_Reader extends ImagePlus implements PlugIn {
 									show();
 							}
                         } else
-                        	IJ.error("BMP Reader", msg);
+                        	IJMessage.error("BMP Reader", msg);
                         return;
                 } finally {
 					if (is!=null) {
@@ -52,7 +52,7 @@ public class BMP_Reader extends ImagePlus implements PlugIn {
 				}
 
                 MemoryImageSource mis = bmp.makeImageSource();
-                if (mis==null) IJ.log("BMP_Reader: mis=null");
+                if (mis==null) IJMessage.log("BMP_Reader: mis=null");
                 Image img = Toolkit.getDefaultToolkit().createImage(mis);
                 FileInfo fi = new FileInfo();
                 fi.fileFormat = FileInfo.BMP;
@@ -66,7 +66,7 @@ public class BMP_Reader extends ImagePlus implements PlugIn {
                 if (arg.equals(""))
                     show();
         }
-        
+
 }
 
 
@@ -74,7 +74,7 @@ public class BMP_Reader extends ImagePlus implements PlugIn {
 class BMPDecoder {
         InputStream is;
         int curPos = 0;
-                
+
         int bitmapOffset;               // starting position of image data
 
         int width;                              // image width in pixels
@@ -128,7 +128,7 @@ class BMPDecoder {
         }
 
         void getBitmapHeader() throws IOException {
-        
+
                 // Actual contents (40 bytes):
                 int size;                               // size of this header in bytes
                 short planes;                   // no. of color planes: always 1
@@ -171,19 +171,19 @@ class BMPDecoder {
                         else
                                 actualColorsUsed = 0;   // no palette
                 /*
-                if (IJ.debugMode) {
-                    IJ.log("BMP_Reader");
-                    IJ.log("  width: "+width);
-                    IJ.log("  height: "+height);
-                    IJ.log("  compression: "+compression);
-                    IJ.log("  scanLineSize: "+scanLineSize);
-                    IJ.log("  planes: "+planes);
-                    IJ.log("  bitsPerPixel: "+bitsPerPixel);
-                    IJ.log("  sizeOfBitmap: "+sizeOfBitmap);
-                    IJ.log("  horzResolution: "+horzResolution);
-                    IJ.log("  vertResolution: "+vertResolution);
-                    IJ.log("  colorsUsed: "+colorsUsed);
-                    IJ.log("  colorsImportant: "+colorsImportant);
+                if (IJDebugMode.debugMode) {
+                    IJMessage.log("BMP_Reader");
+                    IJMessage.log("  width: "+width);
+                    IJMessage.log("  height: "+height);
+                    IJMessage.log("  compression: "+compression);
+                    IJMessage.log("  scanLineSize: "+scanLineSize);
+                    IJMessage.log("  planes: "+planes);
+                    IJMessage.log("  bitsPerPixel: "+bitsPerPixel);
+                    IJMessage.log("  sizeOfBitmap: "+sizeOfBitmap);
+                    IJMessage.log("  horzResolution: "+horzResolution);
+                    IJMessage.log("  vertResolution: "+vertResolution);
+                    IJMessage.log("  colorsUsed: "+colorsUsed);
+                    IJMessage.log("  colorsImportant: "+colorsImportant);
                 }
                 */
         }

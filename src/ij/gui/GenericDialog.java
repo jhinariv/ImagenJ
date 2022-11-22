@@ -170,7 +170,7 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 		}
 		c.anchor = GridBagConstraints.EAST;
 		c.gridwidth = 1;
-		//IJ.log("x="+c.gridx+", y= "+c.gridy+", width="+c.gridwidth+", ancher= "+c.anchor+" "+c.insets);
+		//IJMessage.log("x="+c.gridx+", y= "+c.gridy+", width="+c.gridwidth+", ancher= "+c.anchor+" "+c.insets);
 		add(fieldLabel, c);
 		if (addToSameRow) {
 			c.insets.left = 0;
@@ -390,7 +390,7 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 			return;
 		Button button = new Button(label);
 		button.addActionListener(listener);
-		button.addKeyListener(this);		
+		button.addKeyListener(this);
 		GridBagLayout layout = (GridBagLayout)getLayout();
 		Panel panel = new Panel();
 		addPanel(panel);
@@ -432,13 +432,13 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 	 * <code>enum</code> class of the specified default item (enum constant).
 	 * The default item is automatically set. Calls the original (string-based)
 	 * {@link GenericDialog#addChoice(String, String[], String)} method.
-	 * 
+	 *
 	 * @param <E> the generic enum type containing the items to chose from
 	 * @param label the label displayed for this choice group
 	 * @param defaultItem the menu item initially selected
 	 */
 	public <E extends Enum<E>> void addEnumChoice(String label, Enum<E> defaultItem) {
-		Class<E> enumClass = defaultItem.getDeclaringClass();	
+		Class<E> enumClass = defaultItem.getDeclaringClass();
 		E[] enums = enumClass.getEnumConstants();
 		String[] items = new String[enums.length];
 		for (int i = 0; i < enums.length; i++) {
@@ -446,13 +446,13 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 		}
 		this.addChoice(label, items, defaultItem.name());
 	}
-	
+
 	/**
 	 * Returns the selected item in the next enum choice menu.
 	 * Note that 'enumClass' is required to infer the proper enum type.
 	 * Throws {@code IllegalArgumentException} if the selected item is not a defined
 	 * constant in the specified enum class.
-	 * 
+	 *
 	 * @param <E> the generic enum type
 	 * @param enumClass the enum type
 	 * @return the selected item
@@ -892,7 +892,7 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 		s.setUnitIncrement(1);
 		if (IJ.isMacOSX())
 			s.addKeyListener(this);
-						
+
 		s.addMouseWheelListener(new MouseWheelListener() {
 			public void mouseWheelMoved(MouseWheelEvent e) {
 				Scrollbar sb = (Scrollbar)e.getSource();
@@ -917,7 +917,7 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 		}
 		if (IJ.isWindows()) columns -= 2;
 		if (columns<1) columns = 1;
-		//IJ.log("scale=" + scale + ", columns=" + columns + ", digits=" + digits);
+		//IJMessage.log("scale=" + scale + ", columns=" + columns + ", digits=" + digits);
 		TextField tf = newTextField(IJ.d2s(defaultValue/scale,digits),columns);
 		//if (IJ.isLinux()) tf.setBackground(Color.white);
 		tf.addActionListener(this);
@@ -958,7 +958,7 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 		if (Recorder.record || macro)
 			saveLabel(tf, label);
 	}
-	
+
 	private TextField newTextField(String txt, int columns) {
 		if (IJ.isLinux())
 			return new TrimmedTextField(txt,columns);
@@ -1061,7 +1061,7 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 		gd.enableYesNoCancel("Do something", "Do something else");
 		gd.showDialog();
 		if (gd.wasCanceled())
-			IJ.log("User clicked 'Cancel'");
+			IJMessage.log("User clicked 'Cancel'");
 		else if (gd.wasOKed())
 			IJ. log("User clicked 'Yes'");
 		else
@@ -1149,7 +1149,7 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 					errorMessage = "\""+theText+"\" is an invalid number";
 					value = Double.NaN;
 					if (macro) {
-						IJ.error("Macro Error", "Numeric value expected in run() function\n \n"
+						IJMessage.error("Macro Error", "Numeric value expected in run() function\n \n"
 							+"	 Dialog box title: \""+getTitle()+"\"\n"
 							+"	 Key: \""+label.toLowerCase(Locale.US)+"\"\n"
 							+"	 Value or variable name: \""+theText+"\"");
@@ -1338,7 +1338,7 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 				Interpreter interp = Interpreter.getInstance();
 				String s = interp!=null?interp.getStringVariable(item):null;
 				if (s==null)
-					IJ.error(getTitle(), "\""+item+"\" is not a valid choice for \""+label+"\"");
+					IJMessage.error(getTitle(), "\""+item+"\" is not a valid choice for \""+label+"\"");
 				else
 					item = s;
 			}
@@ -1486,7 +1486,7 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 			setVisible(true);  //except for NonBlockingGenericDialog, returns after 'dispose' by OK or Cancel
 		}
 	}
-	
+
 	/** For plugins that read their input only via dialogItemChanged, call it at least once, then stop recording */
 	void finalizeRecording() {
 		if (optionsRecorded)
@@ -1498,7 +1498,7 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 				((DialogListener)dialogListeners.elementAt(0)).dialogItemChanged(this,null);
 			} catch (Exception err) {	// for exceptions, don't cover the input by a window
 				IJ.beep();				// but show them at in the "Log"
-				IJ.log("ERROR: "+err+"\nin DialogListener of "+dialogListeners.elementAt(0)+
+				IJMessage.log("ERROR: "+err+"\nin DialogListener of "+dialogListeners.elementAt(0)+
 				"\nat "+(err.getStackTrace()[0])+"\nfrom "+(err.getStackTrace()[1]));
 			}
 			recorderOn = false;
@@ -1511,7 +1511,7 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 		super.setFont(!fontSizeSet&&Prefs.getGuiScale()!=1.0&&font!=null?font.deriveFont((float)(font.getSize()*Prefs.getGuiScale())):font);
 		fontSizeSet = true;
 	}
-	
+
 	/** Reset the counters before reading the dialog parameters */
 	void resetCounters() {
 		nfIndex = 0;		// prepare for readout
@@ -1662,7 +1662,7 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 
 	public void focusGained(FocusEvent e) {
 		Component c = e.getComponent();
-		//IJ.log("focusGained: "+c);
+		//IJMessage.log("focusGained: "+c);
 		if (c instanceof TextField)
 			((TextField)c).selectAll();
 	}
@@ -1775,7 +1775,7 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 					everythingOk = false;		  // disable further listeners if false (invalid parameters) returned
 			} catch (Exception err) {			  // for exceptions, don't cover the input by a window but
 				IJ.beep();							// show them at in the "Log"
-				IJ.log("ERROR: "+err+"\nin DialogListener of "+dialogListeners.elementAt(i)+
+				IJMessage.log("ERROR: "+err+"\nin DialogListener of "+dialogListeners.elementAt(i)+
 				"\nat "+(err.getStackTrace()[0])+"\nfrom "+(err.getStackTrace()[1]));
 			}
 		}
@@ -1878,7 +1878,7 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 	public void windowIconified(WindowEvent e) {}
 	public void windowDeiconified(WindowEvent e) {}
 	public void windowDeactivated(WindowEvent e) {}
-	
+
 	@SuppressWarnings("unchecked")
 	static String getString(DropTargetDropEvent event)
 			throws IOException, UnsupportedFlavorException {
@@ -1928,18 +1928,18 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 			} catch (Exception e) { e.printStackTrace(); }
 		}
 	}
-	
+
 	private class BrowseButtonListener implements ActionListener {
 		private String label;
 		private TextField textField;
-		private String mode;	
-		
+		private String mode;
+
 		public BrowseButtonListener(String label, TextField textField, String mode) {
 			this.label = label;
 			this.textField = textField;
 			this.mode = mode;
 		}
-	
+
 		public void actionPerformed(ActionEvent e) {
 			String path = null;
 			if (mode.equals("dir")) {
@@ -1954,11 +1954,11 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 			if (path!=null)
 				this.textField.setText(path);
 		}
-	
+
 	}
-	
+
 	private class TrimmedTextField extends TextField {
-	
+
 		public TrimmedTextField(String text, int columns) {
 			super(text, columns);
 		}
@@ -1975,7 +1975,7 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 		public Dimension getPreferredSize() {
 			return getMinimumSize();
 		}
-	
+
 	}
 
 }

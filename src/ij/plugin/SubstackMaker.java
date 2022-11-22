@@ -119,13 +119,13 @@ public class SubstackMaker implements PlugIn {
 				imp2 = stackList(imp, count, numList, stackTitle);
 			}
 		} catch (Exception e) {
-			IJ.error("Substack Maker", "Invalid input string:  \n \n  \""+userInput+"\"");
+			IJMessage.error("Substack Maker", "Invalid input string:  \n \n  \""+userInput+"\"");
 		}
 		if (hasFrames && imp2!=null)
 			imp2.setDimensions(1, 1, imp2.getStackSize());
 		return imp2;
 	}
-	
+
 	String showDialog() {
 		String options = Macro.getOptions();
 		boolean isMacro = options!=null;
@@ -190,7 +190,7 @@ public class SubstackMaker implements PlugIn {
 			impSubstack.setDisplayRange(min, max);
 		return impSubstack;
 	}
-	
+
 	// extract range of slices
 	ImagePlus stackRange(ImagePlus imp, int first, int last, int inc, String title) throws Exception {
 		ImageStack stack = imp.getStack();

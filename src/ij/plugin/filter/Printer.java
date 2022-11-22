@@ -30,7 +30,7 @@ public class Printer implements PlugInFilter, Printable {
 	public void run(ImageProcessor ip) {
 		print(imp);
 	}
-	
+
 	void pageSetup() {
 		ImagePlus imp = WindowManager.getCurrentImage();
 		Roi roi = imp!=null?imp.getRoi():null;
@@ -70,15 +70,15 @@ public class Printer implements PlugInFilter, Printable {
 		PrinterJob pj = PrinterJob.getPrinterJob();
 		pj.setPrintable(this);
 		//pj.pageDialog(pj.defaultPage());
-		if (IJ.macroRunning() || pj.printDialog()) {
+		if (IJMacro.macroRunning() || pj.printDialog()) {
 			imp.startTiming();
 			try {pj.print(); }
 			catch (PrinterException e) {
-				IJ.log(""+e);
+				IJMessage.log(""+e);
 			}
 		}
 	}
-	
+
 	@Override
 	public int print(Graphics g, PageFormat pf, int pageIndex) {
 		if (pageIndex != 0) return NO_SUCH_PAGE;
@@ -137,9 +137,9 @@ public class Printer implements PlugInFilter, Printable {
 			dstX += (pageWidth-dstWidth)/2;
 			dstY += (pageHeight-dstHeight)/2;
 		}
-		g.drawImage(img, 
+		g.drawImage(img,
 			dstX, dstY, dstX+dstWidth, dstY+dstHeight,
-			0, 0, width, height, 
+			0, 0, width, height,
 			null);
 		if (drawBorder)
 			g.drawRect(dstX-1, dstY-1, dstWidth+1, dstHeight+1);

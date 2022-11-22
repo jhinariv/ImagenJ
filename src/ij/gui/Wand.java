@@ -24,7 +24,7 @@ public class Wand {
       * In this mode, no checking is done whether the foreground or the background
       * gets selected; four- or 8-connected behaviour depends on foreground/background
       * and (if no selection) on whether the initial pixel is on a 1-pixel wide line. */
-    public final static int LEGACY_MODE = 1;    
+    public final static int LEGACY_MODE = 1;
     /** The number of points in the generated outline. */
     public int npoints;
     private int maxPoints = 1000; // will be increased if necessary
@@ -170,7 +170,7 @@ public class Wand {
     }
 
 
-    /* Trace the outline, starting at a point (startX, startY). 
+    /* Trace the outline, starting at a point (startX, startY).
      * Pixel (startX-1, startY) must be outside, (startX, startY) must be inside,
      * or reverse. Otherwise an endless loop will occur (and eat up all memory).
      * Traces 8-connected inside pixels unless fourConnected is true.
@@ -335,8 +335,8 @@ public class Wand {
                 if (inside(x,y))
                     insideCount++;
             }
-        if (IJ.debugMode)
-            IJ.log((((double)insideCount)/area<0.25?"line ":"blob ")+insideCount+" "+area+" "+IJ.d2s(((double)insideCount)/area));
+        if (IJDebugMode.debugMode)
+            IJMessage.log((((double)insideCount)/area<0.25?"line ":"blob ")+insideCount+" "+area+" "+IJ.d2s(((double)insideCount)/area));
         return ((double)insideCount)/area<0.25;
     }
 

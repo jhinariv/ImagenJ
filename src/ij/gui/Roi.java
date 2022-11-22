@@ -632,10 +632,10 @@ public class Roi extends Object implements Cloneable, java.io.Serializable, Iter
 		if (npoints<2)
 			return p;
 		if (Math.abs(interval)<0.01) {
-			IJ.error("Interval must be >= 0.01");
+			IJMessage.error("Interval must be >= 0.01");
 			return p;
 		}
-		
+
 		if (!isLine) {//**append (and later remove) closing point to end of array
 			npoints++;
 			p.xpoints = java.util.Arrays.copyOf(p.xpoints, npoints);
@@ -1634,7 +1634,7 @@ public class Roi extends Object implements Cloneable, java.io.Serializable, Iter
 		if (roi2!=null)
 			roi2.copyAttributes(previousRoi);
 		imp.setRoi(roi2);
-		RoiManager rm = RoiManager.getRawInstance();		
+		RoiManager rm = RoiManager.getRawInstance();
 		if (rm!=null && rm.getCount()>0) {
 			Roi[] rois = rm.getSelectedRoisAsArray();
 			if (rois!=null && rois.length==1 && rois[0].equals(originalRoi))
@@ -1698,7 +1698,7 @@ public class Roi extends Object implements Cloneable, java.io.Serializable, Iter
 			size = ", w="+IJ.d2s(width*cal.pixelWidth)+" ("+width+"), h="+IJ.d2s(height*cal.pixelHeight)+" ("+height+")";
 		else
 			size = ", w="+width+", h="+height;
-		IJ.showStatus(imp.getLocationAsString(this.x,this.y)+size+value);
+		IJMessage.showStatus(imp.getLocationAsString(this.x,this.y)+size+value);
 	}
 
 	/** Always returns null for rectangular Roi's */
@@ -1710,7 +1710,7 @@ public class Roi extends Object implements Cloneable, java.io.Serializable, Iter
 	}
 
 	public void startPaste(ImagePlus clipboard) {
-		IJ.showStatus("Pasting...");
+		IJMessage.showStatus("Pasting...");
 		IJ.wait(10);
 		this.clipboard = clipboard;
 		imp.getProcessor().snapshot();
@@ -1817,7 +1817,7 @@ public class Roi extends Object implements Cloneable, java.io.Serializable, Iter
 				temp[i] = groupNames[i];
 			groupNames = temp;
 		}
-		//IJ.log("setGroupName: "+groupNumber+"  "+name+"  "+groupNames.length);
+		//IJMessage.log("setGroupName: "+groupNumber+"  "+name+"  "+groupNames.length);
 		groupNames[groupNumber-1] = name;
 		groupNamesChanged = true;
 	}
@@ -1860,7 +1860,7 @@ public class Roi extends Object implements Cloneable, java.io.Serializable, Iter
 		if (group>0)
 			setStrokeColor(getGroupColor(group));
 		if (group==0 && this.group>0)
-			setStrokeColor(null);			
+			setStrokeColor(null);
 		this.group = group;
 		if (imp!=null) // Update Roi Color in the GUI
 			imp.draw();
@@ -1874,7 +1874,7 @@ public class Roi extends Object implements Cloneable, java.io.Serializable, Iter
 				String path = IJ.getDir("luts")+"Glasbey.lut";
 				glasbeyLut = LutLoader.openLut("noerror:"+path);
 				if (glasbeyLut==null)
-					IJ.log("LUT not found: "+path);
+					IJMessage.log("LUT not found: "+path);
 			}
 			if (glasbeyLut!=null)
 				color = new Color(glasbeyLut.getRGB(group));
@@ -2021,7 +2021,7 @@ public class Roi extends Object implements Cloneable, java.io.Serializable, Iter
 	 * the width to 0.0 and the ROI will be drawn using a
 	 * a 1 pixel stroke width regardless of the magnification.
 	 * @see #setDefaultStrokeWidth(double)
-	 * @see #setUnscalableStrokeWidth(double)	 
+	 * @see #setUnscalableStrokeWidth(double)
 	 * @see #setStrokeColor(Color)
 	 * @see ij.ImagePlus#setOverlay(ij.gui.Overlay)
 	 */
@@ -2502,7 +2502,7 @@ public class Roi extends Object implements Cloneable, java.io.Serializable, Iter
 			InputStream is = new ByteArrayInputStream(properties.getBytes("utf-8"));
 			props.load(is);
 		} catch(Exception e) {
-			IJ.error(""+e);
+			IJMessage.error(""+e);
 		}
 	}
 

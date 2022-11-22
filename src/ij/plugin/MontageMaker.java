@@ -9,7 +9,7 @@ import java.awt.event.*;
 
 /** Implements the Image/Stacks/Make Montage command. */
 public class MontageMaker implements PlugIn {
-			
+
 	private static int columns, rows, first, last, inc, borderWidth;
 	private static double scale;
 	private static boolean label;
@@ -56,7 +56,7 @@ public class MontageMaker implements PlugIn {
 		saveID = imp.getID();
 		IJ.register(MontageMaker.class);
 	}
-	
+
 	public void makeMontage(ImagePlus imp) {
 			int nSlices = imp.getStackSize();
 			if (hyperstack) {
@@ -86,7 +86,7 @@ public class MontageMaker implements PlugIn {
 				useForegroundColor = false;
 			}
 			saveStackSize = nSlices;
-			
+
 			GenericDialog gd = new GenericDialog("Make Montage");
 			gd.addNumericField("Columns:", columns, 0);
 			gd.addNumericField("Rows:", rows, 0);
@@ -141,7 +141,7 @@ public class MontageMaker implements PlugIn {
 				columns = 0;
 			}
 	}
-	
+
 	/** Creates a montage and displays it. */
 	public void makeMontage(ImagePlus imp, int columns, int rows, double scale, int first, int last, int inc, int borderWidth, boolean labels) {
 		ImagePlus imp2 = makeMontage2(imp, columns, rows, scale, first, last, inc, borderWidth, labels);
@@ -238,7 +238,7 @@ public class MontageMaker implements PlugIn {
         imp2.setProperty("Info", "xMontage="+columns+"\nyMontage="+rows+"\n");
 		return imp2;
 	}
-		
+
 	/** Creates a hyperstack montage and returns it as an ImagePlus. */
 	private ImagePlus makeHyperstackMontage(ImagePlus imp, int columns, int rows, double scale, int inc, int borderWidth, boolean labels) {
 		ImagePlus[] channels = ChannelSplitter.split(imp);
@@ -253,11 +253,11 @@ public class MontageMaker implements PlugIn {
 		montage.setTitle("Montage");
 		return montage;
 	}
-	
+
 	private void error(String msg) {
-		IJ.error("Make Montage", msg);
+		IJMessage.error("Make Montage", msg);
 	}
-	
+
 	void drawLabel(ImageProcessor montage, int slice, String label, int x, int y, int width, int height, int borderWidth) {
 		if (label!=null && !label.equals("") && montage.getStringWidth(label)>=width) {
 			do {
@@ -272,11 +272,11 @@ public class MontageMaker implements PlugIn {
 		y += height;
 		montage.drawString(label, x, y);
 	}
-	
+
 	public void setFontSize(int fontSize) {
 		this.fontSize = fontSize;
 	}
-	
+
 }
 
 

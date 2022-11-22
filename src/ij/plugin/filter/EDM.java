@@ -25,7 +25,7 @@ import ij.gui.*;
  *   nearest particles. This is similar to a medial axis transform of the background,
  *   but there are no lines in inner holes of particles.
  *
- * Watershed, Ultimate Eroded Points and Voronoi are handled by the MaximumFinder 
+ * Watershed, Ultimate Eroded Points and Voronoi are handled by the MaximumFinder
  * plugin applied to the EDM
  * Note: These functions do not take ROIs into account.
  * Setup is called with argument "" (empty string) for EDM,
@@ -127,7 +127,7 @@ public class EDM implements ExtendedPlugInFilter {
         if (imp != null) {
             ImageProcessor ip = imp.getProcessor();
             if (!ip.isBinary()) {
-                IJ.error("8-bit binary image (0 and 255) required.");
+                IJMessage.error("8-bit binary image (0 and 255) required.");
                 return DONE;
             }
             ip.resetRoi();
@@ -436,7 +436,7 @@ public class EDM implements ExtendedPlugInFilter {
         progressDone += deltaProgress;
         IJ.showProgress(progressDone/nPasses);
     }
-    
+
     /** Sets the output type (BYTE_OVERWRITE, BYTE, SHORT or FLOAT) */
     public static void setOutputType(int type) {
         if (type<BYTE_OVERWRITE || type>FLOAT)

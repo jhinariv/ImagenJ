@@ -43,16 +43,16 @@ public class HyperStackMaker implements PlugIn {
 		else if (mode.equals("Grayscale"))
 			type2 += " grayscale";
 		ImagePlus imp = IJ.createImage(title, type2, width, height, c, z, t);
-		WindowManager.checkForDuplicateName = true;          
+		WindowManager.checkForDuplicateName = true;
 		imp.show();
 		if (Macro.getOptions()==null) {
 			defaults2 = type+" "+mode+" "+width+" "+height+" "+c+" "+z+" "+t+" "+(label?"1":"0");
 			Prefs.set("hyperstack.new", defaults2);
 		}
 	}
-	
+
 	private boolean showDialog() {
-		String options = IJ.isMacro()?Macro.getOptions():null;
+		String options = IJMacro.isMacro()?Macro.getOptions():null;
 		if (options!=null && options.contains("title="))
 			Macro.setOptions(options.replace("title=", "name="));
 		GenericDialog gd = new GenericDialog("New Hyperstack...");
@@ -81,12 +81,12 @@ public class HyperStackMaker implements PlugIn {
 		if (t<1) t=1;
 		label = gd.getNextBoolean();
 		if (width<1 || height<1) {
-			IJ.error("New Image", "Width and height must be >0");
+			IJMessage.error("New Image", "Width and height must be >0");
 			return false;
 		} else
 			return true;
 	}
-	
+
 	public static void labelHyperstack(ImagePlus imp) {
 		int width = imp.getWidth();
 		int height = imp.getHeight();
@@ -109,7 +109,7 @@ public class HyperStackMaker implements PlugIn {
 			ip.fill();
 			ip.setRoi(0, yloc+25, width, height-(yloc+25));
 			ip.fill();
-			
+
 			if (rgb && channel<=CompositeImage.colors.length)
 				ip.setColor(CompositeImage.colors[channel-1]);
 			else
@@ -127,7 +127,7 @@ public class HyperStackMaker implements PlugIn {
 				roi.setPosition(i);
 			overlay.add(roi);
 			ip.drawString(text, 5, yloc+27);
-			
+
 			if (!rgb) {
 				// embed channel, slice, frame and stack index into pixel data
 				yloc += 30;;
@@ -141,7 +141,7 @@ public class HyperStackMaker implements PlugIn {
 				ip.setValue(i); ip.setRoi(size*7,yloc,size,size); ip.fill();
 				ip.setColor(Color.white); ip.drawRect(size*7,yloc,size,size);
 			}
-			
+
 			yloc = 90;
 			if (i==1 && hyperstack && !rgb) {
 				String msg = "Press shift-z (Image>Color>Channels Tool)\n"+

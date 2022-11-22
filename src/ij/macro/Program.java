@@ -8,7 +8,7 @@ public class Program implements MacroConstants {
 	private int maxSymbols = 500;  // will be increased as needed
 	private int maxProgramSize = 650;  // well be increased as needed
 	private int pc = -1;
-	
+
 	int stLoc = -1;
 	int symTabLoc;
 	Symbol[] table = new Symbol[maxSymbols];
@@ -20,9 +20,9 @@ public class Program implements MacroConstants {
 	int macroCount;
     Hashtable menus;
     // run keyboard shortcut macros on event dispatch thread?
-	boolean queueCommands; 
+	boolean queueCommands;
 	Hashtable extensionRegistry;
-			
+
 	public Program() {
 		if (systemTable!=null) {
 			if (systemTable.length>table.length)
@@ -41,17 +41,17 @@ public class Program implements MacroConstants {
 			for (int i=0; i<=stLoc; i++)
 				systemTable[i] = table[i];
 		}
-		if (IJ.debugMode) IJ.log("Symbol table: "+(stLoc+1)+"  "+table.length+"  "+systemTable.length);
+		if (IJDebugMode.debugMode) IJMessage.log("Symbol table: "+(stLoc+1)+"  "+table.length+"  "+systemTable.length);
 	}
-	
+
 	public int[] getCode() {
 		return code;
 	}
-	
+
 	public Symbol[] getSymbolTable() {
 		return table;
 	}
-	
+
 	void addKeywords() {
 		for (int i=0; i<keywords.length; i++)
 			addSymbol(new Symbol(keywordIDs[i], keywords[i]));
@@ -66,7 +66,7 @@ public class Program implements MacroConstants {
 		for (int i=0; i<numericFunctions.length; i++)
 			addSymbol(new Symbol(numericFunctionIDs[i], numericFunctions[i]));
 	}
-	
+
 	void addStringFunctions() {
 		for (int i=0; i<stringFunctions.length; i++)
 			addSymbol(new Symbol(stringFunctionIDs[i], stringFunctions[i]));
@@ -88,15 +88,15 @@ public class Program implements MacroConstants {
 			enlargeSymbolTable();
 		table[stLoc] = sym;
 	}
-	
+
 	void enlargeSymbolTable() {
 		Symbol[] tmp = new Symbol[maxSymbols*2];
 		System.arraycopy(table, 0, tmp, 0, maxSymbols);
 		table = tmp;
 		maxSymbols *= 2;
-		if (IJ.debugMode) IJ.log("enlargeSymbolTable: "+table.length);
+		if (IJDebugMode.debugMode) IJMessage.log("enlargeSymbolTable: "+table.length);
 	}
-	
+
 	void addToken(int tok, int lineNumber) {//n__
 		pc++;
 		if (pc==code.length) {
@@ -134,27 +134,27 @@ public class Program implements MacroConstants {
 		for (int i=0; i<n; i++)
 			globals[i] = interp.stack[i];
 	}
-	
+
 	public void dumpSymbolTable() {
-		IJ.log("");
-		IJ.log("Symbol Table");
+		IJMessage.log("");
+		IJMessage.log("Symbol Table");
 		for (int i=0; i<=maxSymbols; i++) {
 			Symbol symbol = table[i];
 			if (symbol==null)
 				break;
-			IJ.log(i+" "+symbol);
+			IJMessage.log(i+" "+symbol);
 		}
 	}
 
 	public void dumpProgram() {
-		IJ.log("");
-		IJ.log("Tokenized Program");
+		IJMessage.log("");
+		IJMessage.log("Tokenized Program");
 		String str;
 		int token, address;
-		for (int i=0; i<=pc; i++) 
-			IJ.log(i+"	 "+lineNumbers[i]+"   "+(code[i]&TOK_MASK)+"   "+decodeToken(code[i]));
+		for (int i=0; i<=pc; i++)
+			IJMessage.log(i+"	 "+lineNumbers[i]+"   "+(code[i]&TOK_MASK)+"   "+decodeToken(code[i]));
 	}
-	
+
 	public Variable[] getGlobals() {
 		return globals;
 	}
@@ -256,7 +256,7 @@ public class Program implements MacroConstants {
 		}
 		return str;
 	}
-    
+
     public Hashtable getMenus() {
         return menus;
     }
@@ -274,13 +274,13 @@ public class Program implements MacroConstants {
 		}
 		return false;
 	}
-		
+
 	public int getSize() {
 		return pc;
 	}
-	
+
 	public String toString() {
 		return "pgm[code="+(code!=null?""+code.length:"null") + " tab="+(table!=null?""+table.length:"null")+"]";
 	}
-	
+
 } // Program

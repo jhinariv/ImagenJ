@@ -13,7 +13,7 @@ public class HyperStackReducer implements PlugIn, DialogListener {
 	int channels2, slices2, frames2;
 	double imageSize;
 	static boolean keep = true;
-	
+
 	/** Default constructor */
 	public HyperStackReducer() {
 	}
@@ -24,10 +24,10 @@ public class HyperStackReducer implements PlugIn, DialogListener {
 	}
 
 	public void run(String arg) {
-		//IJ.log("HyperStackReducer-1");
+		//IJMessage.log("HyperStackReducer-1");
 		imp = IJ.getImage();
 		if (!imp.isHyperStack() && imp.getNChannels()==1) {
-			IJ.error("Reducer", "HyperStack required");
+			IJMessage.error("Reducer", "HyperStack required");
 			return;
 		}
 		int width = imp.getWidth();
@@ -40,7 +40,7 @@ public class HyperStackReducer implements PlugIn, DialogListener {
 		int t0 = imp.getFrame();
 		if (!showDialog())
 			return;
-		//IJ.log("HyperStackReducer-2: "+keep+" "+channels2+" "+slices2+" "+frames2);
+		//IJMessage.log("HyperStackReducer-2: "+keep+" "+channels2+" "+slices2+" "+frames2);
 		String title2 = keep?WindowManager.getUniqueName(imp.getTitle()):imp.getTitle();
 		ImagePlus imp2 = null;
 		if (keep) {
@@ -51,7 +51,7 @@ public class HyperStackReducer implements PlugIn, DialogListener {
 			imp2.setOpenAsHyperStack(true);
 		} else
 			imp2 = imp.createHyperStack(title2, channels2, slices2, frames2, imp.getBitDepth());
-		imp2.setProperty("Info", (String)imp.getProperty("Info"));		
+		imp2.setProperty("Info", (String)imp.getProperty("Info"));
 		imp2.setProperties(imp.getPropertiesAsArray());
 		reduce(imp2);
 		if (channels2>1 && channels2==imp.getNChannels() && imp.isComposite()) {
@@ -61,7 +61,7 @@ public class HyperStackReducer implements PlugIn, DialogListener {
 		} else {
 			imp2.setDisplayRange(imp.getDisplayRangeMin(), imp.getDisplayRangeMax());
 			if (imp.isComposite() && ((CompositeImage)imp).getMode()==IJ.GRAYSCALE)
-				IJ.run(imp2, "Grays", "");
+				IJPlugin.runimp2, "Grays", "");
 		}
 		if (imp.getWindow()==null && !keep) {
 			imp.setImage(imp2);
@@ -70,7 +70,7 @@ public class HyperStackReducer implements PlugIn, DialogListener {
 		imp2.show();
 		if (z0>1 || t0>1)
 			imp2.setPosition(1, z0, t0);
-		//IJ.log("HyperStackReducer-4");
+		//IJMessage.log("HyperStackReducer-4");
 		if (!keep) {
 			imp.changes = false;
 			imp.close();
@@ -149,7 +149,7 @@ public class HyperStackReducer implements PlugIn, DialogListener {
 			overlay2.crop(c1, c1, z1, z1, t1, t1);
 		return overlay2;
 	}
-    
+
     boolean showDialog() {
 		GenericDialog gd = new GenericDialog("Reduce");
 		gd.setInsets(10, 20, 5);

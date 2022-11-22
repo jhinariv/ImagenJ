@@ -27,7 +27,7 @@ public class ImportDialog {
 	static final int WHITE_IS_ZERO = 1;
 	static final int INTEL_BYTE_ORDER = 2;
 	static final int OPEN_ALL = 4;
-	
+
     // default settings
     private static int sChoiceSelection = Prefs.getInt(TYPE,0);
     private static int sWidth = Prefs.getInt(WIDTH,512);
@@ -52,19 +52,19 @@ public class ImportDialog {
     private static FileInfo lastFileInfo;
     private boolean openAll;
     private static String[] types = {"8-bit", "16-bit Signed", "16-bit Unsigned",
-		"32-bit Signed", "32-bit Unsigned", "32-bit Real", "64-bit Real", "24-bit RGB", 
+		"32-bit Signed", "32-bit Unsigned", "32-bit Real", "64-bit Real", "24-bit RGB",
 		"24-bit RGB Planar", "24-bit BGR", "24-bit Integer", "32-bit ARGB", "32-bit ABGR", "1-bit Bitmap"};
-    	
+
     static {
     	options = Prefs.getInt(OPTIONS, 0);
     	sWhiteIsZero = (options&WHITE_IS_ZERO)!=0;
     	sIntelByteOrder = (options&INTEL_BYTE_ORDER)!=0;
     }
-	
+
     public ImportDialog(String fileName, String directory) {
         this.fileName = fileName;
         this.directory = directory;
-		IJ.showStatus("Importing: " + fileName);
+		IJMessage.showStatus("Importing: " + fileName);
 	}
 
     public ImportDialog() {
@@ -124,7 +124,7 @@ public class ImportDialog {
 		}
 		return true;
 	}
-	
+
 	/** Opens all the images in the directory. */
 	void openAll(String[] list, FileInfo fi) {
 		FolderOpener fo = new FolderOpener();
@@ -142,7 +142,7 @@ public class ImportDialog {
 			fi.fileName = list[i];
 			imp = new FileOpener(fi).openImage();
 			if (imp==null)
-				IJ.log(list[i] + ": unable to open");
+				IJMessage.log(list[i] + ": unable to open");
 			else {
 				if (stack==null)
 					stack = imp.createEmptyStack();
@@ -170,7 +170,7 @@ public class ImportDialog {
 					stack.trim();
 					break;
 				}
-				IJ.showStatus((stack.size()+1) + ": " + list[i]);
+				IJMessage.showStatus((stack.size()+1) + ": " + list[i]);
 			}
 		}
 		String dir = Recorder.fixPath(fi.directory);
@@ -185,7 +185,7 @@ public class ImportDialog {
 			imp.show();
 		}
 	}
-	
+
 	/** Displays the dialog and opens the specified image or images.
 		Does nothing if the dialog is canceled. */
 	public void openImage() {
@@ -225,12 +225,12 @@ public class ImportDialog {
 					imp.setDisplayRange(ip.getMin(),ip.getMax());
 				}
 			} else
-				IJ.error("File>Import>Raw", "File not found: "+filePath);
+				IJMessage.error("File>Import>Raw", "File not found: "+filePath);
 		}
 	}
 
 	/** Displays the dialog and returns a FileInfo object that can be used to
-		open the image. Returns null if the dialog is canceled. The fileName 
+		open the image. Returns null if the dialog is canceled. The fileName
 		and directory fields are null if the no argument constructor was used. */
 	public FileInfo getFileInfo() {
 		if (!showDialog())
@@ -282,7 +282,7 @@ public class ImportDialog {
 			fi.fileType = FileInfo.BITMAP;
 		else
 			fi.fileType = FileInfo.GRAY8;
-		if (IJ.debugMode) IJ.log("ImportDialog: "+fi);
+		if (IJDebugMode.debugMode) IJMessage.log("ImportDialog: "+fi);
 		lastFileInfo = (FileInfo)fi.clone();
 		return fi;
 	}
@@ -302,13 +302,13 @@ public class ImportDialog {
 			options |= INTEL_BYTE_ORDER;
 		prefs.put(OPTIONS, Integer.toString(options));
 	}
-	
+
 	/** Returns the FileInfo object used to import the last raw image,
 		or null if a raw image has not been imported. */
 	public static FileInfo getLastFileInfo() {
 		return lastFileInfo;
 	}
-		
+
 	private void getDimensionsFromName(String name) {
 		if (name==null)
 			return;
@@ -339,7 +339,7 @@ public class ImportDialog {
 		}
 		guessFormat(directory, name);
 	}
-    
+
 	private void guessFormat(String dir, String name) {
 		if (dir==null) return;
 		File file = new File(dir+name);
@@ -358,5 +358,5 @@ public class ImportDialog {
 		else if (name.endsWith("le.raw"))  // little-endian
 			intelByteOrder = true;
 	}
-	
+
 }

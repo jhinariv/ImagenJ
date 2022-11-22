@@ -18,7 +18,7 @@ public class HistogramPlot extends ImagePlus {
 	static final int BAR_HEIGHT = (int)(SCALE*12);
 	static final int INTENSITY1=0, INTENSITY2=1, RGB=2, RED=3, GREEN=4, BLUE=5;
 	static final Color frameColor = new Color(30,60,120);
-	
+
 	int rgbMode = -1;
 	ImageStatistics stats;
 	boolean stackHistogram;
@@ -26,7 +26,7 @@ public class HistogramPlot extends ImagePlus {
 	long[] histogram;
 	LookUpTable lut;
 	int decimalPlaces;
-	int digits; 
+	int digits;
 	long newMaxCount;
 	boolean logScale;
 	int yMax;
@@ -35,19 +35,19 @@ public class HistogramPlot extends ImagePlus {
 	Font font = new Font("SansSerif",Font.PLAIN,(int)(12*SCALE));
 	boolean showBins;
 	int col1, col2, row1, row2, row3, row4, row5;
-	    
+
 	public HistogramPlot() {
 		setImage(NewImage.createRGBImage("Histogram", WIN_WIDTH, WIN_HEIGHT, 1, NewImage.FILL_WHITE));
 	}
 
-	/** Plots a histogram using the specified title and number of bins. 
+	/** Plots a histogram using the specified title and number of bins.
 		Currently, the number of bins must be 256 expect for 32 bit images. */
 	public void draw(String title, ImagePlus imp, int bins) {
 		draw(imp, bins, 0.0, 0.0, 0);
 	}
 
 	/** Plots a histogram using the specified title, number of bins and histogram range.
-		Currently, the number of bins must be 256 and the histogram range range must be 
+		Currently, the number of bins must be 256 and the histogram range range must be
 		the same as the image range expect for 32 bit images. */
 	public void draw(ImagePlus imp, int bins, double histMin, double histMax, int yMax) {
 		boolean limitToThreshold = (Analyzer.getMeasurements()&LIMIT)!=0;
@@ -70,7 +70,7 @@ public class HistogramPlot extends ImagePlus {
 			stats = imp.getStatistics(AREA+MEAN+MODE+MIN_MAX+(limitToThreshold?LIMIT:0), bins, histMin, histMax);
 		draw(imp, stats);
 	}
-	
+
 	private ImageStatistics RGBHistogram(ImagePlus imp, int bins, double histMin, double histMax) {
 		ImageProcessor ip = (ColorProcessor)imp.getProcessor();
 		ip = ip.crop();
@@ -106,7 +106,7 @@ public class HistogramPlot extends ImagePlus {
 		ImageProcessor srcIP = imp.getProcessor();
 		drawHistogram(imp, ip, fixedRange, stats.histMin, stats.histMax);
 	}
-	
+
 	protected void drawHistogram(ImageProcessor ip, boolean fixedRange) {
 		drawHistogram(null, ip, fixedRange, 0.0, 0.0);
 	}
@@ -116,7 +116,7 @@ public class HistogramPlot extends ImagePlus {
 		int x, y;
 		long maxCount2 = 0;
 		int mode2 = 0;
-		long saveModalCount;		    	
+		long saveModalCount;
 		ip.setColor(Color.black);
 		ip.setLineWidth(1);
 		decimalPlaces = Analyzer.getPrecision();
@@ -145,7 +145,7 @@ public class HistogramPlot extends ImagePlus {
   		drawText(ip, x, y, fixedRange);
   		srcImageID = imp.getID();
 	}
-       
+
 	void drawAlignedColorBar(ImagePlus imp, double xMin, double xMax, ImageProcessor ip, int x, int y, int width, int height) {
 		ImageProcessor ipSource = imp.getProcessor();
 		float[] pixels = null;
@@ -221,13 +221,13 @@ public class HistogramPlot extends ImagePlus {
 		} else if (histogram.length<=HIST_WIDTH) {
 			int index, y;
 			for (int i=0; i<HIST_WIDTH; i++) {
-				index = (int)(i*(double)histogram.length/HIST_WIDTH); 
+				index = (int)(i*(double)histogram.length/HIST_WIDTH);
 				y = (int)(((double)HIST_HEIGHT*(double)histogram[index])/maxCount);
 				if (y>HIST_HEIGHT) y = HIST_HEIGHT;
 				ip.drawLine(i+XMARGIN, YMARGIN+HIST_HEIGHT, i+XMARGIN, YMARGIN+HIST_HEIGHT-y);
 			}
 		} else {
-			double xscale = (double)HIST_WIDTH/histogram.length; 
+			double xscale = (double)HIST_WIDTH/histogram.length;
 			for (int i=0; i<histogram.length; i++) {
 				long value = histogram[i];
 				if (value>0L) {
@@ -242,7 +242,7 @@ public class HistogramPlot extends ImagePlus {
 		ip.drawRect(frame.x-1, frame.y, frame.width+2, frame.height+1);
 		ip.setColor(Color.black);
 	}
-		
+
 	void drawLogPlot (long maxCount, ImageProcessor ip) {
 		frame = new Rectangle(XMARGIN, YMARGIN, HIST_WIDTH, HIST_HEIGHT);
 		ip.drawRect(frame.x-1, frame.y, frame.width+2, frame.height+1);
@@ -263,13 +263,13 @@ public class HistogramPlot extends ImagePlus {
 		} else if (histogram.length<=HIST_WIDTH) {
 			int index, y;
 			for (int i = 0; i<HIST_WIDTH; i++) {
-				index = (int)(i*(double)histogram.length/HIST_WIDTH); 
+				index = (int)(i*(double)histogram.length/HIST_WIDTH);
 				y = histogram[index]==0?0:(int)(HIST_HEIGHT*Math.log(histogram[index])/max);
 				if (y>HIST_HEIGHT) y = HIST_HEIGHT;
 				ip.drawLine(i+XMARGIN, YMARGIN+HIST_HEIGHT, i+XMARGIN, YMARGIN+HIST_HEIGHT-y);
 			}
 		} else {
-			double xscale = (double)HIST_WIDTH/histogram.length; 
+			double xscale = (double)HIST_WIDTH/histogram.length;
 			for (int i=0; i<histogram.length; i++) {
 				long value = histogram[i];
 				if (value>0L) {
@@ -282,7 +282,7 @@ public class HistogramPlot extends ImagePlus {
 		}
 		ip.setColor(Color.black);
 	}
-		
+
 	void drawText(ImageProcessor ip, int x, int y, boolean fixedRange) {
 		ip.setFont(font);
 		ip.setAntialiasedText(true);
@@ -307,7 +307,7 @@ public class HistogramPlot extends ImagePlus {
 				case BLUE: ip.drawString("Blue", x, y);  break;
 			}
 			ip.setJustification(ImageProcessor.LEFT_JUSTIFY);
-		}        
+		}
 		double binWidth = range/stats.nBins;
 		binWidth = Math.abs(binWidth);
 		showBins = binWidth!=1.0 || !fixedRange;
@@ -322,7 +322,7 @@ public class HistogramPlot extends ImagePlus {
 		long count = stats.longPixelCount>0?stats.longPixelCount:stats.pixelCount;
 		String modeCount = " (" + stats.maxCount + ")";
 		if (modeCount.length()>12) modeCount = "";
-		
+
 		ip.drawString("N: " + count, col1, row1);
 		ip.drawString("Min: " + d2s(stats.min), col2, row1);
 		ip.drawString("Mean: " + d2s(stats.mean), col1, row2);
@@ -334,18 +334,18 @@ public class HistogramPlot extends ImagePlus {
 			ip.drawString("Bin Width: " + d2s(binWidth), col2, row4);
 		}
 	}
-	
+
 	private String d2s(double d) {
 		if ((int)d==d)
 			return IJ.d2s(d, 0);
 		else
     		return IJ.d2s(d, 3, 8);
     }
-	
+
 	int getWidth(double d, ImageProcessor ip) {
 		return ip.getStringWidth(d2s(d));
 	}
-				
+
 	public int[] getHistogram() {
 		int[] hist = new int[histogram.length];
 		for (int i=0; i<histogram.length; i++)
@@ -359,13 +359,13 @@ public class HistogramPlot extends ImagePlus {
 			values[i] = cal.getCValue(stats.histMin+i*stats.binSize);
 		return values;
 	}
-	
+
     @Override
     public void show() {
-		if (IJ.isMacro()&&Interpreter.isBatchMode())
+		if (IJMacro.isMacro()&&Interpreter.isBatchMode())
 			super.show();
 		else
 			new HistogramWindow(this, WindowManager.getImage(srcImageID));
 	}
-	
+
 }

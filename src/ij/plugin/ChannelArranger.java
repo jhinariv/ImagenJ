@@ -25,11 +25,11 @@ public class ChannelArranger implements PlugIn, TextListener {
 		ImagePlus imp = IJ.getImage();
 		nChannels = imp.getNChannels();
 		if (nChannels==1) {
-			IJ.error("Channel Arranger", "Image must have more than one channel");
+			IJMessage.error("Channel Arranger", "Image must have more than one channel");
 			return;
 		}
 		if (nChannels>9) {
-			IJ.error("Channel Arranger", "This command does not work with more than 9 channels.");
+			IJMessage.error("Channel Arranger", "This command does not work with more than 9 channels.");
 			return;
 		}
 		patternString = "1234567890".substring(0, nChannels);
@@ -54,13 +54,13 @@ public class ChannelArranger implements PlugIn, TextListener {
 			return;
 		for (int i=0; i<nChannels2; i++) {
 			if (!Character.isDigit(newOrder.charAt(i))) {
-				IJ.error("Channel Arranger", "Non-digit in new order string: \""+newOrder+"\"");
+				IJMessage.error("Channel Arranger", "Non-digit in new order string: \""+newOrder+"\"");
 				return;
 			}
 		}
 		if (nChannels2<nChannels) {
 			String msg = "The number of channels will be reduced from "+nChannels+" to "+nChannels2+".";
-			if (!IJ.showMessageWithCancel("Reduce Number of Channels?", msg))
+			if (!IJMessage.showMessageWithCancel("Reduce Number of Channels?", msg))
 				return;
 		}
 		Point location = imp.getWindow()!=null?imp.getWindow().getLocation():null;
@@ -74,13 +74,13 @@ public class ChannelArranger implements PlugIn, TextListener {
 		imp2.changes = true;
 		imp2.show();
 	}
-	
+
 	/** Changes the order of the channels in a hyperstack.
 		@param img source hyperstack
 		@param newOrder the new channel order
 		@return a hyperstack with channels in the specified order
 		<p>
-		The following example opens the FluorescentCells sample  
+		The following example opens the FluorescentCells sample
 		image and reverses the order of the channels.
 		<pre>
 		ImagePlus img = IJ.openImage("http://imagej.nih.gov/ij/images/FluorescentCells.zip");
@@ -294,7 +294,7 @@ class ThumbnailsCanvas extends Canvas implements MouseListener, MouseMotionListe
 		String cmd = e.getActionCommand();
 		cImp.setPosition(currentChannel, currentSlice, currentFrame);
 		CompositeImage cImp = (CompositeImage) this.cImp;
-		IJ.run(cmd);
+		IJPlugin.runcmd);
 		repaint();
 		setCursor(defaultCursor);
 	}

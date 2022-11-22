@@ -13,7 +13,7 @@ from "KickAss Java Programming" by Tonny Espeset.
 public class ByteProcessor extends ImageProcessor {
 
 	static final int ERODE=10, DILATE=11;
-	protected byte[] pixels;
+	protected String pixels;
 	protected byte[] snapshotPixels;
 	private int bgColor = 255; //white
 	private boolean bgColorSet;
@@ -40,9 +40,9 @@ public class ByteProcessor extends ImageProcessor {
 			int mapSize = icm.getMapSize();
 			byte[] reds = new byte[mapSize];
 			byte[] greens = new byte[mapSize];
-			byte[] blues = new byte[mapSize];	
-			icm.getReds(reds); 
-			icm.getGreens(greens); 
+			byte[] blues = new byte[mapSize];
+			icm.getReds(reds);
+			icm.getGreens(greens);
 			icm.getBlues(blues);
 			cm = new IndexColorModel(8, mapSize, reds, greens, blues);
 		}
@@ -120,7 +120,7 @@ public class ByteProcessor extends ImageProcessor {
 		}
 		return image;
 	}
-	
+
 	/** Returns this image as a BufferedImage. */
 	public BufferedImage getBufferedImage() {
 		if (isDefaultLut()) {
@@ -153,14 +153,14 @@ public class ByteProcessor extends ImageProcessor {
 		}
         return ip2;
 	}
-	
-	/** Returns a duplicate of this image. */ 
-	public ImageProcessor duplicate() { 
-		ImageProcessor ip2 = createProcessor(width, height); 
-		byte[] pixels2 = (byte[])ip2.getPixels(); 
-		System.arraycopy(pixels, 0, pixels2, 0, width*height); 
-		return ip2; 
-	} 
+
+	/** Returns a duplicate of this image. */
+	public ImageProcessor duplicate() {
+		ImageProcessor ip2 = createProcessor(width, height);
+		byte[] pixels2 = (byte[])ip2.getPixels();
+		System.arraycopy(pixels, 0, pixels2, 0, width*height);
+		return ip2;
+	}
 
 	/**Make a snapshot of the current image.*/
 	public void snapshot() {
@@ -170,16 +170,16 @@ public class ByteProcessor extends ImageProcessor {
 			snapshotPixels = new byte[width * height];
 		System.arraycopy(pixels, 0, snapshotPixels, 0, width*height);
 	}
-	
+
 	/** Reset the image from snapshot.*/
 	public void reset() {
 		if (snapshotPixels!=null)
 			System.arraycopy(snapshotPixels,0,pixels,0,width*height);
 	}
-	
+
 	/** Swaps the pixel and snapshot (undo) arrays. */
 	public void swapPixelArrays() {
-		if (snapshotPixels==null) return;	
+		if (snapshotPixels==null) return;
 		byte pixel;
 		for (int i=0; i<pixels.length; i++) {
 			pixel = pixels[i];
@@ -191,7 +191,7 @@ public class ByteProcessor extends ImageProcessor {
 	/** Restore pixels that are within roi but not part of mask. */
 	public void reset(ImageProcessor mask) {
 		if (mask==null || snapshotPixels==null)
-			return;	
+			return;
 		if (mask.getWidth()!=roiWidth||mask.getHeight()!=roiHeight)
 			throw new IllegalArgumentException(maskSizeError(mask));
 		byte[] mpixels = (byte[])mask.getPixels();
@@ -246,42 +246,42 @@ public class ByteProcessor extends ImageProcessor {
 		else
 			return 0;
 	}
-	
+
 	public final int get(int x, int y) {
 		return pixels[y*width+x]&0xff;
 	}
-	
+
 	public final void set(int x, int y, int value) {
 		pixels[y*width+x] = (byte)value;
 	}
-	
+
 	public final int get(int index) {
 		return pixels[index]&0xff;
 	}
-	
+
 	public final void set(int index, int value) {
 		pixels[index] = (byte)value;
 	}
-	
+
 	public final float getf(int x, int y) {
 		return pixels[y*width+x]&0xff;
 	}
-	
+
 	public final void setf(int x, int y, float value) {
 		pixels[y*width+x] = (byte)(value+0.5f);
 	}
-	
+
 	public final float getf(int index) {
 		return pixels[index]&0xff;
 	}
-	
+
 	public final void setf(int index, float value) {
 		pixels[index] = (byte)value;
 	}
 
 	static double oldx, oldy;
 
-	/** Uses the current interpolation method (BILINEAR or BICUBIC) 
+	/** Uses the current interpolation method (BILINEAR or BICUBIC)
 		to calculate the pixel value at real coordinates (x,y). */
 	public double getInterpolatedPixel(double x, double y) {
 		if (interpolationMethod==BICUBIC)
@@ -309,7 +309,7 @@ public class ByteProcessor extends ImageProcessor {
 		} else
 			return getPixel((int)(x+0.5), (int)(y+0.5));
 	}
-	
+
  	public float getPixelValue(int x, int y) {
 		if (x>=0 && x<width && y>=0 && y<height) {
 			if (cTable==null)
@@ -420,7 +420,7 @@ public class ByteProcessor extends ImageProcessor {
 		raster = null;
 		image = null;
 	}
-	
+
 	/** Returns the smallest displayed pixel value. */
 	public double getMin() {
 		return min;
@@ -443,7 +443,7 @@ public class ByteProcessor extends ImageProcessor {
 			baseCM = cm;
 			IndexColorModel m = (IndexColorModel)cm;
 			rLUT1 = new byte[256]; gLUT1 = new byte[256]; bLUT1 = new byte[256];
-			m.getReds(rLUT1); m.getGreens(gLUT1); m.getBlues(bLUT1); 
+			m.getReds(rLUT1); m.getGreens(gLUT1); m.getBlues(bLUT1);
 			rLUT2 = new byte[256]; gLUT2 = new byte[256]; bLUT2 = new byte[256];
 		}
 		if (rLUT2==null)
@@ -575,8 +575,7 @@ public class ByteProcessor extends ImageProcessor {
         	return;
 		}
 		int offset, sum1, sum2=0, sum=0;
-        int[] values = new int[10];
-        if (type==MEDIAN_FILTER) values = new int[10];
+
         int rowOffset = width;
         int count;
         int binaryForeground = 255 - binaryBackground;
@@ -596,85 +595,7 @@ public class ByteProcessor extends ImageProcessor {
 				p6 = pixels2[offset+1]&0xff;
 				p7 = p8; p8 = p9;
 				p9 = pixels2[offset+rowOffset+1]&0xff;
-
-				switch (type) {
-					case BLUR_MORE:
-						sum = (p1+p2+p3+p4+p5+p6+p7+p8+p9+4)/9;
-						break;
-					case FIND_EDGES: // 3x3 Sobel filter
-	        			sum1 = p1 + 2*p2 + p3 - p7 - 2*p8 - p9;
-	        			sum2 = p1  + 2*p4 + p7 - p3 - 2*p6 - p9;
-	        			sum = (int)Math.sqrt(sum1*sum1 + sum2*sum2);
-	        			if (sum> 255) sum = 255;
-						break;
-					case MEDIAN_FILTER:
-						values[1]=p1; values[2]=p2; values[3]=p3; values[4]=p4; values[5]=p5;
-						values[6]=p6; values[7]=p7; values[8]=p8; values[9]=p9;
-						sum = findMedian(values);
-						break;
-					case MIN:
-						sum = p5;
-						if (p1<sum) sum = p1;
-						if (p2<sum) sum = p2;
-						if (p3<sum) sum = p3;
-						if (p4<sum) sum = p4;
-						if (p6<sum) sum = p6;
-						if (p7<sum) sum = p7;
-						if (p8<sum) sum = p8;
-						if (p9<sum) sum = p9;
-						break;
-					case MAX:
-						sum = p5;
-						if (p1>sum) sum = p1;
-						if (p2>sum) sum = p2;
-						if (p3>sum) sum = p3;
-						if (p4>sum) sum = p4;
-						if (p6>sum) sum = p6;
-						if (p7>sum) sum = p7;
-						if (p8>sum) sum = p8;
-						if (p9>sum) sum = p9;
-						break;
-					case ERODE:
-						if (p5==binaryBackground)
-							sum = binaryBackground;
-						else {
-							count = 0;
-							if (p1==binaryBackground) count++;
-							if (p2==binaryBackground) count++;
-							if (p3==binaryBackground) count++;
-							if (p4==binaryBackground) count++;
-							if (p6==binaryBackground) count++;
-							if (p7==binaryBackground) count++;
-							if (p8==binaryBackground) count++;
-							if (p9==binaryBackground) count++;							
-							if (count>=binaryCount)
-								sum = binaryBackground;
-							else
-							sum = binaryForeground;
-						}
-						break;
-					case DILATE:
-						if (p5==binaryForeground)
-							sum = binaryForeground;
-						else {
-							count = 0;
-							if (p1==binaryForeground) count++;
-							if (p2==binaryForeground) count++;
-							if (p3==binaryForeground) count++;
-							if (p4==binaryForeground) count++;
-							if (p6==binaryForeground) count++;
-							if (p7==binaryForeground) count++;
-							if (p8==binaryForeground) count++;
-							if (p9==binaryForeground) count++;							
-							if (count>=binaryCount)
-								sum = binaryForeground;
-							else
-								sum = binaryBackground;
-						}
-						break;
-				}
-				
-				pixels[offset++] = (byte)sum;
+				pixels[offset++] = CalculateSum(type, binaryForeground, p1, p2, p3, p4, p5, p6, p7, p8, p9);;
 			}
 		}
         if (xMin==1) filterEdge(type, pixels2, roiHeight, roiX, roiY, 0, 1);
@@ -685,12 +606,11 @@ public class ByteProcessor extends ImageProcessor {
 
 	void filterEdge(int type, byte[] pixels2, int n, int x, int y, int xinc, int yinc) {
 		int p1, p2, p3, p4, p5, p6, p7, p8, p9;
-        int sum=0, sum1, sum2;
-        int count;
-        int binaryForeground = 255 - binaryBackground;
+    int count;
+    int binaryForeground = 255 - binaryBackground;
 		int bg = binaryBackground;
 		int fg = binaryForeground;
-		
+
 		for (int i=0; i<n; i++) {
 			if ((!Prefs.padEdges && type==ERODE) || type==DILATE) {
 				p1=getEdgePixel0(pixels2,bg,x-1,y-1); p2=getEdgePixel0(pixels2,bg,x,y-1); p3=getEdgePixel0(pixels2,bg,x+1,y-1);
@@ -705,39 +625,58 @@ public class ByteProcessor extends ImageProcessor {
 				p4=getEdgePixel(pixels2,x-1,y); p5=getEdgePixel(pixels2,x,y); p6=getEdgePixel(pixels2,x+1,y);
 				p7=getEdgePixel(pixels2,x-1,y+1); p8=getEdgePixel(pixels2,x,y+1); p9=getEdgePixel(pixels2,x+1,y+1);
 			}
-            switch (type) {
-                case BLUR_MORE:
-                    sum = (p1+p2+p3+p4+p5+p6+p7+p8+p9+4)/9;
-                    break;
-                case FIND_EDGES: // 3x3 Sobel filter
-                    sum1 = p1 + 2*p2 + p3 - p7 - 2*p8 - p9;
-                    sum2 = p1  + 2*p4 + p7 - p3 - 2*p6 - p9;
-                    sum = (int)Math.sqrt(sum1*sum1 + sum2*sum2);
-                    if (sum> 255) sum = 255;
-                    break;
-                case MIN:
-                    sum = p5;
-                    if (p1<sum) sum = p1;
-                    if (p2<sum) sum = p2;
-                    if (p3<sum) sum = p3;
-                    if (p4<sum) sum = p4;
-                    if (p6<sum) sum = p6;
-                    if (p7<sum) sum = p7;
-                    if (p8<sum) sum = p8;
-                    if (p9<sum) sum = p9;
-                    break;
-                case MAX:
-                    sum = p5;
-                    if (p1>sum) sum = p1;
-                    if (p2>sum) sum = p2;
-                    if (p3>sum) sum = p3;
-                    if (p4>sum) sum = p4;
-                    if (p6>sum) sum = p6;
-                    if (p7>sum) sum = p7;
-                    if (p8>sum) sum = p8;
-                    if (p9>sum) sum = p9;
-                    break;
-				case ERODE:
+
+			pixels[x+y*width] = CalculateSum(type, binaryForeground, p1, p2, p3, p4, p5, p6, p7, p8, p9);
+			x+=xinc; y+=yinc;
+    }
+	}
+
+	private int CalculateSum(int type, int binaryForeground, int p1, int p2,
+		int p3, int p4, int p5, int p6, int p7, int p8, int p9) {
+
+		int sum=0, sum1, sum2, count;
+
+		int[] values = new int[10];
+    if (type==MEDIAN_FILTER) values = new int[10];
+
+		switch (type) {
+			case MEDIAN_FILTER:
+					values[1]=p1; values[2]=p2; values[3]=p3; values[4]=p4; values[5]=p5;
+					values[6]=p6; values[7]=p7; values[8]=p8; values[9]=p9;
+					sum = findMedian(values);
+					break;
+			case BLUR_MORE:
+					sum = (p1+p2+p3+p4+p5+p6+p7+p8+p9+4)/9;
+					break;
+			case FIND_EDGES: // 3x3 Sobel filter
+					sum1 = p1 + 2*p2 + p3 - p7 - 2*p8 - p9;
+					sum2 = p1  + 2*p4 + p7 - p3 - 2*p6 - p9;
+					sum = (int)Math.sqrt(sum1*sum1 + sum2*sum2);
+					if (sum> 255) sum = 255;
+					break;
+			case MIN:
+					sum = p5;
+					if (p1<sum) sum = p1;
+					if (p2<sum) sum = p2;
+					if (p3<sum) sum = p3;
+					if (p4<sum) sum = p4;
+					if (p6<sum) sum = p6;
+					if (p7<sum) sum = p7;
+					if (p8<sum) sum = p8;
+					if (p9<sum) sum = p9;
+					break;
+			case MAX:
+					sum = p5;
+					if (p1>sum) sum = p1;
+					if (p2>sum) sum = p2;
+					if (p3>sum) sum = p3;
+					if (p4>sum) sum = p4;
+					if (p6>sum) sum = p6;
+					if (p7>sum) sum = p7;
+					if (p8>sum) sum = p8;
+					if (p9>sum) sum = p9;
+					break;
+			case ERODE:
 					if (p5==binaryBackground)
 						sum = binaryBackground;
 					else {
@@ -749,14 +688,14 @@ public class ByteProcessor extends ImageProcessor {
 						if (p6==binaryBackground) count++;
 						if (p7==binaryBackground) count++;
 						if (p8==binaryBackground) count++;
-						if (p9==binaryBackground) count++;							
+						if (p9==binaryBackground) count++;
 						if (count>=binaryCount)
 							sum = binaryBackground;
 						else
 						sum = binaryForeground;
 					}
 					break;
-				case DILATE:
+			case DILATE:
 					if (p5==binaryForeground)
 						sum = binaryForeground;
 					else {
@@ -768,18 +707,16 @@ public class ByteProcessor extends ImageProcessor {
 						if (p6==binaryForeground) count++;
 						if (p7==binaryForeground) count++;
 						if (p8==binaryForeground) count++;
-						if (p9==binaryForeground) count++;							
+						if (p9==binaryForeground) count++;
 						if (count>=binaryCount)
 							sum = binaryForeground;
 						else
 							sum = binaryBackground;
 					}
-					break;
-            }
-            pixels[x+y*width] = (byte)sum;
-            x+=xinc; y+=yinc;
-        }
-    }
+			 		break;
+		}
+		return sum;
+	}
 
 	final int getEdgePixel(byte[] pixels2, int x, int y) {
 		if (x<=0) x = 0;
@@ -809,7 +746,7 @@ public class ByteProcessor extends ImageProcessor {
 		else
 			filter(MAX);
 	}
-	
+
 	public void dilate() {
 		if (isInvertedLut())
 			filter(MAX);
@@ -832,13 +769,13 @@ public class ByteProcessor extends ImageProcessor {
 	public void outline() {
 		new BinaryProcessor(this).outline();
 	}
-	
+
 	/** Converts black objects in a binary image to single pixel skeletons. */
 	public void skeletonize() {
 		new BinaryProcessor(this).skeletonize();
 	}
-	
-	/** Converts objects with pixel values of 'forground' (255 or 0) 
+
+	/** Converts objects with pixel values of 'forground' (255 or 0)
 		in a binary imager to single pixel skeletons.
 	*/
 	public void skeletonize(int foreground) {
@@ -893,7 +830,7 @@ public class ByteProcessor extends ImageProcessor {
 			}
 		}
     }
-    
+
 
 	/** Scales the image or selection using the specified scale factors.
 		@see ImageProcessor#setInterpolate
@@ -903,7 +840,7 @@ public class ByteProcessor extends ImageProcessor {
 		double yCenter = roiY + roiHeight/2.0;
 		int xmin, xmax, ymin, ymax;
 		if (!bgColorSet && isInvertedLut()) bgColor = 0;
-		
+
 		if ((xScale>1.0) && (yScale>1.0)) {
 			//expand roi
 			xmin = (int)(xCenter-(xCenter-roiX)*xScale);
@@ -948,7 +885,7 @@ public class ByteProcessor extends ImageProcessor {
 			for (int y=ymin; y<=ymax; y++) {
 				ys = (y-yCenter)/yScale + yCenter;
 				ysi = (int)ys;
-				if (ys<0.0) ys = 0.0;			
+				if (ys<0.0) ys = 0.0;
 				if (ys>=ylimit) ys = ylimit2;
 				index1 = y*width + xmin;
 				index2 = width*(int)ys;
@@ -1066,7 +1003,7 @@ public class ByteProcessor extends ImageProcessor {
 		double centerY = roiY + (roiHeight-1)/2.0;
 		int xMax = roiX + this.roiWidth - 1;
 		if (!bgColorSet && isInvertedLut()) bgColor = 0;
-		
+
 		double angleRadians = -angle/(180.0/Math.PI);
 		double ca = Math.cos(angleRadians);
 		double sa = Math.sin(angleRadians);
@@ -1077,7 +1014,8 @@ public class ByteProcessor extends ImageProcessor {
 		double dwidth=width, dheight=height;
 		double xlimit = width-1.0, xlimit2 = width-1.001;
 		double ylimit = height-1.0, ylimit2 = height-1.001;
-		
+		double interpolaridad;
+
 		if (interpolationMethod==BICUBIC) {
 			for (int y=roiY; y<(roiY + roiHeight); y++) {
 				index = y*width + roiX;
@@ -1093,31 +1031,15 @@ public class ByteProcessor extends ImageProcessor {
 				}
 			}
 		} else {
-			for (int y=roiY; y<(roiY + roiHeight); y++) {
-				index = y*width + roiX;
-				tmp3 = tmp1 - y*sa + centerX;
-				tmp4 = tmp2 + y*ca + centerY;
-				for (int x=roiX; x<=xMax; x++) {
-					xs = x*ca + tmp3;
-					ys = x*sa + tmp4;
-					if ((xs>=-0.01) && (xs<dwidth) && (ys>=-0.01) && (ys<dheight)) {
-						if (interpolationMethod==BILINEAR) {
-							if (xs<0.0) xs = 0.0;
-							if (xs>=xlimit) xs = xlimit2;
-							if (ys<0.0) ys = 0.0;			
-							if (ys>=ylimit) ys = ylimit2;
-							pixels[index++] = (byte)(getInterpolatedPixel(xs, ys, pixels2)+0.5);
-						} else {
-							ixs = (int)(xs+0.5);
-							iys = (int)(ys+0.5);
-							if (ixs>=width) ixs = width - 1;
-							if (iys>=height) iys = height -1;
-							pixels[index++] = pixels2[width*iys+ixs];
-						}
-					} else
-						pixels[index++] = (byte)bgColor;
-				}
-			}
+			interpolaridad = getInterpolatedPixel(xs, ys, pixels2)+0.5;
+			pixels = General.CalculatePixels(
+				roiX, roiY, roiHeight, roiWidth, height, width,
+				tmp1, tmp2, tmp3, tmp4,
+				sa, ca, centerX, centerY,
+    		xMax, dwidth, interpolationMethod,
+				xlimit, xlimit2, ylimit, ylimit2,
+				pixels, pixels2,
+				bgColor, interpolaridad);
 		}
 	}
 
@@ -1134,7 +1056,7 @@ public class ByteProcessor extends ImageProcessor {
 			}
 		}
 	}
-	
+
 	public int[] getHistogram() {
 		if (mask!=null)
 			return getHistogram(mask);
@@ -1201,13 +1123,13 @@ public class ByteProcessor extends ImageProcessor {
 		byte[] pixels2 = (byte[])ip2.getPixels();
 		System.arraycopy(pixels2, 0, pixels, 0, pixels.length);
 	}
-	
+
 	public FloatProcessor[] toFloatProcessors() {
 		FloatProcessor[] fp = new FloatProcessor[1];
 		fp[0] = (FloatProcessor)convertToFloat();
 		return fp;
 	}
-	
+
 	public void setFromFloatProcessors(FloatProcessor[]  fp) {
 		ImageProcessor ip2 = fp[0].convertToByte(false);
 		setPixels(ip2.getPixels());
@@ -1220,12 +1142,12 @@ public class ByteProcessor extends ImageProcessor {
 		a[0] = (float[])fp.getPixels();
 		return a;
 	}
-	
+
 	public void setFromFloatArrays(float[][] arrays) {
 		ImageProcessor ip2 = new FloatProcessor(roiWidth, roiHeight, arrays[0], null);
 		ip2 = ip2.convertToByte(false);
 		setPixels(ip2.getPixels());
-		//insert(ip2, roiX, roiY); 
+		//insert(ip2, roiX, roiY);
 	}
 
 	/** Returns a FloatProcessor with the same image, no scaling or calibration
@@ -1234,7 +1156,7 @@ public class ByteProcessor extends ImageProcessor {
 	*  also set for the FloatProcessor
 	*  @param channelNumber   Ignored (needed for compatibility with ColorProcessor.toFloat)
 	*  @param fp              Here a FloatProcessor can be supplied, or null. The FloatProcessor
-	*                         is overwritten by this method (re-using its pixels array 
+	*                         is overwritten by this method (re-using its pixels array
 	*                         improves performance).
 	*  @return A FloatProcessor with the converted image data
 	*/
@@ -1251,7 +1173,7 @@ public class ByteProcessor extends ImageProcessor {
 		fp.setThreshold(minThreshold, maxThreshold, ImageProcessor.NO_LUT_UPDATE);
 		return fp;
 	}
-	
+
 	/** Sets the pixels from a FloatProcessor, no scaling.
 	*  Also the min&max values are taken from the FloatProcessor.
 	*  @param channelNumber   Ignored (needed for compatibility with ColorProcessor.toFloat)
@@ -1269,7 +1191,7 @@ public class ByteProcessor extends ImageProcessor {
 		}
 		setMinAndMax(fp.getMin(), fp.getMax());
 	}
-	
+
 	/** Returns 'true' if this is a binary image (8-bit-image with only 0 and 255). */
 	public boolean isBinary() {
 		for (int i=0; i<width*height; i++) {
@@ -1278,11 +1200,11 @@ public class ByteProcessor extends ImageProcessor {
 		}
 		return true;
 	}
-	
+
 	public int getBitDepth() {
 		return 8;
 	}
-	
+
 	/** Returns a binary mask, or null if a threshold is not set. */
 	public ByteProcessor createMask() {
 		if (getMinThreshold()==NO_THRESHOLD)
@@ -1298,7 +1220,7 @@ public class ByteProcessor extends ImageProcessor {
 		}
 		return mask;
 	}
-	
+
 	byte[] create8BitImage() {
 		return pixels;
 	}

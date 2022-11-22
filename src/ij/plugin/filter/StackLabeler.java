@@ -30,8 +30,8 @@ public class StackLabeler implements ExtendedPlugInFilter, DialogListener {
 	private int firstFrame, lastFrame, defaultLastFrame;
 	private Overlay overlay;
 	private Overlay baseOverlay;
-	private boolean previewing; 
-	private boolean virtualStack; 
+	private boolean previewing;
+	private boolean virtualStack;
 	private int yoffset;
 
 	public int setup(String arg, ImagePlus imp) {
@@ -52,11 +52,11 @@ public class StackLabeler implements ExtendedPlugInFilter, DialogListener {
 		if (roi.width<ip.getWidth() || roi.height<ip.getHeight()) {
 			x = roi.x;
 			y = roi.y+roi.height;
-			fontSize = (int) ((roi.height - 1.10526)/0.934211);	
+			fontSize = (int) ((roi.height - 1.10526)/0.934211);
 			if (fontSize<7) fontSize = 7;
 			if (fontSize>80) fontSize = 80;
 		}
-		if (IJ.macroRunning()) {
+		if (IJMacro.macroRunning()) {
 			format = NUMBER;
 			decimalPlaces = 0;
 		    interval=1;
@@ -110,7 +110,7 @@ public class StackLabeler implements ExtendedPlugInFilter, DialogListener {
 	void addRange(GenericDialog gd, String label, int start, int end) {
 		gd.addStringField(label, start+"-"+end);
 	}
-	
+
 	double[] getRange(GenericDialog gd, int start, int end) {
 		String[] range = Tools.split(gd.getNextString(), " -");
 		double d1 = Tools.parseDouble(range[0]);
@@ -164,7 +164,7 @@ public class StackLabeler implements ExtendedPlugInFilter, DialogListener {
 		Prefs.set("label.format", format);
         return true;
     }
-	
+
 	public void run(ImageProcessor ip) {
 		int image = ip.getSliceNumber();
 		int n = image - 1;
@@ -185,7 +185,7 @@ public class StackLabeler implements ExtendedPlugInFilter, DialogListener {
 			drawLabel(ip, image, n);
 		}
 	}
-	
+
 	int updateIndex(int n) {
 		if (imp.getNFrames()>1)
 			return (int)(n*((double)(imp.getNFrames())/imp.getStackSize()));
@@ -194,7 +194,7 @@ public class StackLabeler implements ExtendedPlugInFilter, DialogListener {
 		else
 			return n;
 	}
-	
+
 	void drawLabel(ImageProcessor ip, int image, int n) {
 		String s = getString(n, interval, format);
 		ip.setFont(font);
@@ -242,14 +242,14 @@ public class StackLabeler implements ExtendedPlugInFilter, DialogListener {
 			if (image==imp.getStackSize()||previewing)
 				imp.setOverlay(overlay);
 		} else if (frame>=firstFrame&&frame<=lastFrame) {
-			ip.setColor(color); 
+			ip.setColor(color);
 			ip.setAntialiasedText(fontSize>=18);
 			int xloc = format==LABEL?x:x+maxWidth-textWidth;
 			ip.moveTo(xloc, y);
 			ip.drawString(s);
 		}
 	}
-	
+
 	String getString(int index, double interval, int format) {
 		double time = start + (index+1-firstFrame)*interval;
 		int itime = (int)Math.floor(time);
@@ -261,7 +261,7 @@ public class StackLabeler implements ExtendedPlugInFilter, DialogListener {
 			case NUMBER: str=IJ.d2s(time, decimalPlaces)+" "+text; break;
 			case ZERO_PADDED_NUMBER:
 				if (decimalPlaces==0)
-					str=zeroFill((int)time); 
+					str=zeroFill((int)time);
 				else
 					str=IJ.d2s(time, decimalPlaces);
 				str = text +" " + str;
@@ -274,8 +274,8 @@ public class StackLabeler implements ExtendedPlugInFilter, DialogListener {
 				str=pad((int)Math.floor(itime/3600))+":"+pad((int)Math.floor((itime/60)%60))+":"+pad(itime%60)+" "+text;
 				if (sign == -1) str = "-"+str;
 				break;
-			case TEXT: 
-				str=text; 
+			case TEXT:
+				str=text;
 				break;
 			case LABEL:
 				if (0<=index && index<imp.getStackSize()) {
@@ -293,14 +293,14 @@ public class StackLabeler implements ExtendedPlugInFilter, DialogListener {
 		if (str.length()==1) str="0"+str;
 		return str;
 	}
-	
+
 	String  zeroFill(int n) {
 		String str = ""+n;
 		while (str.length()<fieldWidth)
 			str = "0" + str;
 		return str;
 	}
-		
+
 	public void setNPasses (int nPasses) {}
 
 }

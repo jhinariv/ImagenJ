@@ -21,7 +21,7 @@ public class XY_Reader implements PlugIn {
 		int width = ip.getWidth();
 		int height = ip.getHeight();
 		if (width!=2 || height<3) {
-			IJ.showMessage("XY Reader", "Two column text file required");
+			IJMessage.showMessage("XY Reader", "Two column text file required");
 			return;
 		}
 		float[] x = new float[height];
@@ -54,5 +54,5 @@ public class XY_Reader implements PlugIn {
 		if (imp!=null)
 			imp.setRoi(roi);
 	}
-	
+
 }

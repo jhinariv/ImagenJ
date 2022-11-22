@@ -11,8 +11,8 @@ import java.net.URL;
 import java.net.URLClassLoader;
 
 /**
- * This plugin implements the File/Import/URL command and the commands in the Help menu that 
- * open web pages. It is based on Eric Albert's cross-platform (Windows, Mac OS X and Unix) 
+ * This plugin implements the File/Import/URL command and the commands in the Help menu that
+ * open web pages. It is based on Eric Albert's cross-platform (Windows, Mac OS X and Unix)
  * BrowserLauncher class.
  * <p>
  * BrowserLauncher is a class that provides one static method, openURL, which opens the default
@@ -87,7 +87,7 @@ public class BrowserLauncher implements PlugIn {
 	public static void openURL(String url) throws IOException {
 		String errorMessage = "";
 		if (IJ.isMacOSX())
-			IJ.runMacro("exec('open', getArgument())",url);
+			IJPlugin.runMacro("exec('open', getArgument())",url);
 		else if (IJ.isWindows()) {
 			String cmd = "rundll32 url.dll,FileProtocolHandler " + url;
 			if (System.getProperty("os.name").startsWith("Windows 2000"))
@@ -115,7 +115,7 @@ public class BrowserLauncher implements PlugIn {
 							browserName = browsers[count];
 					}
 					if (browserName==null)
-						ij.IJ.error("BrowserLauncher", "Could not find a browser");
+						ij.IJMessage.error("BrowserLauncher", "Could not find a browser");
 					else
 						Runtime.getRuntime().exec(new String[] {browserName, url});
 				} catch (Exception e) {
@@ -123,6 +123,6 @@ public class BrowserLauncher implements PlugIn {
 				}
 		}
 	}
-	
+
 }
 

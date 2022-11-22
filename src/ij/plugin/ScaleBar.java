@@ -7,7 +7,7 @@ import ij.measure.*;
 import java.awt.event.*;
 
 /** This plugin implements the Analyze/Tools/Scale Bar command.
- * Divakar Ramachandran added options to draw a background 
+ * Divakar Ramachandran added options to draw a background
  * and use a serif font on 23 April 2006.
  * Remi Berthoz added an option to draw vertical scale
  * bars on 17 September 2021.
@@ -20,7 +20,7 @@ public class ScaleBar implements PlugIn {
 	static final String[] bcolors = {"None","Black","White","Dark Gray","Gray","Light Gray","Yellow","Blue","Green","Red"};
 	static final String[] checkboxLabels = {"Horizontal", "Vertical", "Bold Text", "Hide Text", "Serif Font", "Overlay"};
 	final static String SCALE_BAR = "|SB|";
-	
+
 	private static final ScaleBarConfiguration sConfig = new ScaleBarConfiguration();
 	private ScaleBarConfiguration config = new ScaleBarConfiguration(sConfig);
 
@@ -46,7 +46,7 @@ public class ScaleBar implements PlugIn {
 	public void run(String arg) {
 		imp = WindowManager.getCurrentImage();
 		if (imp == null) {
-			IJ.noImage();
+			IJMacro.noImage();
 			return;
 		}
 		// Snapshot before anything, so we can revert if the user cancels the action.
@@ -60,21 +60,21 @@ public class ScaleBar implements PlugIn {
 			return;
 		}
 
-		if (!IJ.isMacro())
+		if (!IJMacro.isMacro())
 			persistConfiguration();
 		updateScalebar(!config.labelAll);
 	 }
 
 	/**
 	 * Remove the scalebar drawn by this plugin.
-	 * 
+	 *
 	 * If the scalebar was drawn without the overlay by another
 	 * instance of the plugin (it is drawn into the image), then
 	 * we cannot remove it.
-	 * 
+	 *
 	 * If the scalebar was drawn using the overlay by another
 	 * instance of the plugin, then we can remove it.
-	 * 
+	 *
 	 * With or without the overlay, we can remove a scalebar
 	 * drawn by this instance of the plugin.
 	 */
@@ -157,11 +157,11 @@ public class ScaleBar implements PlugIn {
 				// If the resulting size is larger than 5 units, round the value.
 				config.vBarHeight = (int) config.vBarHeight;
 		}
-	} 
+	}
 
 	/**
 	 * Genreate & draw the configuration dialog.
-	 * 
+	 *
 	 * Return the value of dialog.wasOKed() when the user clicks OK
 	 * or Cancel.
 	 */
@@ -172,7 +172,7 @@ public class ScaleBar implements PlugIn {
 		if (currentROIExists) {
 			config.location = locations[AT_SELECTION];
 		}
-		if (IJ.isMacro())
+		if (IJMacro.isMacro())
 			config.updateFrom(new ScaleBarConfiguration());
 		if (config.hBarWidth <= 0 || config.vBarHeight <= 0 || currentROIExists) {
 			computeDefaultBarWidth(currentROIExists);
@@ -181,7 +181,7 @@ public class ScaleBar implements PlugIn {
 		// Draw a first preview scalebar, with the default or presisted
 		// configuration.
 		updateScalebar(true);
-		
+
 		// Create & show the dialog, then return.
 		boolean multipleSlices = imp.getStackSize() > 1;
 		GenericDialog dialog = new BarDialog(getHUnit(), getVUnit(), config.hDigits, config.vDigits, multipleSlices);
@@ -194,14 +194,14 @@ public class ScaleBar implements PlugIn {
 	/**
 	 * Store the active configuration into the static variable that
 	 * is persisted across calls of the plugin.
-	 * 
+	 *
 	 * The "active" configuration is normally the one reflected by
 	 * the dialog.
 	 */
 	void persistConfiguration() {
 		sConfig.updateFrom(config);
 	}
-	
+
 	/**
 	 * Return the X unit strings defined in the image calibration.
 	 */
@@ -230,7 +230,7 @@ public class ScaleBar implements PlugIn {
 
 		Color color = getColor();
 		Color bcolor = getBColor();
-		
+
 		int fontType = config.boldText?Font.BOLD:Font.PLAIN;
 		String face = config.serifFont?"Serif":"SanSerif";
 		Font font = new Font(face, fontType, config.fontSize);
@@ -376,7 +376,7 @@ public class ScaleBar implements PlugIn {
 		vBarHeightInPixels = (int)(config.vBarHeight/cal.pixelHeight);
 
 		boolean hTextTop = config.showVertical && (config.location.equals(locations[UPPER_LEFT]) || config.location.equals(locations[UPPER_RIGHT]));
-		
+
 		int imageWidth = imp.getWidth();
 		int imageHeight = imp.getHeight();
 		int hBoxWidth = getHBoxWidthInPixels();
@@ -385,7 +385,7 @@ public class ScaleBar implements PlugIn {
 		int vBoxHeight = getVBoxHeightInPixels();
 		int outerMargin = getOuterMarginSizeInPixels();
 		int innerMargin = getInnerMarginSizeInPixels();
-		
+
 		hBackground.width = innerMargin + hBoxWidth + innerMargin;
 		hBackground.height = innerMargin + hBoxHeight + innerMargin;
 		vBackground.width = innerMargin + vBoxWidth + innerMargin;
@@ -434,7 +434,7 @@ public class ScaleBar implements PlugIn {
 	/**
 	 * Sets the rectangles x y positions for scalebar elements (hBar, hText, vBar, vText),
 	 * based on the current configuration. Also sets the width and height of the rectangles.
-	 * 
+	 *
 	 * The position of each rectangle is relative to hBackground and vBackground,
 	 * so setBackgroundBoxesPositions() must run before this method computes positions.
 	 * This method calls setBackgroundBoxesPositions().
@@ -454,7 +454,7 @@ public class ScaleBar implements PlugIn {
 		boolean right = config.location.equals(locations[LOWER_RIGHT]) || config.location.equals(locations[UPPER_RIGHT]);
 		boolean upper = config.location.equals(locations[UPPER_RIGHT]) || config.location.equals(locations[UPPER_LEFT]);
 		boolean hTextTop = config.showVertical && upper;
-		
+
 		hBar.x = hBackground.x + innerMargin + (hBoxWidth - hBarWidthInPixels)/2 + (config.showVertical && !right && upper ? vBoxWidth - config.barThicknessInPixels : 0);
 		hBar.y = hBackground.y + innerMargin + (hTextTop ? hBoxHeight - config.barThicknessInPixels : 0);
 		hBar.width = hBarWidthInPixels;
@@ -489,7 +489,7 @@ public class ScaleBar implements PlugIn {
 	   return c;
 	}
 
-	// Div., mimic getColor to write getBColor for bkgnd	
+	// Div., mimic getColor to write getBColor for bkgnd
 	Color getBColor() {
 		if (config.bcolor==null || config.bcolor.equals(bcolors[0])) return null;
 		Color bc = Color.white;
@@ -506,11 +506,11 @@ public class ScaleBar implements PlugIn {
 
 	/**
 	 * Draw the scale bar, based on the current configuration.
-	 * 
+	 *
 	 * If {previewOnly} is true, only the active slice will be
 	 * labeled with a scalebar. If it is false, all slices of
 	 * the stack will be labeled.
-	 * 
+	 *
 	 * This method chooses whether to use an overlay or the
 	 * drawing tool to create the scalebar.
 	 */
@@ -647,7 +647,7 @@ public class ScaleBar implements PlugIn {
 			config.useOverlay = gd.getNextBoolean();
 			if (multipleSlices)
 				config.labelAll = gd.getNextBoolean();
-			if (!config.showHorizontal && !config.showVertical && IJ.isMacro()) {
+			if (!config.showHorizontal && !config.showVertical && IJMacro.isMacro()) {
 				// Previous versions of this plugin did not handle vertical scale bars:
 				// the macro syntax was different in that "height" meant "thickness" of
 				// the horizontal scalebar.
@@ -690,7 +690,7 @@ public class ScaleBar implements PlugIn {
    } //MissingRoiException inner class
 
 	static class ScaleBarConfiguration {
-	
+
 		private static int defaultBarHeight = 4;
 
 		boolean showHorizontal;
@@ -736,7 +736,7 @@ public class ScaleBar implements PlugIn {
 		ScaleBarConfiguration(ScaleBarConfiguration model) {
 			this.updateFrom(model);
 		}
-		
+
 		void updateFrom(ScaleBarConfiguration model) {
 			this.showHorizontal = model.showHorizontal;
 			this.showVertical = model.showVertical;

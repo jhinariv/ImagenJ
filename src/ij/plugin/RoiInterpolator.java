@@ -20,7 +20,7 @@ public class RoiInterpolator implements PlugIn {
 	public void run(String arg) {
 		RoiManager roiman = RoiManager.getInstance();
 		if (roiman==null || roiman.getCount()<2){
-			IJ.error("RoiInterpolator", "Please populate the ROI Manager with at least two ROIs");
+			IJMessage.error("RoiInterpolator", "Please populate the ROI Manager with at least two ROIs");
 			return;
 		}
 		Roi[] rois = roiman.getRoisAsArray();
@@ -46,7 +46,7 @@ public class RoiInterpolator implements PlugIn {
 			ymax = Math.max(ymax, bounds.y + bounds.height);
 		}
 		if (templateSlices.size()<2) {
-			IJ.error("RoiInterpolator", "ROIs are all on the same slice, nothing to interpolate");
+			IJMessage.error("RoiInterpolator", "ROIs are all on the same slice, nothing to interpolate");
 			return;
 		}
 		//create the binary stack
@@ -65,7 +65,7 @@ public class RoiInterpolator implements PlugIn {
 					bp.setRoi(roi);
 					if (roi.getType() == Roi.RECTANGLE)
 						bp.fill();
-					else 
+					else
 						bp.fill(roi);
 				}
 			}
@@ -87,7 +87,7 @@ public class RoiInterpolator implements PlugIn {
 			bp.setThreshold(threshold, threshold, ImageProcessor.NO_LUT_UPDATE);
 			Roi roi = ts.convert(bp);
 			if (roi==null) {
-				IJ.error("RoiInterpolator", "Unable to interpolate slice "+(s+1)+". More\nintermediate ROIs needed.");
+				IJMessage.error("RoiInterpolator", "Unable to interpolate slice "+(s+1)+". More\nintermediate ROIs needed.");
 				return;
 			}
 			roi.setPosition(s+zmin);
@@ -100,6 +100,6 @@ public class RoiInterpolator implements PlugIn {
 			roi.setLocation(bounds.x+xmin, bounds.y+ymin);
 		}
 		roiman.runCommand("sort");
-		IJ.showStatus("ROIs interpolated");
+		IJMessage.showStatus("ROIs interpolated");
 	}
 }

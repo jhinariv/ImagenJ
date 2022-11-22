@@ -38,7 +38,7 @@ public class Filters3D implements PlugIn {
 			return;
 		ImagePlus imp = IJ.getImage();
 		if (imp.isComposite() && imp.getNChannels()==imp.getStackSize()) {
-			IJ.error(name, "Composite color images not supported");
+			IJMessage.error(name, "Composite color images not supported");
 			return;
 		}
 		if (!showDialog(name))
@@ -71,9 +71,9 @@ public class Filters3D implements PlugIn {
 		ImageStack res = filter(imp.getStack(), filter, radX, radY, radZ);
 		imp.setStack(res);
 	}
-	
+
 	public static ImageStack filter(ImageStack stackorig, int filter, float vx, float vy, float vz) {
-	
+
 		if (stackorig.getBitDepth()==24)
 			return filterRGB(stackorig, filter, vx, vy, vz);
 
@@ -86,14 +86,14 @@ public class Filters3D implements PlugIn {
 		final int height= stack.getHeight();
 		final int depth= stack.size();
 		ImageStack res = null;
-		
+
 		if ((filter==MEAN) || (filter==MEDIAN) || (filter==MIN) || (filter==MAX) || (filter==VAR)) {
 			if (filter==VAR)
 				res = ImageStack.create(width, height, depth, 32);
 			else
 				res = ImageStack.create(width, height, depth, stackorig.getBitDepth());
-			IJ.showStatus("3D filtering...");
-			// PARALLEL 
+			IJMessage.showStatus("3D filtering...");
+			// PARALLEL
 			final ImageStack out = res;
 			final AtomicInteger ai = new AtomicInteger(0);
 			final int n_cpus = Prefs.getThreads();
@@ -115,10 +115,10 @@ public class Filters3D implements PlugIn {
 		}
 		return res;
 	}
-	
+
 	private static void filterHyperstack(ImagePlus imp, int filter, float vx, float vy, float vz) {
 		if (imp.getNDimensions()>4) {
-			IJ.error("5D hyperstacks are currently not supported");
+			IJMessage.error("5D hyperstacks are currently not supported");
 			return;
 		}
 		if (imp.getNChannels()==1) {

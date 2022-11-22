@@ -18,13 +18,13 @@ public class StackMaker implements PlugIn {
 	public void run(String arg) {
 		ImagePlus imp = WindowManager.getCurrentImage();
 		if (imp==null) {
-			IJ.noImage();
+			IJMacro.noImage();
 			return;
 		}
 		if (imp.getStackSize()>1) {
-			IJ.error("This command requires a montage");
+			IJMessage.error("This command requires a montage");
 			return;
-		}		
+		}
 		String options = Macro.getOptions();
 		if (options!=null) {
 			options = options.replace("images_per_row=", "columns=");
@@ -50,31 +50,31 @@ public class StackMaker implements PlugIn {
 		ImageStack stack = makeStack(imp.getProcessor(), rows, columns, border);
 		new ImagePlus("Stack", stack).show();
 	}
-	
+
 	private int info(String key, ImagePlus imp, int value) {
 		String svalue = imp.getStringProperty(key);
 		if (svalue!=null)
 			value = Integer.parseInt(svalue);
 		return value;
 	}
-	
+
 	public ImageStack makeStack(ImageProcessor ip, int rows, int columns, int border) {
 		int stackSize = rows*columns;
 		int width = ip.getWidth()/columns;
 		int height = ip.getHeight()/rows;
-		//IJ.log("makeStack: "+rows+" "+columns+" "+border+" "+width+" "+height);
+		//IJMessage.log("makeStack: "+rows+" "+columns+" "+border+" "+width+" "+height);
 		ImageStack stack = new ImageStack(width, height);
 		for (int y=0; y<rows; y++)
 			for (int x=0; x<columns; x++) {
 				ip.setRoi(x*width, y*height, width, height);
 				stack.addSlice(null, ip.crop());
 			}
-		if (border>0) { 
+		if (border>0) {
 			int cropwidth = width-border-border/2;
 			int cropheight = height-border-border/2;
-			StackProcessor sp = new StackProcessor(stack,ip); 
+			StackProcessor sp = new StackProcessor(stack,ip);
 			stack = sp.crop(border, border, cropwidth, cropheight);
 		}
 		return stack;
-	}	 
+	}
 }

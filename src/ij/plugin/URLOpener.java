@@ -8,9 +8,9 @@ import ij.io.*;
 import ij.gui.*;
 import ij.plugin.frame.*;
 
-/** Opens TIFFs, ZIP compressed TIFFs, DICOMs, GIFs and JPEGs using a URL. 
-	TIFF file names must end in ".tif", ZIP file names must end 
-	in ".zip" and DICOM file names must end in ".dcm". 
+/** Opens TIFFs, ZIP compressed TIFFs, DICOMs, GIFs and JPEGs using a URL.
+	TIFF file names must end in ".tif", ZIP file names must end
+	in ".zip" and DICOM file names must end in ".dcm".
 	Opens a Web page in the default browser if the URL ends with "/".
 */
 public class URLOpener implements PlugIn {
@@ -58,7 +58,7 @@ public class URLOpener implements PlugIn {
 			}
 			return;
 		}
-		
+
 		GenericDialog gd = new GenericDialog("Enter a URL");
 		gd.setInsets(10, 32, 0);
 		gd.addMessage("Enter URL of an image, macro or web page", null, Color.darkGray);
@@ -71,15 +71,15 @@ public class URLOpener implements PlugIn {
 		if (url.indexOf("://")==-1)
 			url = "http://" + url;
 		if (url.endsWith("/"))
-			IJ.runPlugIn("ij.plugin.BrowserLauncher", url.substring(0, url.length()-1));
+			IJPlugin.runPlugIn(("ij.plugin.BrowserLauncher", url.substring(0, url.length()-1));
 		else if (url.endsWith(".html") || url.endsWith(".htm") || url.endsWith(".pdf") ||  url.indexOf(".html#")>0 || noExtension(url))
-			IJ.runPlugIn("ij.plugin.BrowserLauncher", url);
+			IJPlugin.runPlugIn(("ij.plugin.BrowserLauncher", url);
 		else if (url.endsWith(".txt")||url.endsWith(".ijm")||url.endsWith(".js")||url.endsWith(".java"))
 			openTextFile(url, false);
 		else if (url.endsWith(".jar")||url.endsWith(".class"))
 			IJ.open(url);
 		else {
-			IJ.showStatus("Opening: " + url);
+			IJMessage.showStatus("Opening: " + url);
 			double startTime = System.currentTimeMillis();
 			ImagePlus imp = new ImagePlus(url);
 			WindowManager.checkForDuplicateName = true;
@@ -102,7 +102,7 @@ public class URLOpener implements PlugIn {
 		}
 		IJ.register(URLOpener.class);  // keeps this class from being GC'd
 	}
-	
+
 	boolean noExtension(String url) {
 		int lastSlash = url.lastIndexOf("/");
 		if (lastSlash==-1) lastSlash = 0;
@@ -112,7 +112,7 @@ public class URLOpener implements PlugIn {
 		else
 			return false;
 	}
-	
+
 	void openTextFile(String urlString, boolean install) {
 		StringBuffer sb = null;
 		try {
@@ -126,7 +126,7 @@ public class URLOpener implements PlugIn {
 			in.close ();
 		} catch (IOException e) {
 			if  (!(install&&urlString.endsWith("StartupMacros.txt")))
-				IJ.error("URL Opener", ""+e);
+				IJMessage.error("URL Opener", ""+e);
 			sb = null;
 		}
 		if (sb!=null) {
@@ -140,7 +140,7 @@ public class URLOpener implements PlugIn {
 			}
 		}
 	}
-	
+
 	private void cacheSampleImages() {
 		String[] names = getSampleImageNames();
 		int n = names.length;
@@ -150,13 +150,13 @@ public class URLOpener implements PlugIn {
 		if (!f.exists()) {
 			boolean ok = f.mkdir();
 			if (!ok) {
-				IJ.error("Unable to create directory:\n \n"+dir);
+				IJMessage.error("Unable to create directory:\n \n"+dir);
 				return;
 			}
 		}
 		IJ.resetEscape();
 		for (int i=0; i<n; i++) {
-			IJ.showStatus((i+1)+"/"+n+" ("+names[i]+")");
+			IJMessage.showStatus((i+1)+"/"+n+" ("+names[i]+")");
 			String url = Prefs. getImagesURL()+names[i];
 			byte[] data = PluginInstaller.download(url, null);
 			if (data==null) continue;
@@ -166,14 +166,14 @@ public class URLOpener implements PlugIn {
 				out.write(data, 0, data.length);
 				out.close();
 			} catch (IOException e) {
-				IJ.log(names[i]+": "+e);
+				IJMessage.log(names[i]+": "+e);
 			}
 			if (IJ.escapePressed())
 				{IJ.beep(); break;};
 		}
-		IJ.showStatus("");
+		IJMessage.showStatus("");
 	}
-	 
+
 	public static String[] getSampleImageNames() {
 		ArrayList list = new ArrayList();
 		Hashtable commands = Menus.getCommands();

@@ -47,17 +47,17 @@ public class BMP_Writer implements PlugIn {
    IJ.showProgress(0);
    imp = WindowManager.getCurrentImage();
    if (imp==null)
-     {IJ.noImage(); return;}
+     {IJMacro.noImage(); return;}
    try {
      writeImage(imp, path);
    } catch (Exception e) {
      String msg = e.getMessage();
      if (msg==null || msg.equals(""))
    msg = ""+e;
-     IJ.error("BMP Writer", "An error occured writing the file.\n \n" + msg);
+     IJMessage.error("BMP Writer", "An error occured writing the file.\n \n" + msg);
    }
    IJ.showProgress(1);
-   IJ.showStatus("");
+   IJMessage.showStatus("");
  }
 
  void writeImage(ImagePlus imp, String path) throws Exception {

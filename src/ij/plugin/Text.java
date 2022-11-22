@@ -4,7 +4,7 @@ import ij.gui.*;
 import java.awt.*;
 import java.util.*;
 
-/** This plugin implements the Edit/Options/Fonts command and 
+/** This plugin implements the Edit/Options/Fonts command and
 	the dialog displayed when you double click on the text tool. */
 public class Text implements PlugIn, DialogListener {
 	private static final String LOC_KEY = "fonts.loc";
@@ -26,7 +26,7 @@ public class Text implements PlugIn, DialogListener {
  		else
 			showDialog();
 	}
-				
+
 	private void showDialog() {
 		ImagePlus imp = WindowManager.getCurrentImage();
 		Roi roi = imp!=null?imp.getRoi():null;
@@ -56,9 +56,9 @@ public class Text implements PlugIn, DialogListener {
 		gd.addSlider("Angle:", -90, 90, angle);
 		gd.addCheckbox("Antialiased text", antialiased);
 		Point loc = Prefs.getLocation(LOC_KEY);
-		if (IJ.debugMode) {
+		if (IJDebugMode.debugMode) {
 			Dimension screen = IJ.getScreenSize();
-			IJ.log("Fonts: "+loc+" "+screen);
+			IJMessage.log("Fonts: "+loc+" "+screen);
 		}
 		if (loc!=null) {
 			gd.centerDialog(false);
@@ -85,7 +85,7 @@ public class Text implements PlugIn, DialogListener {
 		}
 		return (String[])names.toArray(new String[names.size()]);
 	}
-	
+
 	public boolean dialogItemChanged(GenericDialog gd, AWTEvent e) {
 		ImagePlus imp = WindowManager.getCurrentImage();
 		Roi roi = imp!=null?imp.getRoi():null;
@@ -116,5 +116,5 @@ public class Text implements PlugIn, DialogListener {
 		}
 		return true;
 	}
-	
-} 
+
+}

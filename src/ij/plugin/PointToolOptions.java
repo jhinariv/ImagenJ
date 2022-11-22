@@ -35,7 +35,7 @@ public class PointToolOptions implements PlugIn, DialogListener {
 	+"</font>";
 
  	public void run(String arg) {
- 		if (gd!=null && gd.isShowing() && !IJ.isMacro()) {
+ 		if (gd!=null && gd.isShowing() && !IJMacro.isMacro()) {
  			gd.toFront();
  			update();
  		} else
@@ -43,7 +43,7 @@ public class PointToolOptions implements PlugIn, DialogListener {
  	}
 
 	void showDialog() {
-		String options = IJ.isMacro()?Macro.getOptions():null;
+		String options = IJMacro.isMacro()?Macro.getOptions():null;
 		isMacro = options!=null;
 		boolean legacyMacro = false;
 		if (isMacro) {

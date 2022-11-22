@@ -208,7 +208,7 @@ public class CurveFitter implements UserFunction{
 		numParams = getNumParams();
 		if (fitType != CUSTOM)
 			getOffsetAndFactorParams();
-		//IJ.log("special params: off="+offsetParam+(hasSlopeParam ? " slo=" : " fac=")+factorParam+" numPar="+numParams+" numRegressPar="+numRegressionParams);
+		//IJMessage.log("special params: off="+offsetParam+(hasSlopeParam ? " slo=" : " fac=")+factorParam+" numPar="+numParams+" numRegressPar="+numRegressionParams);
 		calculateSumYandY2();					// sumY, sumY2 needed for regression, abs Error; R, goodness of modified fit functions
 		long startTime = System.currentTimeMillis();
 		if (this.fitType == STRAIGHT_LINE) {	// no minimizer needed
@@ -235,9 +235,9 @@ public class CurveFitter implements UserFunction{
 			// minimizer would run until it reaches the maximum iteration count.
 			double maxAbsError = Math.min(1e-6,maxRelError)*Math.sqrt(sumY2);
 			minimizer.setMaxError(maxRelError, maxAbsError);
-			//{String s="initVariations:";for(int ii=0;ii<numParams;ii++)s+=" ["+ii+"]:"+IJ.d2s(initialParamVariations[ii],5,9);IJ.log(s);}
-			//{String s="minInitVariations:";for(int ii=0;ii<numParams;ii++)s+=" ["+ii+"]:"+IJ.d2s(minimizerInitialParamVariations[ii],5,9);IJ.log(s);}
-			//{String s="minInitPars:";for(int ii=0;ii<numParams;ii++)s+=" ["+ii+"]:"+IJ.d2s(minimizerInitialParams[ii],5,9);IJ.log(s);}
+			//{String s="initVariations:";for(int ii=0;ii<numParams;ii++)s+=" ["+ii+"]:"+IJ.d2s(initialParamVariations[ii],5,9);IJMessage.log(s);}
+			//{String s="minInitVariations:";for(int ii=0;ii<numParams;ii++)s+=" ["+ii+"]:"+IJ.d2s(minimizerInitialParamVariations[ii],5,9);IJMessage.log(s);}
+			//{String s="minInitPars:";for(int ii=0;ii<numParams;ii++)s+=" ["+ii+"]:"+IJ.d2s(minimizerInitialParams[ii],5,9);IJMessage.log(s);}
 			// m i n i m i z a t i o n	of squared residuals
 			minimizerStatus = minimizer.minimize(minimizerInitialParams, minimizerInitialParamVariations);
 			finalParams = minimizer.getParams();
@@ -818,9 +818,9 @@ public class CurveFitter implements UserFunction{
 				if (weights != null) resSqr *= weights[i];
 				sumResidualsSqr += resSqr;
 			}
-            //IJ.log(IJ.d2s(params[0],3,5)+","+IJ.d2s(params[1],3,5)+": r="+IJ.d2s(sumResidualsSqr,3,5)+Thread.currentThread().getName() );
+            //IJMessage.log(IJ.d2s(params[0],3,5)+","+IJ.d2s(params[1],3,5)+": r="+IJ.d2s(sumResidualsSqr,3,5)+Thread.currentThread().getName() );
 		} else {	// handle simple linear dependencies by linear regression:
-			//if(getIterations()<1){String s="minimizerPar:";for(int ii=0;ii<=numParams;ii++)s+=" ["+ii+"]:"+IJ.d2s(params[ii],5,9);IJ.log(s);}
+			//if(getIterations()<1){String s="minimizerPar:";for(int ii=0;ii<=numParams;ii++)s+=" ["+ii+"]:"+IJ.d2s(params[ii],5,9);IJMessage.log(s);}
 			minimizerParamsToFullParams(params, true);
 			doRegression(params);
 			sumResidualsSqr = fullParamsToMinimizerParams(params);
@@ -880,7 +880,7 @@ public class CurveFitter implements UserFunction{
 			}
 			double w = weights==null ? 1 : weights[i];
 			sumWeights += w;
-			//if(getIterations()==0)IJ.log(xData[i]+"\t"+yData[i]+"\t"+fValue); //x,y,function
+			//if(getIterations()==0)IJMessage.log(xData[i]+"\t"+yData[i]+"\t"+fValue); //x,y,function
 			if (hasSlopeParam) {		// fit y = offset + slope*x + function(of other params)
 				double x = xData[i];
 				double y = yData[i] - fValue;
@@ -927,7 +927,7 @@ public class CurveFitter implements UserFunction{
 			// into parameters where we have a numeric problem
 			if (sumResidualsSqr < 2e-15*(sqr(factor)*sumX2 + sumWeights*sqr(offset) + sumY2))
 				sumResidualsSqr = 2e-15*(sqr(factor)*sumX2 + sumWeights*sqr(offset) + sumY2);
-			//if(){IJ.log("sumX="+sumX+" sumX2="+sumX2+" sumXY="+sumXY+" factor="+factor+" offset=="+offset);}
+			//if(){IJMessage.log("sumX="+sumX+" sumX2="+sumX2+" sumXY="+sumXY+" factor="+factor+" offset=="+offset);}
 		}
 		params[numParams] = sumResidualsSqr;
 		if (factorParam >= 0)

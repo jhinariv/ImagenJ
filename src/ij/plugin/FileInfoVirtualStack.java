@@ -7,12 +7,12 @@ import java.awt.*;
 import java.io.*;
 import java.util.Properties;
 
-/** This plugin opens a multi-page TIFF file, or a set of raw images, as a 
+/** This plugin opens a multi-page TIFF file, or a set of raw images, as a
 	virtual stack. It implements the File/Import/TIFF Virtual Stack command. */
 public class FileInfoVirtualStack extends VirtualStack implements PlugIn {
 	private FileInfo[] info;
 	private int nImages;
-	
+
 	/* Default constructor. */
 	public FileInfoVirtualStack() {}
 
@@ -25,7 +25,7 @@ public class FileInfoVirtualStack extends VirtualStack implements PlugIn {
 			imp.show();
 	}
 
-	/* Constructs a FileInfoVirtualStack from a FileInfo 
+	/* Constructs a FileInfoVirtualStack from a FileInfo
 		object and displays it if 'show' is true. */
 	public FileInfoVirtualStack(FileInfo fi, boolean show) {
 		info = new FileInfo[1];
@@ -34,7 +34,7 @@ public class FileInfoVirtualStack extends VirtualStack implements PlugIn {
 		if (imp!=null && show)
 			imp.show();
 	}
-	
+
 	/* Constructs a FileInfoVirtualStack from an array of FileInfo objects. */
 	public FileInfoVirtualStack(FileInfo[] fi) {
 		info = fi;
@@ -69,31 +69,31 @@ public class FileInfoVirtualStack extends VirtualStack implements PlugIn {
 		if (imp!=null)
 			imp.show();
 	}
-	
+
 	private void init(String dir, String name) {
 		if (name.endsWith(".zip")) {
-			IJ.error("Virtual Stack", "ZIP compressed stacks not supported");
+			IJMessage.error("Virtual Stack", "ZIP compressed stacks not supported");
 			return;
 		}
 		TiffDecoder td = new TiffDecoder(dir, name);
-		if (IJ.debugMode) td.enableDebugging();
-		IJ.showStatus("Decoding TIFF header...");
+		if (IJDebugMode.debugMode) td.enableDebugging();
+		IJMessage.showStatus("Decoding TIFF header...");
 		try {
 			info = td.getTiffInfo();
 		} catch (IOException e) {
 			String msg = e.getMessage();
 			if (msg==null||msg.equals("")) msg = ""+e;
-			IJ.error("TiffDecoder", msg);
+			IJMessage.error("TiffDecoder", msg);
 			return;
 		}
 		if (info==null || info.length==0) {
-			IJ.error("Virtual Stack", "This does not appear to be a TIFF stack");
+			IJMessage.error("Virtual Stack", "This does not appear to be a TIFF stack");
 			return;
 		}
-		if (IJ.debugMode)
-			IJ.log(info[0].debugInfo);
+		if (IJDebugMode.debugMode)
+			IJMessage.log(info[0].debugInfo);
 	}
-		
+
 	private ImagePlus open() {
 		FileInfo fi = info[0];
 		int n = fi.nImages;
@@ -143,7 +143,7 @@ public class FileInfoVirtualStack extends VirtualStack implements PlugIn {
 		}
 		return imp2;
 	}
-	
+
 	private int validateNImages(FileInfo fi, long bytesPerImage) {
 		File f = new File(fi.getFilePath());
 		if (!f.exists())
@@ -168,7 +168,7 @@ public class FileInfoVirtualStack extends VirtualStack implements PlugIn {
 			try {
 				return Double.valueOf(s);
 			} catch (NumberFormatException e) {}
-		}	
+		}
 		return null;
 	}
 
@@ -187,7 +187,7 @@ public class FileInfoVirtualStack extends VirtualStack implements PlugIn {
 		info[nImages-1] = null;
 		nImages--;
 	}
-	
+
 	/** Returns an ImageProcessor for the specified image,
 		where {@literal 1<=n<=nImages}. Returns null if the stack is empty.
 	*/
@@ -195,14 +195,14 @@ public class FileInfoVirtualStack extends VirtualStack implements PlugIn {
 		n = translate(n);  // update n for hyperstacks not in default CZT order
 		if (n<1 || n>nImages)
 			throw new IllegalArgumentException("Argument out of range: "+n);
-		//if (n>1) IJ.log("  "+(info[n-1].getOffset()-info[n-2].getOffset()));
+		//if (n>1) IJMessage.log("  "+(info[n-1].getOffset()-info[n-2].getOffset()));
 		info[n-1].nImages = 1; // why is this needed?
 		ImageProcessor ip = null;
-		if (IJ.debugMode) {
+		if (IJDebugMode.debugMode) {
 			long t0 = System.currentTimeMillis();
 			FileOpener fo = new FileOpener(info[n-1]);
 			ip = fo.openProcessor();
-			IJ.log("FileInfoVirtualStack: "+n+", offset="+info[n-1].getOffset()+", "+(System.currentTimeMillis()-t0)+"ms");
+			IJMessage.log("FileInfoVirtualStack: "+n+", offset="+info[n-1].getOffset()+", "+(System.currentTimeMillis()-t0)+"ms");
 		} else {
 			FileOpener fo = new FileOpener(info[n-1]);
 			if (info[n-1].fileType==FileInfo.RGB48) {
@@ -219,7 +219,7 @@ public class FileInfoVirtualStack extends VirtualStack implements PlugIn {
 			return ip;
 		} else {
 			int w=getWidth(), h=getHeight();
-			IJ.log("Read error or file not found ("+n+"): "+info[n-1].directory+info[n-1].fileName);
+			IJMessage.log("Read error or file not found ("+n+"): "+info[n-1].directory+info[n-1].fileName);
 			switch (getBitDepth()) {
 				case 8: return new ByteProcessor(w, h);
 				case 16: return new ShortProcessor(w, h);
@@ -229,7 +229,7 @@ public class FileInfoVirtualStack extends VirtualStack implements PlugIn {
 			}
 		}
 	 }
- 
+
 	/** Returns the number of slices in this stack. */
 	public int size() {
 		return getSize();
@@ -252,11 +252,11 @@ public class FileInfoVirtualStack extends VirtualStack implements PlugIn {
 	public int getWidth() {
 		return info[0].width;
 	}
-	
+
 	public int getHeight() {
 		return info[0].height;
 	}
-	
+
 	/** Adds an image to this stack. */
 	public synchronized  void addImage(FileInfo fileInfo) {
 		nImages++;
@@ -269,7 +269,7 @@ public class FileInfoVirtualStack extends VirtualStack implements PlugIn {
 		}
 		info[nImages-1] = fileInfo;
 	}
-	
+
 	@Override
 	public String getDirectory() {
 		if (info!=null && info.length>0)
@@ -277,7 +277,7 @@ public class FileInfoVirtualStack extends VirtualStack implements PlugIn {
 		else
 			return null;
 	}
-		
+
 	@Override
 	public String getFileName(int n) {
 		int index = n - 1;
@@ -287,5 +287,5 @@ public class FileInfoVirtualStack extends VirtualStack implements PlugIn {
 			return null;
 	}
 
-		
+
 }

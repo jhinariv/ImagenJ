@@ -7,7 +7,7 @@ import ij.io.*;
 import ij.process.*;
 import ij.measure.*;
 
-/** Opens and displays FITS images. The FITS format is 
+/** Opens and displays FITS images. The FITS format is
  * described at "http://fits.gsfc.nasa.gov/fits_standard.html".
  * Add setOption("FlipFitsImages",false) to the
  * Edit/Options/Startup dialog to have FITS images not
@@ -22,7 +22,7 @@ public class FITS_Reader extends ImagePlus implements PlugIn {
 		String fileName = od.getFileName();
 		if (fileName==null)
 			return;
-		IJ.showStatus("Opening: " + directory + fileName);
+		IJMessage.showStatus("Opening: " + directory + fileName);
 		FitsDecoder fd = new FitsDecoder(directory, fileName);
 		FileInfo fi = null;
 		try {
@@ -30,14 +30,14 @@ public class FITS_Reader extends ImagePlus implements PlugIn {
 		} catch (IOException e) {}
 		if (fi!=null && fi.width>0 && fi.height>0 && fi.offset>0) {
 			FileOpener fo = new FileOpener(fi);
-			ImagePlus imp = fo.openImage();			
+			ImagePlus imp = fo.openImage();
 			if (flipImages) {
 				if (fi.nImages==1) {
-				  ImageProcessor ip = imp.getProcessor();			   
+				  ImageProcessor ip = imp.getProcessor();
 				  ip.flipVertical(); // origin is at bottom left corner
 				  setProcessor(fileName, ip);
 				} else {
-				  ImageStack stack = imp.getStack(); // origin is at bottom left corner				 
+				  ImageStack stack = imp.getStack(); // origin is at bottom left corner
 				  for(int i=1; i<=stack.getSize(); i++)
 					  stack.getProcessor(i).flipVertical();
 				  setStack(fileName, stack);
@@ -52,8 +52,8 @@ public class FITS_Reader extends ImagePlus implements PlugIn {
 			setFileInfo(fi); // needed for File->Revert
 			if (arg.equals("")) show();
 		} else
-			IJ.error("This does not appear to be a FITS file.");
-		IJ.showStatus("");
+			IJMessage.error("This does not appear to be a FITS file.");
+		IJMessage.showStatus("");
 	}
 
 	public static void flipImages(boolean flip) {
@@ -94,7 +94,7 @@ class FitsDecoder {
 			count++;
 			line = getString(80);
 			info.append(line+"\n");
-  
+
 			// Cut the key/value pair
 			int index = line.indexOf ( "=" );
 
@@ -102,7 +102,7 @@ class FitsDecoder {
 			int commentIndex = line.indexOf ( "/", index );
 			if ( commentIndex < 0 )
 				commentIndex = line.length ();
-			
+
 			// Split that values
 			String key;
 			String value;
@@ -113,11 +113,11 @@ class FitsDecoder {
 				key = line.trim ();
 				value = "";
 			}
-			
+
 			// Time to stop ?
 			if (key.equals ("END") ) break;
 
-			// Look for interesting information			
+			// Look for interesting information
 			if (key.equals("BITPIX")) {
 				int bitsPerPixel = Integer.parseInt ( value );
 			   if (bitsPerPixel==8)
@@ -131,7 +131,7 @@ class FitsDecoder {
 				else if (bitsPerPixel==-64)
 					fi.fileType = FileInfo.GRAY64_FLOAT;
 				else {
-					IJ.error("BITPIX must be 8, 16, 32, -32 (float) or -64 (double).");
+					IJMessage.error("BITPIX must be 8, 16, 32, -32 (float) or -64 (double).");
 					f.close();
 					return null;
 				}
@@ -168,8 +168,8 @@ class FitsDecoder {
 	String getString(int length) throws IOException {
 		byte[] b = new byte[length];
 		f.readFully(b);
-		if (IJ.debugMode)
-			IJ.log(new String(b));
+		if (IJDebugMode.debugMode)
+			IJMessage.log(new String(b));
 		return new String(b);
 	}
 
@@ -187,5 +187,5 @@ class FitsDecoder {
 	String getHeaderInfo() {
 		return new String(info);
 	}
-	
+
 }

@@ -24,7 +24,7 @@ public class AppearanceOptions implements PlugIn, DialogListener {
  	public void run(String arg) {
  		showDialog();
  	}
-		
+
 	void showDialog() {
 		String[] ranges = ContrastAdjuster.getSixteenBitRanges();
 		GenericDialog gd = new GenericDialog("Appearance");
@@ -81,21 +81,21 @@ public class AppearanceOptions implements PlugIn, DialogListener {
 		double scale =  Prefs.getGuiScale();
 		if (scale!=saveScale) {
 			if (!IJ.isMacOSX()) {
-				IJ.showMessage("Appearance", "Restart ImageJ to resize \"ImageJ\" window");
+				IJMessage.showMessage("Appearance", "Restart ImageJ to resize \"ImageJ\" window");
 				messageShown = true;
 			} else {
 				ImageJ ij = IJ.getInstance();
 				if (ij!=null)
 					ij.resize();
-			}	
+			}
 		}
 		boolean fontSizeChanged = menuFontSize!=Menus.getFontSize();
 		if (fontSizeChanged)
 			Menus.setFontSize(menuFontSize);
 		if (!messageShown && fontSizeChanged && !IJ.isMacOSX())
-			IJ.showMessage("Appearance", "Restart ImageJ to use the new font size");
+			IJMessage.showMessage("Appearance", "Restart ImageJ to use the new font size");
 		if (Prefs.useInvertingLut) {
-			IJ.showMessage("Appearance",
+			IJMessage.showMessage("Appearance",
 				"The \"Use inverting lookup table\" option is set. Newly opened\n"+
 				"8-bit images will use an inverting LUT (white=0, black=255).");
 		}
@@ -108,7 +108,7 @@ public class AppearanceOptions implements PlugIn, DialogListener {
 		}
 
 	}
-	
+
 	public boolean dialogItemChanged(GenericDialog gd, AWTEvent e) {
 		if (IJ.isMacOSX()) IJ.wait(100);
 		boolean interpolate = gd.getNextBoolean();
@@ -153,14 +153,14 @@ public class AppearanceOptions implements PlugIn, DialogListener {
 		}
 		return true;
     }
-    
+
     private LUT[] getLuts() {
 		ImagePlus imp = WindowManager.getCurrentImage();
 		if (imp==null || imp.getBitDepth()!=16 || !imp.isComposite())
 			return null;
 		return ((CompositeImage)imp).getLuts();
     }
-    
+
     void draw() {
 		ImagePlus imp = WindowManager.getCurrentImage();
 		if (imp!=null)
@@ -185,5 +185,5 @@ public class AppearanceOptions implements PlugIn, DialogListener {
 		}
 		repainted = true;
 	}
-		
+
 }

@@ -8,17 +8,17 @@ import java.awt.image.*;
 import java.awt.event.*;
 import java.awt.geom.*;
 import java.util.*;
- 
+
 /**
- * This plugin projects dynamically orthogonal XZ and YZ views of a stack. 
- * The output images are calibrated, which allows measurements to be performed more easily. 
- * 
+ * This plugin projects dynamically orthogonal XZ and YZ views of a stack.
+ * The output images are calibrated, which allows measurements to be performed more easily.
+ *
  * Many thanks to Jerome Mutterer for the code contributions and testing.
  * Thanks to Wayne Rasband for the code that properly handles the image magnification.
- * 		
+ *
  * @author Dimiter Prodanov
  */
-public class Orthogonal_Views implements PlugIn, MouseListener, MouseMotionListener, KeyListener, ActionListener, 
+public class Orthogonal_Views implements PlugIn, MouseListener, MouseMotionListener, KeyListener, ActionListener,
 	ImageListener, WindowListener, AdjustmentListener, MouseWheelListener, FocusListener, CommandListener, Runnable {
 
 	private ImageWindow win;
@@ -26,7 +26,7 @@ public class Orthogonal_Views implements PlugIn, MouseListener, MouseMotionListe
 	private boolean rgb;
 	private ImageStack imageStack;
 	private boolean hyperstack;
-	private int currentChannel, currentFrame, currentMode; 
+	private int currentChannel, currentFrame, currentMode;
 	private ImageCanvas canvas;
 	private static final int H_ROI=0, H_ZOOM=1;
 	private static boolean sticky=true;
@@ -38,7 +38,7 @@ public class Orthogonal_Views implements PlugIn, MouseListener, MouseMotionListe
 	private double ax, ay, az;
 	private boolean rotateYZ = Prefs.rotateYZ;
 	private boolean flipXZ = Prefs.flipXZ;
-	
+
 	private int xyX, xyY;
 	private Calibration cal, cal_xz, cal_yz;
 	private double magnification=1.0;
@@ -54,7 +54,7 @@ public class Orthogonal_Views implements PlugIn, MouseListener, MouseMotionListe
 	private boolean sliceSet;
 	private Thread thread;
 
-	 
+
 	public void run(String arg) {
 		imp = IJ.getImage();
 		boolean isStack = imp.getStackSize()>1;
@@ -67,7 +67,7 @@ public class Orthogonal_Views implements PlugIn, MouseListener, MouseMotionListe
 				return;
 			} else if (isStack) {
 				instance.dispose();
-				if (IJ.isMacro()) IJ.wait(1000);
+				if (IJMacro.isMacro()) IJ.wait(1000);
 			} else {
 				ImageWindow win = instance.imp!=null?instance.imp.getWindow():null;
 				if (win!=null) win.toFront();
@@ -75,7 +75,7 @@ public class Orthogonal_Views implements PlugIn, MouseListener, MouseMotionListe
 			}
 		}
 		if (!isStack) {
-			IJ.error("Orthogonal Views", "This command requires a stack, or a hyperstack with Z>1.");
+			IJMessage.error("Orthogonal Views", "This command requires a stack, or a hyperstack with Z>1.");
 			return;
 		}
 		yz_image = WindowManager.getImage(yzID);
@@ -101,7 +101,7 @@ public class Orthogonal_Views implements PlugIn, MouseListener, MouseMotionListe
 		ay = caly/calx;
 		az = calz/calx;
 		if (az>100) {
-			IJ.error("Z spacing ("+(int)az+") is too large.");
+			IJMessage.error("Z spacing ("+(int)az+") is too large.");
 			return;
 		}
 		win = imp.getWindow();
@@ -120,7 +120,7 @@ public class Orthogonal_Views implements PlugIn, MouseListener, MouseMotionListe
 			if (ip.isColorLut() || ip.isInvertedLut()) {
 				ColorModel cm = ip.getColorModel();
 				fp1.setColorModel(cm);
-				fp2.setColorModel(cm);				
+				fp2.setColorModel(cm);
 			}
 			thread = new Thread(this, "Orthogonal Views");
 			thread.start();
@@ -129,7 +129,7 @@ public class Orthogonal_Views implements PlugIn, MouseListener, MouseMotionListe
 		} else
 			dispose();
 	}
-	
+
 	private ImageStack getStack() {
 		if (imp.isHyperStack()) {
 			int slices = imp.getNSlices();
@@ -163,18 +163,18 @@ public class Orthogonal_Views implements PlugIn, MouseListener, MouseMotionListe
 		} else
 			return imp.getStack();
 	}
- 
+
 	private void addListeners(ImageCanvas canvas) {
 		canvas.addMouseListener(this);
 		canvas.addMouseMotionListener(this);
 		canvas.addKeyListener(this);
-		win.addWindowListener (this);  
+		win.addWindowListener (this);
 		win.addMouseWheelListener(this);
 		win.addFocusListener(this);
 		ImagePlus.addImageListener(this);
 		Executer.addCommandListener(this);
 	}
-	 
+
 	private void calibrate() {
 		String xunit = cal.getXUnit();
 		String yunit = cal.getYUnit();
@@ -241,11 +241,11 @@ public class Orthogonal_Views implements PlugIn, MouseListener, MouseMotionListe
         	yz_mag = yz_ic.getMagnification();
         }
 	}
-	
+
 	void updateViews(Point p, ImageStack is) {
 		if (fp1==null) return;
 		updateXZView(p,is);
-		
+
 		double arat=az/ax;
 		int width2 = fp1.getWidth();
 		int height2 = (int)Math.round(fp1.getHeight()*az);
@@ -259,12 +259,12 @@ public class Orthogonal_Views implements PlugIn, MouseListener, MouseMotionListe
 			if (!rgb) fp1.setMinAndMax(min, max);
 	    	xz_image.setProcessor("XZ "+p.y, fp1);
 		}
-			
+
 		if (rotateYZ)
 			updateYZView(p, is);
 		else
 			updateZYView(p, is);
-				
+
 		width2 = (int)Math.round(fp2.getWidth()*az);
 		if (width2<1) width2=1;
 		height2 = fp2.getHeight();
@@ -284,7 +284,7 @@ public class Orthogonal_Views implements PlugIn, MouseListener, MouseMotionListe
 			if (!rgb) fp2.setMinAndMax(min, max);
 			yz_image.setProcessor(title+p.x, fp2);
 		}
-		
+
 		calibrate();
 		if (yz_image.getWindow()==null) {
 			yz_image.show();
@@ -310,9 +310,9 @@ public class Orthogonal_Views implements PlugIn, MouseListener, MouseMotionListe
 			ImageCanvas ic = xz_image.getWindow().getCanvas();
 			ic.setCustomRoi(true);
 		}
-		 
+
 	}
-	
+
 	void arrangeWindows(boolean sticky) {
 		ImageWindow xyWin = imp.getWindow();
 		if (xyWin==null) return;
@@ -348,7 +348,7 @@ public class Orthogonal_Views implements PlugIn, MouseListener, MouseMotionListe
  			}
 		}
 	}
-	
+
 	/**
 	 * @param is - used to get the dimensions of the new ImageProcessors
 	 * @return
@@ -357,12 +357,12 @@ public class Orthogonal_Views implements PlugIn, MouseListener, MouseMotionListe
 		ImageProcessor ip=is.getProcessor(1);
 		int width= is.getWidth();
 		int height=is.getHeight();
-		int ds=is.getSize(); 
+		int ds=is.getSize();
 		double arat=1.0;//az/ax;
 		double brat=1.0;//az/ay;
 		int za=(int)(ds*arat);
 		int zb=(int)(ds*brat);
-		
+
 		if (ip instanceof FloatProcessor) {
 			fp1=new FloatProcessor(width,za);
 			if (rotateYZ)
@@ -371,7 +371,7 @@ public class Orthogonal_Views implements PlugIn, MouseListener, MouseMotionListe
 				fp2=new FloatProcessor(zb,height);
 			return true;
 		}
-		
+
 		if (ip instanceof ByteProcessor) {
 			fp1=new ByteProcessor(width,za);
 			if (rotateYZ)
@@ -380,7 +380,7 @@ public class Orthogonal_Views implements PlugIn, MouseListener, MouseMotionListe
 				fp2=new ByteProcessor(zb,height);
 			return true;
 		}
-		
+
 		if (ip instanceof ShortProcessor) {
 			fp1=new ShortProcessor(width,za);
 			if (rotateYZ)
@@ -389,7 +389,7 @@ public class Orthogonal_Views implements PlugIn, MouseListener, MouseMotionListe
 				fp2=new ShortProcessor(zb,height);
 			return true;
 		}
-		
+
 		if (ip instanceof ColorProcessor) {
 			fp1=new ColorProcessor(width,za);
 			if (rotateYZ)
@@ -398,20 +398,20 @@ public class Orthogonal_Views implements PlugIn, MouseListener, MouseMotionListe
 				fp2=new ColorProcessor(zb,height);
 			return true;
 		}
-		
+
 		return false;
 	}
-	
+
 	void updateXZView(Point p, ImageStack is) {
 		int width= is.getWidth();
 		int size=is.getSize();
 		ImageProcessor ip=is.getProcessor(1);
-		
+
 		int y=p.y;
 		// XZ
 		if (ip instanceof ShortProcessor) {
 			short[] newpix=new short[width*size];
-			for (int i=0; i<size; i++) { 
+			for (int i=0; i<size; i++) {
 				Object pixels=is.getPixels(i+1);
 				if (flipXZ)
 					System.arraycopy(pixels, width*y, newpix, width*(size-i-1), width);
@@ -421,10 +421,10 @@ public class Orthogonal_Views implements PlugIn, MouseListener, MouseMotionListe
 			fp1.setPixels(newpix);
 			return;
 		}
-		
+
 		if (ip instanceof ByteProcessor) {
 			byte[] newpix=new byte[width*size];
-			for (int i=0;i<size; i++) { 
+			for (int i=0;i<size; i++) {
 				Object pixels=is.getPixels(i+1);
 				if (flipXZ)
 					System.arraycopy(pixels, width*y, newpix, width*(size-i-1), width);
@@ -434,10 +434,10 @@ public class Orthogonal_Views implements PlugIn, MouseListener, MouseMotionListe
 			fp1.setPixels(newpix);
 			return;
 		}
-		
+
 		if (ip instanceof FloatProcessor) {
 			float[] newpix=new float[width*size];
-			for (int i=0; i<size; i++) { 
+			for (int i=0; i<size; i++) {
 				Object pixels=is.getPixels(i+1);
 				if (flipXZ)
 					System.arraycopy(pixels, width*y, newpix, width*(size-i-1), width);
@@ -447,10 +447,10 @@ public class Orthogonal_Views implements PlugIn, MouseListener, MouseMotionListe
 			fp1.setPixels(newpix);
 			return;
 		}
-		
+
 		if (ip instanceof ColorProcessor) {
 			int[] newpix=new int[width*size];
-			for (int i=0;i<size; i++) { 
+			for (int i=0;i<size; i++) {
 				Object pixels=is.getPixels(i+1);
 				if (flipXZ)
 					System.arraycopy(pixels, width*y, newpix, width*(size-i-1), width);
@@ -460,49 +460,49 @@ public class Orthogonal_Views implements PlugIn, MouseListener, MouseMotionListe
 			fp1.setPixels(newpix);
 			return;
 		}
-		
+
 	}
-	
+
 	void updateYZView(Point p, ImageStack is) {
 		int width= is.getWidth();
 		int height=is.getHeight();
 		int ds=is.getSize();
 		ImageProcessor ip=is.getProcessor(1);
 		int x=p.x;
-		
+
 		if (ip instanceof FloatProcessor) {
 			float[] newpix=new float[ds*height];
-			for (int i=0;i<ds; i++) { 
+			for (int i=0;i<ds; i++) {
 				float[] pixels= (float[]) is.getPixels(i+1);//toFloatPixels(pixels);
 				for (int j=0;j<height;j++)
 					newpix[(ds-i-1)*height + j] = pixels[x + j* width];
 			}
 			fp2.setPixels(newpix);
 		}
-		
+
 		if (ip instanceof ByteProcessor) {
 			byte[] newpix=new byte[ds*height];
-			for (int i=0;i<ds; i++) { 
+			for (int i=0;i<ds; i++) {
 				byte[] pixels= (byte[]) is.getPixels(i+1);//toFloatPixels(pixels);
 				for (int j=0;j<height;j++)
 					newpix[(ds-i-1)*height + j] = pixels[x + j* width];
 			}
 			fp2.setPixels(newpix);
 		}
-		
+
 		if (ip instanceof ShortProcessor) {
 			short[] newpix=new short[ds*height];
-			for (int i=0;i<ds; i++) { 
+			for (int i=0;i<ds; i++) {
 				short[] pixels= (short[]) is.getPixels(i+1);//toFloatPixels(pixels);
 				for (int j=0;j<height;j++)
 					newpix[(ds-i-1)*height + j] = pixels[x + j* width];
 			}
 			fp2.setPixels(newpix);
 		}
-		
+
 		if (ip instanceof ColorProcessor) {
 			int[] newpix=new int[ds*height];
-			for (int i=0;i<ds; i++) { 
+			for (int i=0;i<ds; i++) {
 				int[] pixels= (int[]) is.getPixels(i+1);//toFloatPixels(pixels);
 				for (int j=0;j<height;j++)
 					newpix[(ds-i-1)*height + j] = pixels[x + j* width];
@@ -511,58 +511,58 @@ public class Orthogonal_Views implements PlugIn, MouseListener, MouseMotionListe
 		}
 		if (!flipXZ)
 			fp2.flipVertical();
-		
+
 	}
-	
+
 	void updateZYView(Point p, ImageStack is) {
 		int width= is.getWidth();
 		int height=is.getHeight();
 		int ds=is.getSize();
 		ImageProcessor ip=is.getProcessor(1);
 		int x=p.x;
-		
+
 		if (ip instanceof FloatProcessor) {
 			float[] newpix=new float[ds*height];
-			for (int i=0;i<ds; i++) { 
+			for (int i=0;i<ds; i++) {
 				float[] pixels= (float[]) is.getPixels(i+1);//toFloatPixels(pixels);
 				for (int y=0;y<height;y++)
 					newpix[i + y*ds] = pixels[x + y* width];
 			}
 			fp2.setPixels(newpix);
 		}
-		
+
 		if (ip instanceof ByteProcessor) {
 			byte[] newpix=new byte[ds*height];
-			for (int i=0;i<ds; i++) { 
+			for (int i=0;i<ds; i++) {
 				byte[] pixels= (byte[]) is.getPixels(i+1);//toFloatPixels(pixels);
 				for (int y=0;y<height;y++)
 					newpix[i + y*ds] = pixels[x + y* width];
 			}
 			fp2.setPixels(newpix);
 		}
-		
+
 		if (ip instanceof ShortProcessor) {
 			short[] newpix=new short[ds*height];
-			for (int i=0;i<ds; i++) { 
+			for (int i=0;i<ds; i++) {
 				short[] pixels= (short[]) is.getPixels(i+1);//toFloatPixels(pixels);
 				for (int y=0;y<height;y++)
 					newpix[i + y*ds] = pixels[x + y* width];
 			}
 			fp2.setPixels(newpix);
 		}
-		
+
 		if (ip instanceof ColorProcessor) {
 			int[] newpix=new int[ds*height];
-			for (int i=0;i<ds; i++) { 
+			for (int i=0;i<ds; i++) {
 				int[] pixels= (int[]) is.getPixels(i+1);//toFloatPixels(pixels);
 				for (int y=0;y<height;y++)
 					newpix[i + y*ds] = pixels[x + y* width];
 			}
 			fp2.setPixels(newpix);
 		}
-		
+
 	}
-	 
+
 	/** draws the crosses in the images */
 	void drawCross(ImagePlus imp, Point p, GeneralPath path) {
 		int width=imp.getWidth();
@@ -572,9 +572,9 @@ public class Orthogonal_Views implements PlugIn, MouseListener, MouseMotionListe
 		path.moveTo(0f, y);
 		path.lineTo(width, y);
 		path.moveTo(x, 0f);
-		path.lineTo(x, height);	
+		path.lineTo(x, height);
 	}
-	
+
 	void dispose() {
 		synchronized(this) {
 			done = true;
@@ -627,7 +627,7 @@ public class Orthogonal_Views implements PlugIn, MouseListener, MouseMotionListe
 		previousY = crossLoc.y;
 		imageStack = null;
 	}
-	
+
 	public void mouseClicked(MouseEvent e) {
 	}
 
@@ -709,12 +709,12 @@ public class Orthogonal_Views implements PlugIn, MouseListener, MouseMotionListe
 			xzic.repaint();
 		}
 	}
-	
+
 	/** Refresh the output windows. */
 	synchronized void update() {
 		notify();
 	}
-	
+
 	private void exec() {
 		if (canvas==null)
 			return;
@@ -762,7 +762,7 @@ public class Orthogonal_Views implements PlugIn, MouseListener, MouseMotionListe
 		int zlice=imp.getSlice()-1;
 		int zcoord=(int)Math.round(arat*zlice);
 		if (flipXZ)
-			zcoord = (int)Math.round(arat*(z-zlice));		
+			zcoord = (int)Math.round(arat*(z-zlice));
 		ImageCanvas xzCanvas = xz_image.getCanvas();
 		p=new Point (x, zcoord);
 		GeneralPath path = new GeneralPath();
@@ -773,7 +773,7 @@ public class Orthogonal_Views implements PlugIn, MouseListener, MouseMotionListe
 			if (flipXZ)
 				zcoord=(int)Math.round(brat*(z-zlice));
 			else
-				zcoord=(int)Math.round(brat*(zlice));			
+				zcoord=(int)Math.round(brat*(zlice));
 			p=new Point (y, zcoord);
 		} else {
 			zcoord=(int)Math.round(arat*zlice);
@@ -783,7 +783,7 @@ public class Orthogonal_Views implements PlugIn, MouseListener, MouseMotionListe
 		drawCross(yz_image, p, path);
 		if (!done)
 			yz_image.setOverlay(path, color, new BasicStroke(1));
-		IJ.showStatus(imp.getLocationAsString(crossLoc.x, crossLoc.y));
+		IJMessage.showStatus(imp.getLocationAsString(crossLoc.x, crossLoc.y));
 	}
 
 	public void mouseMoved(MouseEvent e) {
@@ -877,7 +877,7 @@ public class Orthogonal_Views implements PlugIn, MouseListener, MouseMotionListe
 
 	public void windowClosing(WindowEvent e) {
 		if (!done)
-			dispose();		
+			dispose();
 	}
 
 	public void windowDeactivated(WindowEvent e) {
@@ -896,7 +896,7 @@ public class Orthogonal_Views implements PlugIn, MouseListener, MouseMotionListe
 	public void adjustmentValueChanged(AdjustmentEvent e) {
 		update();
 	}
-		
+
 	public void mouseWheelMoved(MouseWheelEvent e) {
 		if (e.getSource().equals(xz_image.getWindow())) {
 			crossLoc.y += e.getWheelRotation();
@@ -915,14 +915,14 @@ public class Orthogonal_Views implements PlugIn, MouseListener, MouseMotionListe
 	public void focusLost(FocusEvent e) {
 		arrangeWindows(sticky);
 	}
-	
+
 	public static ImagePlus getImage() {
 		if (instance!=null)
 			return instance.imp;
 		else
 			return null;
 	}
-	
+
 	public static int getImageID() {
 		ImagePlus img = getImage();
 		return img!=null?img.getID():0;
@@ -963,7 +963,7 @@ public class Orthogonal_Views implements PlugIn, MouseListener, MouseMotionListe
 		loc[2] = imp.getSlice()-1;
 		return loc;
 	}
-	
+
 	public void setCrossLoc(int x, int y, int z) {
 		crossLoc.setLocation(x, y);
 		int slice = z+1;
@@ -979,15 +979,15 @@ public class Orthogonal_Views implements PlugIn, MouseListener, MouseMotionListe
 		}
 		update();
 	}
-	
+
 	public ImagePlus getXZImage(){
 		return xz_image;
 	}
-	
+
 	public ImagePlus getYZImage(){
 		return yz_image;
 	}
-	
+
 	public void run() {
 		while (!done) {
 			synchronized(this) {

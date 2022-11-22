@@ -10,7 +10,7 @@ import java.awt.Color;
 /**
  * This plugin is used by the Image/Stacks/Tools/Make Substack
  * command to create substacks of hyperstacks.
- *  
+ *
  * @author Curtis Rueden
  */
 public class SubHyperstackMaker implements PlugIn {
@@ -19,11 +19,11 @@ public class SubHyperstackMaker implements PlugIn {
 		// verify input image is appropriate
 		ImagePlus input = WindowManager.getCurrentImage();
 		if (input == null) {
-			IJ.showMessage("No image open.");
+			IJMessage.showMessage("No image open.");
 			return;
 		}
 		if (input.getStackSize() == 1) {
-			IJ.showMessage("Image is not a stack.");
+			IJMessage.showMessage("Image is not a stack.");
 			return;
 		}
 		int cCount = input.getNChannels();
@@ -85,7 +85,7 @@ public class SubHyperstackMaker implements PlugIn {
 		// create output image
 		String title = WindowManager.getUniqueName(input.getTitle());
 		ImagePlus output = IJ.createHyperStack(title, input.getWidth(), input.getHeight(), cList.size(), zList.size(), tList.size(), input.getBitDepth());
-		//ImagePlus output = input.createHyperStack(title, cList.size(), zList.size(), tList.size(), input.getBitDepth());	
+		//ImagePlus output = input.createHyperStack(title, cList.size(), zList.size(), tList.size(), input.getBitDepth());
 		ImageStack outputStack = output.getImageStack();
 
 		// add specified planes to subhyperstack
@@ -104,7 +104,7 @@ public class SubHyperstackMaker implements PlugIn {
 					ImageProcessor ip = inputStack.getProcessor(i);
 					outputStack.setSliceLabel(label, oi);
 					outputStack.setPixels(ip.getPixels(), oi);
-					//IJ.log("  "+c + "  "+z+"  "+t+"  "+i +" "+oi+"  "+outputStack.getProcessor(1).getPixelValue(0,0));	
+					//IJMessage.log("  "+c + "  "+z+"  "+t+"  "+i +" "+oi+"  "+outputStack.getProcessor(1).getPixelValue(0,0));
 				}
 			}
 		}

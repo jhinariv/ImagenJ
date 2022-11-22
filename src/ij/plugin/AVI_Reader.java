@@ -202,7 +202,7 @@ public class AVI_Reader extends VirtualStack implements PlugIn {
 	private static boolean	   staticConvertToGray;
 	private static boolean	   staticFlipVertical;
 	private static boolean	   staticIsVirtual = true;
-	
+
 	//dialog parameters
 	private static final String PATH_KEY = "avi.reader.path";
 	private String path; 					// file path
@@ -244,7 +244,7 @@ public class AVI_Reader extends VirtualStack implements PlugIn {
 	private	 ImageStack		   stack;
 	private	 ImagePlus		   imp;
 	//for debug messages and error handling
-	private	 boolean		   verbose = IJ.debugMode;
+	private	 boolean		   verbose = IJDebugMode.debugMode;
 	private	 long			   startTime;
 	private	 boolean		   aborting;
 	private	 boolean		   displayDialog = true;
@@ -297,7 +297,7 @@ public class AVI_Reader extends VirtualStack implements PlugIn {
 	 *	retrieved with getImagePlus().
 	 */
 	public void run (String arg) {
-		String options = IJ.isMacro()?Macro.getOptions():null;
+		String options = IJMacro.isMacro()?Macro.getOptions():null;
 		if (options!=null && options.contains("select=") && !options.contains("open="))
 			Macro.setOptions(options.replaceAll("select=", "open="));
 		path = arg;
@@ -327,7 +327,7 @@ public class AVI_Reader extends VirtualStack implements PlugIn {
             }
 			return;
 		} else if (errorText != null)
-            IJ.showMessage("AVI Reader", errorText);				//show the error, e.g. we may have an incomplete stack
+            IJMessage.showMessage("AVI Reader", errorText);				//show the error, e.g. we may have an incomplete stack
 		if (fileName==null) {
 			File f = new File(path);
 			fileName = f.getName();
@@ -396,7 +396,7 @@ public class AVI_Reader extends VirtualStack implements PlugIn {
 		} finally {
 			closeFile(raFile);
 			if (verbose)
-                IJ.log("File closed.");
+                IJMessage.log("File closed.");
 			IJ.showProgress(1.0);
 		}
 		if (isVirtual && frameInfos != null)
@@ -477,7 +477,7 @@ public class AVI_Reader extends VirtualStack implements PlugIn {
 	private boolean showDialog () {
 		if (lastFrame!=-1)
 			lastFrame = dwTotalFrames;
-		if (!IJ.isMacro()) {
+		if (!IJMacro.isMacro()) {
 			convertToGray = staticConvertToGray;
 			flipVertical = staticFlipVertical;
 			isVirtual = staticIsVirtual;
@@ -523,7 +523,7 @@ public class AVI_Reader extends VirtualStack implements PlugIn {
 			lastField.setText("0");
 		double last = gd.getNextNumber();
 		if (!Double.isNaN(last)) lastFrame = (int)last;
-		if (!IJ.isMacro()) {
+		if (!IJMacro.isMacro()) {
 			staticConvertToGray = convertToGray;
 			staticFlipVertical = flipVertical;
 			staticIsVirtual = isVirtual;
@@ -564,7 +564,7 @@ public class AVI_Reader extends VirtualStack implements PlugIn {
 				long positionBehindMovie = raFile.getFilePointer();
 				while (positionBehindMovie < fileSize-8) {
 					if (verbose)
-						IJ.log("searching for 'idx1' at 0x"+Long.toHexString(positionBehindMovie));
+						IJMessage.log("searching for 'idx1' at 0x"+Long.toHexString(positionBehindMovie));
 					raFile.seek(positionBehindMovie);
 					if (positionBehindMovie > FOUR_GB)
 						isOversizedAvi1 = true;
@@ -575,7 +575,7 @@ public class AVI_Reader extends VirtualStack implements PlugIn {
 				}
 			}
 			if (verbose)
-				IJ.log("'frameInfos' has "+frameInfos.size()+" entries");
+				IJMessage.log("'frameInfos' has "+frameInfos.size()+" entries");
 		}
 		if (isVirtual && frameInfos.size()>0)	// Virtual Stack only needs reading the index
 			return;
@@ -587,7 +587,7 @@ public class AVI_Reader extends VirtualStack implements PlugIn {
 			raFile.seek(frameInfo[0]-8);		// chunk starts 8 bytes before frame data
 			frameNumber = firstFrame;
 			if (verbose)
-				IJ.log("directly go to frame "+firstFrame+" @ 0x"+Long.toHexString(frameInfo[0]-8));
+				IJMessage.log("directly go to frame "+firstFrame+" @ 0x"+Long.toHexString(frameInfo[0]-8));
 			readMovieData(fileSize);
 		} else {
 			frameNumber = 1;
@@ -595,7 +595,7 @@ public class AVI_Reader extends VirtualStack implements PlugIn {
 		}
 
 		long pos = raFile.getFilePointer();
-		//IJ.log("at 0x"+Long.toHexString(pos)+" filesize=0x"+Long.toHexString(fileSize));
+		//IJMessage.log("at 0x"+Long.toHexString(pos)+" filesize=0x"+Long.toHexString(fileSize));
 		// extended AVI: try to find further 'RIFF' chunks, where we expect AVIX tags
 		while (pos>0 && pos<fileSize && (frameNumber<lastFrameToRead+1))
 				pos = findFourccAndRead(FOURCC_RIFF, false, fileSize, false);
@@ -606,20 +606,20 @@ public class AVI_Reader extends VirtualStack implements PlugIn {
 	private void openAndReadHeader (String path) throws Exception, IOException {
 		startTime = System.currentTimeMillis();
 		if (verbose)
-			IJ.log("OPEN AND READ AVI FILE HEADER "+timeString());
+			IJMessage.log("OPEN AND READ AVI FILE HEADER "+timeString());
 		File file = new File(path);							// o p e n
 		raFile = new RandomAccessFile(file, "r");
 		raFilePath = path;
 		fileSize = raFile.length();
 		int fileType = readInt();							// f i l e	 h e a d e r
 		if (verbose)
-			IJ.log("File header: File type='"+fourccString(fileType)+"' (should be 'RIFF')"+timeString());
+			IJMessage.log("File header: File type='"+fourccString(fileType)+"' (should be 'RIFF')"+timeString());
 		if (fileType != FOURCC_RIFF)
 			throw new Exception("Not an AVI file.");
 		aviSize = readInt() & SIZE_MASK;					//size of AVI chunk
 		int riffType = readInt();
 		if (verbose)
-			IJ.log("File header: RIFF type='"+fourccString(riffType)+"' (should be 'AVI ')");
+			IJMessage.log("File header: RIFF type='"+fourccString(riffType)+"' (should be 'AVI ')");
 		if (riffType != FOURCC_AVI)
 			throw new Exception("Not an AVI file.");
 
@@ -631,10 +631,10 @@ public class AVI_Reader extends VirtualStack implements PlugIn {
 	/** Read AVIX chunks following the first RIFF AVI for large files (sequential reading frame-by-frame beyond the first chunk) **/
 	private void readAVIX(long endPosition) throws Exception, IOException {
 		if (verbose)
-			IJ.log("Trying to read AVIX"+timeString());
+			IJMessage.log("Trying to read AVIX"+timeString());
 		int riffType = readInt();
 		if (verbose)
-			IJ.log("File header: RIFF type='"+fourccString(riffType)+"' (should be 'AVIX')");
+			IJMessage.log("File header: RIFF type='"+fourccString(riffType)+"' (should be 'AVIX')");
 		if (riffType != FOURCC_AVIX)
 			throw new Exception("Not an AVI file.");
 		findFourccAndRead(FOURCC_movi, true, fileSize, true); //read movie data
@@ -659,7 +659,7 @@ public class AVI_Reader extends VirtualStack implements PlugIn {
 			nextPos = raFile.getFilePointer() + size;
 			if (nextPos>endPosition || nextPos>fileSize) {
 				errorText = "AVI File Error: '"+fourccString(type)+"' @ 0x"+Long.toHexString(raFile.getFilePointer()-8)+" has invalid length. File damaged/truncated?";
-				IJ.log(errorText);		// this text is also remembered as error message for showing in message box
+				IJMessage.log(errorText);		// this text is also remembered as error message for showing in message box
 				if (fourcc == FOURCC_movi)
                     nextPos = fileSize;	// if movie data truncated, try reading what we can get
 				else
@@ -668,11 +668,11 @@ public class AVI_Reader extends VirtualStack implements PlugIn {
 			if (isList && type == FOURCC_LIST)
 				type = readInt();
 			if (verbose)
-				IJ.log("Search for '"+fourccString(fourcc)+"', found "+fourccString(type)+"' data "+posSizeString(nextPos-size, size));
+				IJMessage.log("Search for '"+fourccString(fourcc)+"', found "+fourccString(type)+"' data "+posSizeString(nextPos-size, size));
 			if (type==fourcc) {
 				contentOk = readContents(fourcc, nextPos);
 			} else if (verbose)
-				IJ.log("'"+fourccString(type)+"', ignored");
+				IJMessage.log("'"+fourccString(type)+"', ignored");
 			raFile.seek(nextPos);
 			if (contentOk)
 				return nextPos;			//found and read, breaks the loop
@@ -695,7 +695,7 @@ public class AVI_Reader extends VirtualStack implements PlugIn {
 			if (isList && type == FOURCC_LIST)
 				type = readInt();
 			if (verbose)
-				IJ.log("Searching for (to skip) '"+fourccString(fourcc)+"', found "+fourccString(type)+
+				IJMessage.log("Searching for (to skip) '"+fourccString(fourcc)+"', found "+fourccString(type)+
 						"' data "+posSizeString(chunkPos, size));
 			raFile.seek(nextPos);
 			if (type == fourcc)
@@ -730,7 +730,7 @@ public class AVI_Reader extends VirtualStack implements PlugIn {
 				int streamType = readInt();
 				if (streamType != FOURCC_vids) {
 					if (verbose)
-						IJ.log("Non-video Stream '"+fourccString(streamType)+" skipped");
+						IJMessage.log("Non-video Stream '"+fourccString(streamType)+" skipped");
 					streamNumber++;
 					return false;
 				}
@@ -770,17 +770,17 @@ public class AVI_Reader extends VirtualStack implements PlugIn {
 		// dwReserved[4] follows, ignored
 
 		if (verbose) {
-			IJ.log("AVI HEADER (avih):"+timeString());
-			IJ.log("   dwMicroSecPerFrame=" + dwMicroSecPerFrame);
-			IJ.log("   dwMaxBytesPerSec=" + dwMaxBytesPerSec);
-			IJ.log("   dwReserved1=" + dwReserved1);
-			IJ.log("   dwFlags=" + dwFlags);
-			IJ.log("   dwTotalFrames=" + dwTotalFrames);
-			IJ.log("   dwInitialFrames=" + dwInitialFrames);
-			IJ.log("   dwStreams=" + dwStreams);
-			IJ.log("   dwSuggestedBufferSize=" + dwSuggestedBufferSize);
-			IJ.log("   dwWidth=" + dwWidth);
-			IJ.log("   dwHeight=" + dwHeight);
+			IJMessage.log("AVI HEADER (avih):"+timeString());
+			IJMessage.log("   dwMicroSecPerFrame=" + dwMicroSecPerFrame);
+			IJMessage.log("   dwMaxBytesPerSec=" + dwMaxBytesPerSec);
+			IJMessage.log("   dwReserved1=" + dwReserved1);
+			IJMessage.log("   dwFlags=" + dwFlags);
+			IJMessage.log("   dwTotalFrames=" + dwTotalFrames);
+			IJMessage.log("   dwInitialFrames=" + dwInitialFrames);
+			IJMessage.log("   dwStreams=" + dwStreams);
+			IJMessage.log("   dwSuggestedBufferSize=" + dwSuggestedBufferSize);
+			IJMessage.log("   dwWidth=" + dwWidth);
+			IJMessage.log("   dwHeight=" + dwHeight);
 		}
 	}
 
@@ -798,18 +798,18 @@ public class AVI_Reader extends VirtualStack implements PlugIn {
 		dwStreamSampleSize = readInt();
 		//rcFrame rectangle follows, ignored
 		if (verbose) {
-			IJ.log("VIDEO STREAM HEADER (strh):");
-			IJ.log("   fccStreamHandler='" + fourccString(fccStreamHandler)+"'");
-			IJ.log("   dwStreamFlags=" + dwStreamFlags);
-			IJ.log("   wPriority,wLanguage=" + dwPriorityLanguage);
-			IJ.log("   dwStreamInitialFrames=" + dwStreamInitialFrames);
-			IJ.log("   dwStreamScale=" + dwStreamScale);
-			IJ.log("   dwStreamRate=" + dwStreamRate);
-			IJ.log("   dwStreamStart=" + dwStreamStart);
-			IJ.log("   dwStreamLength=" + dwStreamLength);
-			IJ.log("   dwStreamSuggestedBufferSize=" + dwStreamSuggestedBufferSize);
-			IJ.log("   dwStreamQuality=" + dwStreamQuality);
-			IJ.log("   dwStreamSampleSize=" + dwStreamSampleSize);
+			IJMessage.log("VIDEO STREAM HEADER (strh):");
+			IJMessage.log("   fccStreamHandler='" + fourccString(fccStreamHandler)+"'");
+			IJMessage.log("   dwStreamFlags=" + dwStreamFlags);
+			IJMessage.log("   wPriority,wLanguage=" + dwPriorityLanguage);
+			IJMessage.log("   dwStreamInitialFrames=" + dwStreamInitialFrames);
+			IJMessage.log("   dwStreamScale=" + dwStreamScale);
+			IJMessage.log("   dwStreamRate=" + dwStreamRate);
+			IJMessage.log("   dwStreamStart=" + dwStreamStart);
+			IJMessage.log("   dwStreamLength=" + dwStreamLength);
+			IJMessage.log("   dwStreamSuggestedBufferSize=" + dwStreamSuggestedBufferSize);
+			IJMessage.log("   dwStreamQuality=" + dwStreamQuality);
+			IJMessage.log("   dwStreamSampleSize=" + dwStreamSampleSize);
 		}
 		if (dwStreamSampleSize > 1)
 			throw new Exception("Video stream with "+dwStreamSampleSize+" (more than 1) frames/chunk not supported");
@@ -831,14 +831,14 @@ public class AVI_Reader extends VirtualStack implements PlugIn {
 		if (verbose) {
 			String bIndexString = bIndexType == AVI_INDEX_OF_CHUNKS ? ": AVI_INDEX_OF_CHUNKS" :
 					bIndexType == AVI_INDEX_OF_INDEXES ? ": AVI_INDEX_OF_INDEXES" : ": UNSUPPORTED";
-			IJ.log("AVI 2 INDEX:");
-			IJ.log("   wLongsPerEntry=" + wLongsPerEntry);
-			IJ.log("   bIndexSubType=" + bIndexSubType);
-			IJ.log("   bIndexType=" + bIndexType + bIndexString);
-			IJ.log("   nEntriesInUse=" + nEntriesInUse);
-			IJ.log("   dwChunkId='" + fourccString(dwChunkId)+"'");
+			IJMessage.log("AVI 2 INDEX:");
+			IJMessage.log("   wLongsPerEntry=" + wLongsPerEntry);
+			IJMessage.log("   bIndexSubType=" + bIndexSubType);
+			IJMessage.log("   bIndexType=" + bIndexType + bIndexString);
+			IJMessage.log("   nEntriesInUse=" + nEntriesInUse);
+			IJMessage.log("   dwChunkId='" + fourccString(dwChunkId)+"'");
 			if (bIndexType == AVI_INDEX_OF_CHUNKS)
-				IJ.log("   qwBaseOffset=" + "0x"+Long.toHexString(qwBaseOffset));
+				IJMessage.log("   qwBaseOffset=" + "0x"+Long.toHexString(qwBaseOffset));
 		}
 		if (bIndexType == AVI_INDEX_OF_INDEXES) {		// 'indx' points to other indices
 			if (wLongsPerEntry != 4) return;			//badly formed index, ignore it
@@ -847,22 +847,22 @@ public class AVI_Reader extends VirtualStack implements PlugIn {
 				int dwSize = readInt();
 				int dwDuration = readInt();				//number of frames in ix00; ignored: not always trustworthy
 				if (verbose)
-					IJ.log("   indx entry: '" +fourccString(dwChunkId)+"' incl header "+posSizeString(qwOffset,dwSize)+timeString());
+					IJMessage.log("   indx entry: '" +fourccString(dwChunkId)+"' incl header "+posSizeString(qwOffset,dwSize)+timeString());
 				long nextIndxEntryPointer = raFile.getFilePointer();
-				raFile.seek(qwOffset);					//qwOffset & dwSize here include chunk header of ix00	
-				findFourccAndRead(FOURCC_ix00, false, qwOffset+dwSize, false);				
+				raFile.seek(qwOffset);					//qwOffset & dwSize here include chunk header of ix00
+				findFourccAndRead(FOURCC_ix00, false, qwOffset+dwSize, false);
 				raFile.seek(nextIndxEntryPointer);
 				if (frameNumber>lastFrameToRead) break;
 			}
 		} else if (bIndexType == AVI_INDEX_OF_CHUNKS) {
 			if (verbose) {
-				IJ.log("readAvi2Index frameNumber="+frameNumber+" firstFrame="+firstFrame);
-				if (indexForCountingOnly) IJ.log("<just counting frames, not interpreting index now>");
+				IJMessage.log("readAvi2Index frameNumber="+frameNumber+" firstFrame="+firstFrame);
+				if (indexForCountingOnly) IJMessage.log("<just counting frames, not interpreting index now>");
 			}
 			if (wLongsPerEntry != 2) return;				//badly formed index, ignore it
 			if (dwChunkId != type0xdb && dwChunkId != type0xdc) { //not the stream we search for? (should not happen)
 				if (verbose)
-					IJ.log("INDEX ERROR: SKIPPED ix00, wrong stream number or type, should be "+
+					IJMessage.log("INDEX ERROR: SKIPPED ix00, wrong stream number or type, should be "+
 							fourccString(type0xdb)+" or "+fourccString(type0xdc));
 				return;
 			}
@@ -878,19 +878,19 @@ public class AVI_Reader extends VirtualStack implements PlugIn {
 				if (frameNumber >= firstFrame && dwSize>0) { //only valid frames (no blank frames)
 					frameInfos.add(new long[] {pos, dwSize, (long) frameNumber*dwMicroSecPerFrame});
 					if (verbose)
-						IJ.log("movie data "+frameNumber+" '"+fourccString(dwChunkId)+"' "+posSizeString(pos,dwSize)+timeString());
+						IJMessage.log("movie data "+frameNumber+" '"+fourccString(dwChunkId)+"' "+posSizeString(pos,dwSize)+timeString());
 				}
 				frameNumber++;
 				if (frameNumber>lastFrameToRead) break;
 			}
 			if (verbose)
-				IJ.log("Index read up to frame "+(frameNumber-1));
+				IJMessage.log("Index read up to frame "+(frameNumber-1));
 		}
 	}
 
 	/** Read AVI 1 index 'idx1' */
 	private void readOldFrameIndex(long endPosition) throws Exception, IOException {
-		//IJ.log("READ AVI 1 INDEX, isOversizedAvi1="+isOversizedAvi1);
+		//IJMessage.log("READ AVI 1 INDEX, isOversizedAvi1="+isOversizedAvi1);
 		int offset = -1;		//difference between absolute frame address and address given in idx1
 		int[] offsetsToTry = new int[] {0, (int)moviPosition}; // dwOffset may be w.r.t. file start or w.r.t. 'movi' list.
 		long lastFramePos = 0;
@@ -901,8 +901,8 @@ public class AVI_Reader extends VirtualStack implements PlugIn {
 			int dwFlags = readInt();
 			int dwOffset = readInt();
 			int dwSize = readInt();
-			//IJ.log("idx1: dwOffset=0x"+Long.toHexString(dwOffset));
-			//IJ.log("moviPosition=0x"+Long.toHexString(moviPosition));
+			//IJMessage.log("idx1: dwOffset=0x"+Long.toHexString(dwOffset));
+			//IJMessage.log("moviPosition=0x"+Long.toHexString(moviPosition));
 			if ((dwChunkId==type0xdb || dwChunkId==type0xdc) && dwSize>0) {
 				if (offset < 0) {		// find out what the offset refers to
 					long temp = raFile.getFilePointer();
@@ -911,14 +911,14 @@ public class AVI_Reader extends VirtualStack implements PlugIn {
 						if (pos < moviPosition) continue;	// frame must be in 'movi' list
 						raFile.seek(pos);
 						int chunkIdAtPos = readInt();		// see whether this offset points to the desired chunk
-						//IJ.log("read@=0x"+Long.toHexString(pos)+":  '"+fourccString(chunkIdAtPos)+"'");
+						//IJMessage.log("read@=0x"+Long.toHexString(pos)+":  '"+fourccString(chunkIdAtPos)+"'");
 						if (chunkIdAtPos == dwChunkId) {
 							offset = offsetsToTry[i];
 							break;
 						}
 					}
 					if (verbose)
-						IJ.log("idx1: dwOffsets are w.r.t. 0x"+(offset<0 ? " UNKONWN??" : Long.toHexString(offset)));
+						IJMessage.log("idx1: dwOffsets are w.r.t. 0x"+(offset<0 ? " UNKONWN??" : Long.toHexString(offset)));
 					raFile.seek(temp);
 					if (offset < 0) return;					// neither offset works
 				}
@@ -929,14 +929,14 @@ public class AVI_Reader extends VirtualStack implements PlugIn {
 				if (frameNumber >= firstFrame) {
 					frameInfos.add(new long[]{framePos+8, dwSize, (long)frameNumber*dwMicroSecPerFrame});
 					if (verbose)
-						IJ.log("idx1 movie data '"+fourccString(dwChunkId)+"' "+posSizeString(framePos,dwSize)+timeString());
+						IJMessage.log("idx1 movie data '"+fourccString(dwChunkId)+"' "+posSizeString(framePos,dwSize)+timeString());
 				}
 				frameNumber++;
 				if (frameNumber>lastFrameToRead) break;
 			} //if(dwChunkId...)
 		} //while(true)
 		if (verbose)
-			IJ.log("Index read up to frame "+(frameNumber-1));
+			IJMessage.log("Index read up to frame "+(frameNumber-1));
 
 	}
 
@@ -955,17 +955,17 @@ public class AVI_Reader extends VirtualStack implements PlugIn {
 		biClrUsed = readInt();
 		biClrImportant = readInt();
 		if (verbose) {
-			IJ.log("   biSize=" + biSize);
-			IJ.log("   biWidth=" + biWidth);
-			IJ.log("   biHeight=" + biHeight);
-			IJ.log("   biPlanes=" + biPlanes);
-			IJ.log("   biBitCount=" + biBitCount);
-			IJ.log("   biCompression=0x" + Integer.toHexString(biCompression)+" '"+fourccString(biCompression)+"'");
-			IJ.log("   biSizeImage=" + biSizeImage);
-			IJ.log("   biXPelsPerMeter=" + biXPelsPerMeter);
-			IJ.log("   biYPelsPerMeter=" + biYPelsPerMeter);
-			IJ.log("   biClrUsed=" + biClrUsed);
-			IJ.log("   biClrImportant=" + biClrImportant);
+			IJMessage.log("   biSize=" + biSize);
+			IJMessage.log("   biWidth=" + biWidth);
+			IJMessage.log("   biHeight=" + biHeight);
+			IJMessage.log("   biPlanes=" + biPlanes);
+			IJMessage.log("   biBitCount=" + biBitCount);
+			IJMessage.log("   biCompression=0x" + Integer.toHexString(biCompression)+" '"+fourccString(biCompression)+"'");
+			IJMessage.log("   biSizeImage=" + biSizeImage);
+			IJMessage.log("   biXPelsPerMeter=" + biXPelsPerMeter);
+			IJMessage.log("   biYPelsPerMeter=" + biYPelsPerMeter);
+			IJMessage.log("   biClrUsed=" + biClrUsed);
+			IJMessage.log("   biClrImportant=" + biClrImportant);
 		}
 
 		int allowedBitCount = 0;
@@ -1064,16 +1064,16 @@ public class AVI_Reader extends VirtualStack implements PlugIn {
 			biClrUsed = 1 << biBitCount;
 
 		if (verbose) {
-			IJ.log("   > data compression=0x" + Integer.toHexString(dataCompression)+" '"+fourccString(dataCompression)+"'");
-			IJ.log("   > palette colors=" + biClrUsed);
-			IJ.log("   > scan line size=" + scanLineSize);
-			IJ.log("   > data top down=" + dataTopDown);
+			IJMessage.log("   > data compression=0x" + Integer.toHexString(dataCompression)+" '"+fourccString(dataCompression)+"'");
+			IJMessage.log("   > palette colors=" + biClrUsed);
+			IJMessage.log("   > scan line size=" + scanLineSize);
+			IJMessage.log("   > data top down=" + dataTopDown);
 		}
 
 		//read color palette
 		if (readPalette && biClrUsed > 0) {
 			if (verbose)
-				IJ.log("   Reading "+biClrUsed+" Palette colors: " + posSizeString(spaceForPalette));
+				IJMessage.log("   Reading "+biClrUsed+" Palette colors: " + posSizeString(spaceForPalette));
 			if (spaceForPalette < biClrUsed*4)
 				throw new Exception("Not enough data ("+spaceForPalette+") for palette of size "+(biClrUsed*4));
 			byte[]	pr	  = new byte[biClrUsed];
@@ -1092,7 +1092,7 @@ public class AVI_Reader extends VirtualStack implements PlugIn {
 	/**Read from the 'movi' chunk. Skips audio ('..wb', etc.), 'LIST' 'rec' etc, only reads '..db' or '..dc'*/
 	void readMovieData(long endPosition) throws Exception, IOException {
 		if (verbose)
-			IJ.log("MOVIE DATA "+posSizeString(endPosition-raFile.getFilePointer())+timeString()+
+			IJMessage.log("MOVIE DATA "+posSizeString(endPosition-raFile.getFilePointer())+timeString()+
 					"\nSearching for stream "+streamNumber+": '"+
 					fourccString(type0xdb)+"' or '"+fourccString(type0xdc)+"' chunks");
 		if (isVirtual) {
@@ -1112,7 +1112,7 @@ public class AVI_Reader extends VirtualStack implements PlugIn {
 			if ((type==type0xdb || type==type0xdc) && size>0) {
 				IJ.showProgress((double)frameNumber /lastFrameToRead);
 				if (verbose)
-					IJ.log(frameNumber+" movie data '"+fourccString(type)+"' "+posSizeString(size)+timeString());
+					IJMessage.log(frameNumber+" movie data '"+fourccString(type)+"' "+posSizeString(size)+timeString());
 				if (frameNumber >= firstFrame) {
 					if (isVirtual)
 						frameInfos.add(new long[]{pos, size, frameNumber*dwMicroSecPerFrame});
@@ -1125,7 +1125,7 @@ public class AVI_Reader extends VirtualStack implements PlugIn {
 				frameNumber++;
 				if (frameNumber>lastFrameToRead) break;
 			} else if (verbose)
-				IJ.log("skipped '"+fourccString(type)+"' "+posSizeString(size));
+				IJMessage.log("skipped '"+fourccString(type)+"' "+posSizeString(size));
 			if (nextPos > endPosition) break;
 			raFile.seek(nextPos);
 		}
@@ -1136,7 +1136,7 @@ public class AVI_Reader extends VirtualStack implements PlugIn {
 			throws Exception, IOException {
 		rFile.seek(filePos);
 		//if (verbose)
-		//IJ.log("virtual AVI: readFrame @"+posSizeString(filePos, size)+" varlength="+variableLength);
+		//IJMessage.log("virtual AVI: readFrame @"+posSizeString(filePos, size)+" varlength="+variableLength);
 		if (variableLength)					//JPEG or PNG-compressed frames
 			return readCompressedFrame(rFile, size);
 		else
@@ -1403,7 +1403,7 @@ public class AVI_Reader extends VirtualStack implements PlugIn {
 				return type;
 			long size = readInt()&SIZE_MASK;
 			if (verbose)
-				IJ.log("Skip JUNK: "+posSizeString(size));
+				IJMessage.log("Skip JUNK: "+posSizeString(size));
 			raFile.seek(raFile.getFilePointer()+size);	//skip junk
 		}
 	}
@@ -1451,7 +1451,7 @@ public class AVI_Reader extends VirtualStack implements PlugIn {
 
 	private void error(String msg) {
 		 aborting = true;
-		 IJ.error("AVI Reader", msg);
+		 IJMessage.error("AVI Reader", msg);
 	}
 
 	private String exceptionMessage (Exception e) {
@@ -1549,7 +1549,7 @@ public class AVI_Reader extends VirtualStack implements PlugIn {
 
 		/** Read bytes into an array */
 		public int read (byte[] b, int off, int len) throws IOException {
-			//IJ.log("read "+len+" bytes, fix="+fixMJPG);
+			//IJMessage.log("read "+len+" bytes, fix="+fixMJPG);
 			int nBytes;
 			if (fixMJPG) {
 				nBytes = Math.min(len, bufferLength-bufferPointer);
@@ -1572,7 +1572,7 @@ public class AVI_Reader extends VirtualStack implements PlugIn {
 			int segmentLength = 0;
 			do {
 				int code = readShort(offset);				//read segment type
-				//IJ.log("code=0x"+Long.toHexString(code));
+				//IJMessage.log("code=0x"+Long.toHexString(code));
 				if (code==0xffc4)							//Huffman table found, nothing to do
 					return;
 				else if (code==0xffda || code==0xffd9) {	//start of image data or end of image?
@@ -1592,7 +1592,7 @@ public class AVI_Reader extends VirtualStack implements PlugIn {
 
 		// insert Huffman tables at the given position
 		private void insertHuffmanTables(int position) {
-			//IJ.log("inserting Huffman tables");
+			//IJMessage.log("inserting Huffman tables");
 			System.arraycopy(buffer, position, buffer, position+HUFFMAN_LENGTH, bufferLength-position);
 			System.arraycopy(HUFFMAN_TABLES, 0, buffer, position, HUFFMAN_LENGTH);
 			bufferLength += HUFFMAN_LENGTH;

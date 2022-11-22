@@ -20,12 +20,12 @@ public class SimpleCommands implements PlugIn {
 	public void run(String arg) {
 		if (arg.equals("search"))
 			search();
-		else if (arg.equals("import")) 
+		else if (arg.equals("import"))
 			Opener.openResultsTable("");
-		else if (arg.equals("table")) 
+		else if (arg.equals("table"))
 			Opener.openTable("");
 		else if (arg.equals("rename"))
-			rename();	
+			rename();
 		else if (arg.equals("reset"))
 			reset();
 		else if (arg.equals("about"))
@@ -60,10 +60,10 @@ public class SimpleCommands implements PlugIn {
 			IJ.runMacroFile("ij.jar:InvertAllLuts", null);
 
 	}
-	
+
 	private synchronized void showFonts() {
 		Thread t = new Thread(new Runnable() {
-			public void run() {IJ.runPlugIn("ij.plugin.Text", "");}
+			public void run() {IJPlugin.runPlugIn(("ij.plugin.Text", "");}
 		});
 		t.start();
 	}
@@ -80,14 +80,14 @@ public class SimpleCommands implements PlugIn {
 			case 2: resetUndo(); break;
 		}
 	}
-	
+
 	private void unlock() {
 		ImagePlus imp = IJ.getImage();
 		boolean wasUnlocked = imp.lockSilently();
 		if (wasUnlocked)
-			IJ.showStatus("\""+imp.getTitle()+"\" is not locked");
+			IJMessage.showStatus("\""+imp.getTitle()+"\" is not locked");
 		else {
-			IJ.showStatus("\""+imp.getTitle()+"\" is now unlocked");
+			IJMessage.showStatus("\""+imp.getTitle()+"\" is now unlocked");
 			IJ.beep();
 		}
 		imp.unlock();
@@ -95,14 +95,14 @@ public class SimpleCommands implements PlugIn {
 
 	private void resetClipboard() {
 		ImagePlus.resetClipboard();
-		IJ.showStatus("Clipboard reset");
+		IJMessage.showStatus("Clipboard reset");
 	}
-	
+
 	private void resetUndo() {
 		Undo.setup(Undo.NOTHING, null);
-		IJ.showStatus("Undo reset");
+		IJMessage.showStatus("Undo reset");
 	}
-	
+
 	private void rename() {
 		ImagePlus imp = IJ.getImage();
 		GenericDialog gd = new GenericDialog("Rename");
@@ -111,11 +111,11 @@ public class SimpleCommands implements PlugIn {
 		if (!gd.wasCanceled())
 			imp.setTitle(gd.getNextString());
 	}
-		
+
 	private void search() {
 		searchArg = IJ.runMacroFile("ij.jar:Search", searchArg);
 	}
-		
+
 	private void installation() {
 		String url = IJ.URL+"/docs/install/";
 		if (IJ.isMacintosh())
@@ -124,16 +124,16 @@ public class SimpleCommands implements PlugIn {
 			url += "windows.html";
 		else if (IJ.isLinux())
 			url += "linux.html";
-		IJ.runPlugIn("ij.plugin.BrowserLauncher", url);
+		IJPlugin.runPlugIn(("ij.plugin.BrowserLauncher", url);
 	}
-	
+
 	private void aboutPluginsHelp() {
-		IJ.showMessage("\"About Plugins\" Submenu", 
+		IJMessage.showMessage("\"About Plugins\" Submenu",
 			"Plugins packaged as JAR files can add entries\n"+
 			"to this submenu. There is an example at\n \n"+
 			IJ.URL+"/plugins/jar-demo.html");
 	}
-	
+
 	private void setSliceLabel() {
 		ImagePlus imp = IJ.getImage();
 		ImageStack stack = imp.getStack();
@@ -151,7 +151,7 @@ public class SimpleCommands implements PlugIn {
 				if (label2.length()==0)
 					label2 = null;
 				stack.setSliceLabel(label2, n);
-				imp.setProp("Slice_Label", label2);	
+				imp.setProp("Slice_Label", label2);
 				imp.repaintWindow();
 			}
 		}
@@ -164,42 +164,42 @@ public class SimpleCommands implements PlugIn {
 		for (int i=1; i<=size; i++)
 			stack.setSliceLabel(null, i);
 		if (size==1)
-			imp.setProp("Slice_Label", null);				
+			imp.setProp("Slice_Label", null);
 		imp.repaintWindow();
 	}
-	
+
 	private void imageToResults() {
 		ImagePlus imp = IJ.getImage();
 		ImageProcessor ip = imp.getProcessor();
 		ResultsTable rt = ResultsTable.createTableFromImage(ip);
 		rt.show("Results");
 	}
-	
+
 	private void resultsToImage() {
 		ResultsTable rt = ResultsTable.getResultsTable();
 		if (rt==null || rt.size()==0) {
-			IJ.error("Results to Image", "The Results table is empty");
+			IJMessage.error("Results to Image", "The Results table is empty");
 			return;
 		}
 		ImageProcessor ip = rt.getTableAsImage();
 		if (ip==null) return;
 		new ImagePlus("Results Table", ip).show();
 	}
-	
+
 	private void openControlPanel() {
 		Prefs.set("Control_Panel.@Main", "51 22 92 426");
 		Prefs.set("Control_Panel.Help.Examples", "144 107 261 373");
-		IJ.run("Control Panel...", "");
+		IJMacro.run("Control Panel...", "");
 	}
 
 	private void showMissingPluginsMessage() {
-		IJ.showMessage("Path Randomization", 
+		IJMessage.showMessage("Path Randomization",
 			"Plugins were not loaded due to macOS Path Randomization.\n"+
 			"To work around this problem, move ImageJ.app out of the\n"+
 			"ImageJ folder and then copy it back. More information is at\n \n"+
 			IJ.URL+"/docs/install/osx.html#randomization");
 	}
-	
+
 	private void installMagicMontageTools() {
 		String name = "MagicMontageTools.txt";
 		String path = "/macros/"+name;
@@ -211,63 +211,63 @@ public class SimpleCommands implements PlugIn {
 				mi.installFromIJJar(path);
 			} catch (Exception e) {}
 	}
-	
+
 	private void openInteractiveModeEditor() {
 		Editor ed = new Editor();
 		ed.setSize(600, 500);
 		ed.create(Editor.INTERACTIVE_NAME, "");
 	}
-	
+
 	private void showDirectory(String arg) {
 		arg = arg.toLowerCase();
 		String path = IJ.getDir(arg);
 		if (path == null) {
 			if (arg.equals("image")) {
 				if (WindowManager.getCurrentImage()==null)
-					IJ.noImage();
+					IJMacro.noImage();
 				else
-					IJ.error("No file is associated with front image");
+					IJMessage.error("No file is associated with front image");
 			} else
-				IJ.error("Folder not found: " + arg);
+				IJMessage.error("Folder not found: " + arg);
 			return;
-		}		
+		}
 		File dir = new File(path);
 		if (!dir.exists()) {
-			IJ.error("Folder not found: " + arg);
+			IJMessage.error("Folder not found: " + arg);
 			return;
 		}
 		if (arg.equals("image")&& IJ.getImage()!=null) {
 			File imgPath = new File(IJ.getDir("image"));
 			if (!imgPath.exists()) {
-				IJ.error("Image not found");
+				IJMessage.error("Image not found");
 				return;
 			}
 		}
-		if (IJ.debugMode) IJ.log("Show Folder: arg="+arg+", path="+path);
+		if (IJDebugMode.debugMode) IJMessage.log("Show Folder: arg="+arg+", path="+path);
 		String msg1 = "";
 		if (IJ.isLinux()) try {
-			if (IJ.debugMode) IJ.log("  trying xdg-open "+path);
+			if (IJDebugMode.debugMode) IJMessage.log("  trying xdg-open "+path);
 			Runtime.getRuntime().exec(new String[] {"xdg-open", path} );
 			return;
 		} catch (Exception e2) {
 			msg1 = "xdg-open error: "+e2;
 		}
 		try {
-			if (IJ.debugMode) IJ.log("  trying Desktop.open "+dir);
+			if (IJDebugMode.debugMode) IJMessage.log("  trying Desktop.open "+dir);
 			Desktop desktop = Desktop.getDesktop();
 			desktop.open(dir);
 		} catch (Exception e) {
 			String msg2 = "Desktop.open error: "+e;
 			if (msg1.length()>0)
 				msg2 = msg1+"\n"+msg2;
-			IJ.error("Show Folder", msg2);
+			IJMessage.error("Show Folder", msg2);
 		}
 	}
 
 	private void measureStack() {
 		ImagePlus imp = IJ.getImage();
 		if (imp.isLocked()) {
-			IJ.showStatus("Image is locked: \""+imp.getTitle()+"\"");
+			IJMessage.showStatus("Image is locked: \""+imp.getTitle()+"\"");
 			IJ.beep();
 		} else
 			IJ.runMacroFile("ij.jar:MeasureStack", null);

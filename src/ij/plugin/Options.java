@@ -28,7 +28,7 @@ public class Options implements PlugIn {
 		else if (arg.equals("reset"))
 			{reset(); return;}
 	}
-				
+
 	// Miscellaneous Options
 	void miscOptions() {
 		String key = IJ.isMacintosh()?"command":"control";
@@ -47,13 +47,13 @@ public class Options implements PlugIn {
 		if (IJ.isLinux())
 			gd.addCheckbox("Save window locations", !Prefs.doNotSaveWindowLocations);
 		gd.addCheckbox("Non-blocking filter dialogs", Prefs.nonBlockingFilterDialogs);
-		gd.addCheckbox("Debug mode", IJ.debugMode);
+		gd.addCheckbox("Debug mode", IJDebugMode.debugMode);
 		//gd.addCheckbox("Modern mode", Prefs.modernMode);
 		gd.addHelp(IJ.URL+"/docs/menus/edit.html#misc");
 		gd.showDialog();
 		if (gd.wasCanceled())
 			return;
-			
+
 		String divValue = gd.getNextString();
 		if (divValue.equalsIgnoreCase("infinity") || divValue.equalsIgnoreCase("infinite"))
 			FloatBlitter.divideByZeroValue = Float.POSITIVE_INFINITY;
@@ -68,8 +68,8 @@ public class Options implements PlugIn {
 			if (f!=null)
 				FloatBlitter.divideByZeroValue = f.floatValue();
 		}
-		IJ.register(FloatBlitter.class); 
-			
+		IJ.register(FloatBlitter.class);
+
 		Prefs.usePointerCursor = gd.getNextBoolean();
 		IJ.hideProcessStackDialog = gd.getNextBoolean();
 		Prefs.requireControlKey = gd.getNextBoolean();
@@ -112,7 +112,7 @@ public class Options implements PlugIn {
 			gd.addCheckbox("Use_file chooser to import sequences", Prefs.useFileChooser);
 		gd.addCheckbox("Save TIFF and raw in Intel byte order", Prefs.intelByteOrder);
 		gd.addCheckbox("Skip dialog when opening .raw files", Prefs.skipRawDialog);
-		
+
 		gd.setInsets(15, 20, 0);
 		gd.addMessage("Results Table Options");
 		gd.setInsets(3, 40, 0);
@@ -123,7 +123,7 @@ public class Options implements PlugIn {
 		gd.addCheckbox("Save_column headers", !Prefs.dontSaveHeaders);
 		gd.setInsets(0, 40, 0);
 		gd.addCheckbox("Save_row numbers", !Prefs.dontSaveRowNumbers);
-		
+
 		gd.showDialog();
 		if (gd.wasCanceled())
 			return;
@@ -175,7 +175,7 @@ public class Options implements PlugIn {
 			ColorProcessor.setWeightingFactors(0.299, 0.587, 0.114);
 		return;
 	}
-			
+
 	// replaced by AppearanceOptions class
 	void appearance() {
 	}
@@ -200,7 +200,7 @@ public class Options implements PlugIn {
 		Prefs.rotateYZ = gd.getNextBoolean();
 		Prefs.flipXZ = gd.getNextBoolean();
 	}
-		
+
 	/** Close all images, empty ROI Manager, clear the
 		 Results table, clears the Log window and sets
 		 "Black background" 'true'.
@@ -212,8 +212,8 @@ public class Options implements PlugIn {
 		boolean keepRois = false;
 		if (options!=null) {
 			options = options.toLowerCase();
-			keepImages = options.contains("images");			
-			keepResults = options.contains("results");			
+			keepImages = options.contains("images");
+			keepResults = options.contains("results");
 			keepRois = options.contains("rois");
 		}
 		if (!keepImages) {
@@ -230,13 +230,13 @@ public class Options implements PlugIn {
 				rm.reset();
 		}
 		if (WindowManager.getWindow("Log")!=null)
-   			IJ.log("\\Clear");
+   			IJMessage.log("\\Clear");
 		Prefs.blackBackground = true;
 	}
 
 	// Delete preferences file when ImageJ quits
 	private void reset() {
-		if (IJ.showMessageWithCancel("Reset Preferences", "Preferences will be reset when ImageJ restarts."))
+		if (IJMessage.showMessageWithCancel("Reset Preferences", "Preferences will be reset when ImageJ restarts."))
 			Prefs.resetPreferences();
 	}
 

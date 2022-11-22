@@ -28,7 +28,7 @@ public class ImageJ_Updater implements PlugIn {
 		}
 		int exclamation = ij_jar.indexOf('!');
 		ij_jar = ij_jar.substring(9, exclamation);
-		if (IJ.debugMode) IJ.log("Updater (jar loc): "+ij_jar);
+		if (IJDebugMode.debugMode) IJMessage.log("Updater (jar loc): "+ij_jar);
 		File file = new File(ij_jar);
 		if (!file.exists()) {
 			error("File not found: "+file.getPath());
@@ -65,7 +65,7 @@ public class ImageJ_Updater implements PlugIn {
 		versions[count-1] = "previous";
 		urls[count-1] = URL+"/jars/ij2.jar";
 		//for (int i=0; i<count; i++)
-		//	IJ.log(i+" "+versions[i]+"  "+urls[i]);
+		//	IJMessage.log(i+" "+versions[i]+"  "+urls[i]);
 		int choice = showDialog(versions);
 		if (choice==-1 || !Commands.closeAll())
 			return;
@@ -85,7 +85,7 @@ public class ImageJ_Updater implements PlugIn {
 	int showDialog(String[] versions) {
 		GenericDialog gd = new GenericDialog("ImageJ Updater");
 		gd.addChoice("Upgrade To:", versions, versions[0]);
-		String msg = 
+		String msg =
 			"You are currently running v"+ImageJ.VERSION+ImageJ.BUILD+".\n"+
 			" \n"+
 			"If you click \"OK\", ImageJ will quit\n"+
@@ -119,14 +119,14 @@ public class ImageJ_Updater implements PlugIn {
 		byte[] data;
 		try {
 			URL url = new URL(address);
-			IJ.showStatus("Connecting to "+IJ.URL);
+			IJMessage.showStatus("Connecting to "+IJ.URL);
 			URLConnection uc = url.openConnection();
 			int len = uc.getContentLength();
-			if (IJ.debugMode) IJ.log("Updater (url): "+ address + " "+ len);
+			if (IJDebugMode.debugMode) IJMessage.log("Updater (url): "+ address + " "+ len);
 			if (len<=0)
 				return null;
 			String name = address.contains("daily")?"daily build (":"ij.jar (";
-			IJ.showStatus("Downloading "+ name + IJ.d2s((double)len/1048576,1)+"MB)");
+			IJMessage.showStatus("Downloading "+ name + IJ.d2s((double)len/1048576,1)+"MB)");
 			InputStream in = uc.getInputStream();
 			data = new byte[len];
 			int n = 0;
@@ -139,10 +139,10 @@ public class ImageJ_Updater implements PlugIn {
 			}
 			in.close();
 		} catch (IOException e) {
-			if (IJ.debugMode) IJ.log(""+e);
+			if (IJDebugMode.debugMode) IJMessage.log(""+e);
 			return null;
 		}
-		if (IJ.debugMode) IJ.wait(6000);
+		if (IJDebugMode.debugMode) IJ.wait(6000);
 		return data;
 	}
 
@@ -156,7 +156,7 @@ public class ImageJ_Updater implements PlugIn {
 	}
 
 	String[] openUrlAsList(String address) {
-		IJ.showStatus("Connecting to "+IJ.URL);
+		IJMessage.showStatus("Connecting to "+IJ.URL);
 		Vector v = new Vector();
 		try {
 			URL url = new URL(address);
@@ -172,19 +172,19 @@ public class ImageJ_Updater implements PlugIn {
 		} catch(Exception e) { }
 		String[] lines = new String[v.size()];
 		v.copyInto((String[])lines);
-		IJ.showStatus("");
+		IJMessage.showStatus("");
 		return lines;
 	}
 
 	void error(String msg) {
-		IJ.error("ImageJ Updater", msg);
+		IJMessage.error("ImageJ Updater", msg);
 	}
-	
+
 	void updateMenus() {
-		if (IJ.debugMode) {
+		if (IJDebugMode.debugMode) {
 			long start = System.currentTimeMillis();
 			Menus.updateImageJMenus();
-			IJ.log("Refresh Menus: "+(System.currentTimeMillis()-start)+" ms");
+			IJMessage.log("Refresh Menus: "+(System.currentTimeMillis()-start)+" ms");
 		} else
 			Menus.updateImageJMenus();
 	}

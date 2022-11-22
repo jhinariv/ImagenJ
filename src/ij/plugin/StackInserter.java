@@ -5,22 +5,22 @@ import ij.*;
 import ij.gui.*;
 import ij.process.*;
 
-/** This plugin, which implements the Image/Stacks/Tools/Insert 
+/** This plugin, which implements the Image/Stacks/Tools/Insert
 	command, inserts an image or stack into another image or stack. */
 public class StackInserter implements PlugIn {
 
 	private static int index1;
 	private static int index2;
 	private static int x, y;
-			
+
 	public void run(String arg) {
 		int[] wList = WindowManager.getIDList();
 		if (wList==null) {
-			IJ.showMessage("Stack Inserter", "No windows are open.");
+			IJMessage.showMessage("Stack Inserter", "No windows are open.");
 			return;
 		}
 		if (wList.length==1) {
-			IJ.showMessage("Stack Inserter", "At least two windows must be open.");
+			IJMessage.showMessage("Stack Inserter", "At least two windows must be open.");
 			return;
 		}
 		String[] titles = new String[wList.length];
@@ -50,16 +50,16 @@ public class StackInserter implements PlugIn {
 		ImagePlus imp1 = WindowManager.getImage(wList[index1]);
 		ImagePlus imp2 = WindowManager.getImage(wList[index2]);
 		if (imp1.getType()!= imp2.getType()) {
-			IJ.showMessage("Stack Inserter", "The source and destination must be the same type.");
+			IJMessage.showMessage("Stack Inserter", "The source and destination must be the same type.");
 			return;
 		}
 		if (imp1== imp2) {
-			IJ.showMessage("Stack Inserter", "The source and destination must be different.");
+			IJMessage.showMessage("Stack Inserter", "The source and destination must be different.");
 			return;
 		}
 		insert(imp1, imp2, x, y);
 	}
-	
+
 	public void insert(ImagePlus imp1, ImagePlus imp2, int x, int y) {
 		ImageStack stack1 = imp1.getStack();
 		ImageStack stack2 = imp2.getStack();

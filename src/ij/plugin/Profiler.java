@@ -28,18 +28,18 @@ public class Profiler implements PlugIn, PlotMaker {
 		if (roi!=null && roi.getType()==Roi.RECTANGLE)
 			plot.getImagePlus().setProperty ("Label", plotVertically ? "vertical" : "horizontal");
 	}
-	
+
 	public Plot getPlot() {
 		Roi roi = imp.getRoi();
 		if (roi==null || !(roi.isLine()||roi.getType()==Roi.RECTANGLE)) {
 			if (firstTime)
-				IJ.error("Plot Profile", "Line or rectangular selection required");
+				IJMessage.error("Plot Profile", "Line or rectangular selection required");
 			return null;
 		}
 		ProfilePlot pp = new ProfilePlot(imp, plotVertically);
 		return pp.getPlot();
 	}
-	
+
 	public ImagePlus getSourceImage() {
 		return imp;
 	}
@@ -48,7 +48,7 @@ public class Profiler implements PlugIn, PlotMaker {
 		double ymin = ProfilePlot.getFixedMin();
 		double ymax = ProfilePlot.getFixedMax();
 		boolean fixedScale = ymin!=0.0 || ymax!=0.0;
-		boolean wasFixedScale = fixedScale;			
+		boolean wasFixedScale = fixedScale;
 		GenericDialog gd = new GenericDialog("Plot Defaults");
 		gd.setInsets(4,0,0);
 		gd.addMessage("---------- Plot Defaults ---------");
@@ -59,7 +59,7 @@ public class Profiler implements PlugIn, PlotMaker {
 		//gd.addCheckbox("Draw grid lines", !PlotWindow.noGridLines);
 		gd.addCheckbox("Draw_ticks", !PlotWindow.noTicks);
 		gd.addCheckbox("Auto-close", PlotWindow.autoClose);
-		gd.addCheckbox("List values", PlotWindow.listValues);		
+		gd.addCheckbox("List values", PlotWindow.listValues);
 		gd.setInsets(15,0,0);
 		gd.addMessage("------- Profile Plot Options -------");
 		gd.setInsets(5,20,0);
@@ -110,5 +110,5 @@ public class Profiler implements PlugIn, PlotMaker {
 		if (!Recorder.scriptMode())
 			Recorder.recordString("setOption(\"InterpolateLines\", "+PlotWindow.interpolate+");\n");
 	}
-		
+
 }

@@ -7,14 +7,14 @@ import java.awt.*;
 
 /** Statistics, including the histogram, of a stack. */
 public class StackStatistics extends ImageStatistics {
-	
-	/** Creates a StackStatistics object from a stack, using 256 
+
+	/** Creates a StackStatistics object from a stack, using 256
 		histogram bins and the entire stack pixel value range. */
 	public StackStatistics(ImagePlus imp) {
 		this(imp, 256, 0.0, imp.getBitDepth()==8||imp.getBitDepth()==24?256.0:0.0);
 	}
 
-	/** Creates a StackStatistics object from a stack, using the specified 
+	/** Creates a StackStatistics object from a stack, using the specified
 		histogram bin count and x-axis range (pixel value tange). */
 	public StackStatistics(ImagePlus imp, int nBins, double xMin, double xMax) {
 		int bits = imp.getBitDepth();
@@ -52,7 +52,7 @@ public class StackStatistics extends ImageStatistics {
         int width, height;
         int rx, ry, rw, rh;
         double pw, ph;
-        
+
         width = ip.getWidth();
         height = ip.getHeight();
         Rectangle roi = ip.getRoi();
@@ -67,7 +67,7 @@ public class StackStatistics extends ImageStatistics {
             rw = width;
             rh = height;
         }
-        
+
         pw = 1.0;
         ph = 1.0;
         roiX = rx*pw;
@@ -75,12 +75,12 @@ public class StackStatistics extends ImageStatistics {
         roiWidth = rw*pw;
         roiHeight = rh*ph;
         boolean fixedRange = histMin!=0 || histMax!=0.0;
-        
+
         // calculate min and max
 		double roiMin = Double.MAX_VALUE;
 		double roiMax = -Double.MAX_VALUE;
 		for (int slice=1; slice<=size; slice++) {
-			IJ.showStatus("Calculating stack histogram...");
+			IJMessage.showStatus("Calculating stack histogram...");
 			IJ.showProgress(slice/2, size);
 			ip = stack.getProcessor(slice);
 			//ip.setCalibrationTable(cTable);
@@ -107,10 +107,10 @@ public class StackStatistics extends ImageStatistics {
 			if (min<histMin) min = histMin;
 			if (max>histMax) max = histMax;
 		} else {
-			histMin = min; 
+			histMin = min;
 			histMax =  max;
 		}
-       
+
         // Generate histogram
         double scale = nBins/( histMax-histMin);
         pixelCount = 0;
@@ -144,7 +144,7 @@ public class StackStatistics extends ImageStatistics {
         area = longPixelCount*pw*ph;
         mean = sum/longPixelCount;
         calculateStdDev(longPixelCount, sum, sum2);
-        histMin = cal.getRawValue(histMin); 
+        histMin = cal.getRawValue(histMin);
         histMax =  cal.getRawValue(histMax);
         binSize = (histMax-histMin)/nBins;
         int bits = imp.getBitDepth();
@@ -153,10 +153,10 @@ public class StackStatistics extends ImageStatistics {
         dmode = getMode(cal);
 		copyHistogram(nBins);
 		median = getMedian(longHistogram, (int)minThreshold, (int)maxThreshold, cal);
-        IJ.showStatus("");
+        IJMessage.showStatus("");
         IJ.showProgress(1.0);
     }
-    
+
 	void sum8BitHistograms(ImagePlus imp) {
 		Calibration cal = imp.getCalibration();
 		boolean limitToThreshold = (Analyzer.getMeasurements()&LIMIT)!=0;
@@ -184,10 +184,10 @@ public class StackStatistics extends ImageStatistics {
 		getRawMinAndMax(longHistogram, minThreshold, maxThreshold);
 		copyHistogram(256);
 		median = getMedian(longHistogram, minThreshold, maxThreshold, cal);
-		IJ.showStatus("");
+		IJMessage.showStatus("");
 		IJ.showProgress(1.0);
 	}
-	
+
 	private void copyHistogram(int nbins) {
 		histogram = new int[nbins];
 		for (int i=0; i<nbins; i++) {
@@ -205,7 +205,7 @@ public class StackStatistics extends ImageStatistics {
 		double value;
 		double sum = 0.0;
 		double sum2 = 0.0;
-		
+
 		for (int i=minThreshold; i<=maxThreshold; i++) {
 			count = histogram[i];
 			longPixelCount += count;
@@ -255,7 +255,7 @@ public class StackStatistics extends ImageStatistics {
 		int n = stack.size();
 		for (int slice=1; slice<=n; slice++) {
 			IJ.showProgress(slice, n);
-			IJ.showStatus(slice+"/"+n);
+			IJMessage.showStatus(slice+"/"+n);
 			ip = stack.getProcessor(slice);
 			if (roi!=null) ip.setRoi(roi);
 			int[] hist = ip.getHistogram();
@@ -274,10 +274,10 @@ public class StackStatistics extends ImageStatistics {
 			else
 				histogram16[i] = Integer.MAX_VALUE;
 		}
-		IJ.showStatus("");
+		IJMessage.showStatus("");
 		IJ.showProgress(1.0);
 	}
-	
+
 	void getRaw16BitMinAndMax(long[] hist, int minThreshold, int maxThreshold) {
 		int min = minThreshold;
 		while ((hist[min]==0) && (min<65535))
@@ -295,7 +295,7 @@ public class StackStatistics extends ImageStatistics {
 		double sum = 0.0;
 		double sum2 = 0.0;
 		nBins = 256;
-		histMin = min; 
+		histMin = min;
 		histMax = max;
 		binSize = (histMax-histMin)/nBins;
 		double scale = 1.0/binSize;
@@ -341,9 +341,9 @@ public class StackStatistics extends ImageStatistics {
         if (cal!=null) tmode = cal.getCValue(tmode);
         return tmode;
     }
-    
+
     double getMedian(long[] hist, int first, int last, Calibration cal) {
-		//ij.IJ.log("getMedian: "+first+"  "+last+"  "+hist.length+"  "+pixelCount);
+		//ij.IJMessage.log("getMedian: "+first+"  "+last+"  "+hist.length+"  "+pixelCount);
 		if (pixelCount==0 || first<0 || last>hist.length)
 			return Double.NaN;
 		double sum = 0;
@@ -355,5 +355,5 @@ public class StackStatistics extends ImageStatistics {
 		return cal!=null?cal.getCValue(i):i;
 	}
 
-   
+
 }

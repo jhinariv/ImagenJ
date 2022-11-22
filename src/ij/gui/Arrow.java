@@ -27,7 +27,7 @@ public class Arrow extends Line {
 	private GeneralPath path = new GeneralPath();
 	private static Stroke defaultStroke = new BasicStroke();
 	double headShaftRatio;
-	
+
 	static {
 		if (defaultStyle<FILLED || defaultStyle>HEADLESS)
 			defaultStyle = FILLED;
@@ -88,10 +88,10 @@ public class Arrow extends Line {
 		}
 		if (state!=NORMAL && imp!=null && imp.getRoi()!=null)
 			showStatus();
-		if (updateFullWindow) 
+		if (updateFullWindow)
 			{updateFullWindow = false; imp.draw();}
 	}
-		
+
 	private void flipEnds() {
 		double tmp = x1R;
 		x1R=x2R;
@@ -100,7 +100,7 @@ public class Arrow extends Line {
 		y1R=y2R;
 		y2R=tmp;
 	}
-	
+
 	private Shape getPath() {
 		path.reset();
 		path = new GeneralPath();
@@ -121,7 +121,7 @@ public class Arrow extends Line {
 			headShaftRatio = headLength/shaftLength;
 			if (headShaftRatio>1.0)
 				headShaftRatio = 1.0;
-			//IJ.log(headShaftRatio+" "+(int)shaftLength+" "+(int)headLength+" "+(int)tailx+" "+(int)taily+" "+(int)headtipx+" "+(int)headtipy);
+			//IJMessage.log(headShaftRatio+" "+(int)shaftLength+" "+(int)headLength+" "+(int)tailx+" "+(int)taily+" "+(int)headtipx+" "+(int)headtipy);
 		}
 		path.moveTo(tailx, taily); // tail
 		path.lineTo(headbackx, headbacky); // head back
@@ -203,7 +203,7 @@ public class Arrow extends Line {
 				points[1*2+1] = points[2*3+1];
 				SL = length;
 				updateFullWindow = true;
-				break;       
+				break;
 		}
 		// P2 = P3 - SL*alpha+tip
 		points[2*2] = (float) (points[2*3]	- SL*Math.cos(alpha+tip));
@@ -212,7 +212,7 @@ public class Arrow extends Line {
 		points[2*4]   = (float) (points[2*3]	- SL*Math.cos(alpha-tip));
 		points[2*4+1] = (float) (points[2*3+1] - SL*Math.sin(alpha-tip));
  	}
- 	
+
 	private Shape getShape() {
 		Shape arrow = getPath();
 		BasicStroke stroke = new BasicStroke((float)getStrokeWidth(), BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER);
@@ -246,10 +246,10 @@ public class Arrow extends Line {
 		if (lineWidth<1.0) lineWidth = 1.0;
 		//if (width<1) width=1;
 		//if (head<1) head=1;
-		//IJ.log(getStrokeWidth()+"  "+IJ.d2s(width,2)+"  "+IJ.d2s(head,2)+"  "+IJ.d2s(headShaftRatio,2)+"  "+IJ.d2s(lineWidth,2)+"  "+IJ.d2s(width*head,2));
+		//IJMessage.log(getStrokeWidth()+"  "+IJ.d2s(width,2)+"  "+IJ.d2s(head,2)+"  "+IJ.d2s(headShaftRatio,2)+"  "+IJ.d2s(lineWidth,2)+"  "+IJ.d2s(width*head,2));
 		return lineWidth;
 	}
-	
+
 	public void drawPixels(ImageProcessor ip) {
 		ShapeRoi shapeRoi = getShapeRoi();
 		ShapeRoi shapeRoi2 = null;
@@ -269,7 +269,7 @@ public class Arrow extends Line {
 			if (doubleHeaded) ip.fill(shapeRoi2);
 		}
 	}
-	
+
 	public boolean contains(int x, int y) {
 		return getShapeRoi().contains(x, y);
 	}
@@ -291,11 +291,11 @@ public class Arrow extends Line {
 		double size = 8+10*arrowWidth*mag*0.5;
 		return (int)Math.max(size*2.0, headSize);
 	}
-			
+
 	public boolean isDrawingTool() {
 		return true;
 	}
-	
+
 	public static void setDefaultWidth(double width) {
 		defaultWidth = (float)width;
 	}
@@ -307,7 +307,7 @@ public class Arrow extends Line {
 	public void setStyle(int style) {
 		this.style = style;
 	}
-	
+
 	/* Set the style, where 'style' is "filled", "notched", "open", "headless" or "bar",
 		plus optionial modifiers of "outline", "double", "small", "medium" and "large". */
 	public void setStyle(String style) {

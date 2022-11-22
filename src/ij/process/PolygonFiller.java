@@ -129,7 +129,7 @@ public class PolygonFiller {
 				double x1f = xf[i] + xOffset;  double x2f = xf[iplus1] + xOffset;
 				int y1 = (int)Math.round(y1f);
 				int y2 = (int)Math.round(y2f);
-				//IJ.log("x, y="+xf[i]+","+yf[i]+"+ offs="+xOffset+","+yOffset+"->"+x1f+","+y1f+" int="+y1);
+				//IJMessage.log("x, y="+xf[i]+","+yf[i]+"+ offs="+xOffset+","+yOffset+"->"+x1f+","+y1f+" int="+y1);
 				if (y1==y2 || (y1<=0 && y2<=0))
 					continue; //ignore horizontal lines or lines that don't reach the first row of pixels
 				if (y1>y2) {  //swap ends to ensure y1<y2
@@ -179,7 +179,7 @@ public class PolygonFiller {
 		int yStart = yMin>0 ? yMin : 0;
 		if (yMin != 0)
 			shiftXValuesAndActivate(yStart);
-		//IJ.log("yMin="+yMin+" yStart="+yStart+" nActive="+activeEdges);
+		//IJMessage.log("yMin="+yMin+" yStart="+yStart+" nActive="+activeEdges);
 		for (int y=yStart; y<Math.min(height, yMax+1); y++) {
 			removeInactiveEdges(y);
 			activateEdges(y);
@@ -276,7 +276,7 @@ public class PolygonFiller {
 	void printEdges() {
 		for (int i=0; i<edges; i++) {
 			int index = i;
-			IJ.log(i+": x="+IJ.d2s(ex[index])+" y="+ey1[index]+" to "+ey2[index] + " sl=" + IJ.d2s(eslope[index],2) );
+			IJMessage.log(i+": x="+IJ.d2s(ex[index])+" y="+ey1[index]+" to "+ey2[index] + " sl=" + IJ.d2s(eslope[index],2) );
 		}
 	}
 
@@ -284,7 +284,7 @@ public class PolygonFiller {
 	void printActiveEdges() {
 		for (int i=0; i<activeEdges; i++) {
 			int index =aedge[i];
-			IJ.log(i+": x="+IJ.d2s(ex[index])+" y="+ey1[index]+" to "+ey2[index] + " sl=" + IJ.d2s(eslope[index],2) );
+			IJMessage.log(i+": x="+IJ.d2s(ex[index])+" y="+ey1[index]+" to "+ey2[index] + " sl=" + IJ.d2s(eslope[index],2) );
 		}
 	}
 

@@ -8,7 +8,7 @@ import ij.plugin.filter.Analyzer;
 import ij.util.Tools;
 import java.awt.*;
 
-/** Implements the Image/Stacks/Plot Z-axis Profile command, 
+/** Implements the Image/Stacks/Plot Z-axis Profile command,
 	which plots the selection mean gray value versus slice number.
 */
 public class ZAxisProfiler implements PlugIn, Measurements, PlotMaker {
@@ -20,7 +20,7 @@ public class ZAxisProfiler implements PlugIn, Measurements, PlotMaker {
 	private boolean timeProfile;
 	private boolean firstTime = true;
 	private String options;
-	
+
 	/** Returns a Plot of the selection mean gray value versus slice number. */
 	public static Plot getPlot(ImagePlus imp) {
 		return getPlot(imp, "time");
@@ -40,7 +40,7 @@ public class ZAxisProfiler implements PlugIn, Measurements, PlotMaker {
 	public void run(String arg) {
 		imp = IJ.getImage();
 		if (imp.getStackSize()<2) {
-			IJ.error("ZAxisProfiler", "This command requires a stack.");
+			IJMessage.error("ZAxisProfiler", "This command requires a stack.");
 			return;
 		}
 		isPlotMaker = true;
@@ -51,7 +51,7 @@ public class ZAxisProfiler implements PlugIn, Measurements, PlotMaker {
 			plot.show();
 		}
 	}
-		
+
 	public Plot getPlot() {
 		Roi roi = imp.getRoi();
 		ImageProcessor ip = imp.getProcessor();
@@ -66,7 +66,7 @@ public class ZAxisProfiler implements PlugIn, Measurements, PlotMaker {
 		if (y==null)
 			return null;
 		float[] x = new float[y.length];
-		
+
 		String xAxisLabel = showingDialog&&choice.equals(choices[0])?"Frame":"Slice";
 		Calibration cal = imp.getCalibration();
 		if (cal.scaled()) {
@@ -137,7 +137,7 @@ public class ZAxisProfiler implements PlugIn, Measurements, PlotMaker {
 		firstTime = false;
 		return plot;
 	}
-	
+
 	public ImagePlus getSourceImage() {
 		return imp;
 	}
@@ -247,7 +247,7 @@ public class ZAxisProfiler implements PlugIn, Measurements, PlotMaker {
 			imp.setSlice(current);
 		return values;
 	}
-	
+
 	private ImageStatistics getLineStatistics(Roi roi, ImageProcessor ip, int measurements, Calibration cal) {
 		ImagePlus imp = new ImagePlus("", ip);
 		imp.setRoi(roi);
@@ -256,6 +256,6 @@ public class ZAxisProfiler implements PlugIn, Measurements, PlotMaker {
 		ImageProcessor ip2 = new FloatProcessor(values.length, 1, values);
 		return ImageStatistics.getStatistics(ip2, measurements, cal);
 	}
-	
+
 }
 

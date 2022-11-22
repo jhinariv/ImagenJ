@@ -27,11 +27,11 @@ public class ImageCalculator implements PlugIn {
 	private static boolean floatResult;
 	private boolean processStack;
 	private boolean macroCall;
-	
+
 	public void run(String arg) {
 		int[] wList = WindowManager.getIDList();
 		if (wList==null) {
-			IJ.noImage();
+			IJMacro.noImage();
 			return;
 		}
 		IJ.register(ImageCalculator.class);
@@ -69,22 +69,22 @@ public class ImageCalculator implements PlugIn {
 		int index2 = gd.getNextChoiceIndex();
 		//String resultTitle = gd.getNextString();
 		createWindow = gd.getNextBoolean();
-		floatResult = gd.getNextBoolean();		
+		floatResult = gd.getNextBoolean();
 		title2 = titles[index2];
 		ImagePlus img1 = WindowManager.getImage(wList[index1]);
 		ImagePlus img2 = WindowManager.getImage(wList[index2]);
 		ImagePlus img3 = calculate(img1, img2, false);
 		if (img3!=null) img3.show();
 	}
-	
+
 	/** Performs arithmetic options on two images and returns the result,
-		where  'operation' ("add","subtract", "multiply","divide", "and", 
+		where  'operation' ("add","subtract", "multiply","divide", "and",
 		"or", "xor", "min", "max", "average", "difference" or "copy")
 		specifies the operation. If 'operation' does not contain 'create'
 		or '32-bit', the result is also saved in 'imp1" and null is returned
 		if "imp1" is displayed. The 'operation' argument can include up
 		to three modifiers: "create" (e.g., "add create") causes the result
-		to be returned as a new image, "32-bit" causes the result to 
+		to be returned as a new image, "32-bit" causes the result to
 		be returned as 32-bit floating-point image and "stack" causes
 		the entire stack to be processed. As an example,
 		<pre>
@@ -107,7 +107,7 @@ public class ImageCalculator implements PlugIn {
 		processStack = operation.indexOf("stack")!=-1;
 		return calculate(img1, img2, true);
 	}
-	
+
 	/**
 	* @deprecated
 	* replaced by run(String,ImagePlus,ImagePlus)
@@ -116,7 +116,7 @@ public class ImageCalculator implements PlugIn {
 		if (img1==null || img2==null || operation==null) return;
 		operator = getOperator(operation);
 		if (operator==-1)
-			{IJ.error("Image Calculator", "No valid operator"); return;}
+			{IJMessage.error("Image Calculator", "No valid operator"); return;}
 		createWindow = operation.indexOf("create")!=-1;
 		floatResult = operation.indexOf("32")!=-1 || operation.indexOf("float")!=-1;
 		processStack = operation.indexOf("stack")!=-1;
@@ -124,7 +124,7 @@ public class ImageCalculator implements PlugIn {
 		ImagePlus img3 = calculate(img1, img2, true);
 		if (img3!=null) img3.show();
 	}
-	
+
 	int getOperator(String options) {
 		options = options.toLowerCase();
 		int op= -1;
@@ -140,7 +140,7 @@ public class ImageCalculator implements PlugIn {
 		}
 		return op;
 	}
-		
+
 	ImagePlus calculate(ImagePlus img1, ImagePlus img2, boolean apiCall) {
 		ImagePlus img3 = null;
 		if (img1.getCalibration().isSigned16Bit() || img2.getCalibration().isSigned16Bit())
@@ -196,13 +196,13 @@ public class ImageCalculator implements PlugIn {
 		int size1 = img1.getStackSize();
 		int size2 = img2.getStackSize();
 		if (size1>1 && size2>1 && size1!=size2) {
-			IJ.error("Image Calculator", "'Image1' and 'image2' must be stacks with the same\nnumber of slices, or 'image2' must be a single image.");
+			IJMessage.error("Image Calculator", "'Image1' and 'image2' must be stacks with the same\nnumber of slices, or 'image2' must be a single image.");
 			return null;
 		}
 		if (createWindow) {
 			img1 = duplicateStack(img1);
 			if (img1==null) {
-				IJ.error("Calculator", "Out of memory");
+				IJMessage.error("Calculator", "Out of memory");
 				return null;
 			}
 			img3 = img1;
@@ -223,7 +223,7 @@ public class ImageCalculator implements PlugIn {
 				sp.copyBits(img2.getStack(), 0, 0, mode);
 		}
 		catch (IllegalArgumentException e) {
-			IJ.error("\""+img1.getTitle()+"\": "+e.getMessage());
+			IJMessage.error("\""+img1.getTitle()+"\": "+e.getMessage());
 			return null;
 		}
 		img1.setStack(null, stack1);
@@ -260,7 +260,7 @@ public class ImageCalculator implements PlugIn {
   			ip1.copyBits(ip2, 0, 0, mode);
 		}
 		catch (IllegalArgumentException e) {
-			IJ.error("\""+img1.getTitle()+"\": "+e.getMessage());
+			IJMessage.error("\""+img1.getTitle()+"\": "+e.getMessage());
 			return null;
 		}
 		if (floatResult && rgb)
@@ -306,7 +306,7 @@ public class ImageCalculator implements PlugIn {
 		}
 		return mode;
 	}
-	
+
 	ImagePlus duplicateStack(ImagePlus img1) {
 		Calibration cal = img1.getCalibration();
 		ImageStack stack1 = img1.getStack();
@@ -317,12 +317,12 @@ public class ImageCalculator implements PlugIn {
 		try {
 			for (int i=1; i<=n; i++) {
 				ImageProcessor ip1 = stack1.getProcessor(i);
-				ip1.resetRoi(); 
+				ip1.resetRoi();
 				ImageProcessor ip2 = ip1.crop();
 				if (floatResult) {
 					ip2.setCalibrationTable(cal.getCTable());
 					ip2 = ip2.convertToFloat();
-				} 
+				}
 				stack2.addSlice(stack1.getSliceLabel(i), ip2);
 			}
 		}
@@ -345,5 +345,5 @@ public class ImageCalculator implements PlugIn {
 		}
 		return img3;
 	}
-	
+
 }

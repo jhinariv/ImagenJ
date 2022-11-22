@@ -1,7 +1,7 @@
 package ij.plugin;
 import ij.*;
 import ij.macro.Interpreter;
-import ij.process.*; 
+import ij.process.*;
 import ij.gui.*;
 import java.awt.*;
 import ij.measure.*;
@@ -39,7 +39,7 @@ public class Concatenator implements PlugIn, ItemListener{
 	private int maxWidth, maxHeight;
 	private boolean showingDialog;
 
-	
+
 	/** Optional string argument sets the name dialog boxes if called from another plugin. */
 	public void run(String arg) {
 		macro = !arg.equals("");
@@ -49,7 +49,7 @@ public class Concatenator implements PlugIn, ItemListener{
 		if (newImp!=null)
 			newImp.show();
 	}
-	
+
 	/** Displays a dialog requiring user to choose images and
 		returns ImagePlus of concatenated images. */
 	public ImagePlus run() {
@@ -58,7 +58,7 @@ public class Concatenator implements PlugIn, ItemListener{
 		newImp = createHypervol();
 		return newImp;
 	}
-	
+
 	/** Concatenates two images, stacks or hyperstacks. */
 	public static ImagePlus run(ImagePlus img1, ImagePlus img2) {
 		ImagePlus[] images = new ImagePlus[2];
@@ -110,7 +110,7 @@ public class Concatenator implements PlugIn, ItemListener{
 			if (ims[i] != null) {
 				imageTitles[i] = ims[i].getTitle();
 			} else {
-				IJ.error(pluginName, "Null ImagePlus passed to concatenate(...) method");
+				IJMessage.error(pluginName, "Null ImagePlus passed to concatenate(...) method");
 				return null;
 			}
 		}
@@ -131,7 +131,7 @@ public class Concatenator implements PlugIn, ItemListener{
 			newImp.setProperty("Info", imp0.getProperty("Info"));
 		return newImp;
 	}
-	
+
 	/** Concatenate two images or stacks. */
 	public ImagePlus concatenate(ImagePlus imp1, ImagePlus imp2, boolean keep) {
 		images = new ImagePlus[2];
@@ -139,7 +139,7 @@ public class Concatenator implements PlugIn, ItemListener{
 		images[1] = imp2;
 		return concatenate(images, keep);
 	}
-	
+
 	private ImagePlus createHypervol() {
 		boolean firstImage = true;
 		boolean duplicated;
@@ -167,13 +167,13 @@ public class Concatenator implements PlugIn, ItemListener{
 					max = currentImp.getProcessor().getMax();
 					firstImage = false;
 				}
-				
+
 				// Safety Checks
 				boolean unequalSizes = currentImp.getNSlices()!=stackSize;
 				if (unequalSizes)
 					im4D = false;
 				if (currentImp.getType() != dataType) {
-					IJ.log("Omitting " + imageTitles[i] + " - image type not matched");
+					IJMessage.log("Omitting " + imageTitles[i] + " - image type not matched");
 					continue;
 				}
 
@@ -189,7 +189,7 @@ public class Concatenator implements PlugIn, ItemListener{
 				count++;
 			}
 		}
-		
+
 		// Copy across info fields
 		ImagePlus imp = new ImagePlus(newtitle, concat_Stack);
 		imp.setCalibration(cal);
@@ -203,7 +203,7 @@ public class Concatenator implements PlugIn, ItemListener{
 		}
 		return imp;
 	}
-	
+
 	// taken from WSR's Concatenator_.java
 	private void concat(ImageStack stack3, ImageStack stack1, boolean dup) {
 		int slice = 1;
@@ -223,8 +223,8 @@ public class Concatenator implements PlugIn, ItemListener{
 			}
 			stack3.addSlice(label, ip2);
 		}
-	} 
-	
+	}
+
 	/** Obsolete, replaced by concatenate(images,keep) and Concatenator.run(images). */
 	public ImagePlus concatenateHyperstacks(ImagePlus[] images, String newTitle, boolean keep) {
 		int n = images.length;
@@ -239,19 +239,19 @@ public class Concatenator implements PlugIn, ItemListener{
 		Calibration cal = images[0].getCalibration();
 		maxWidth = width;
 		maxHeight = height;
-		
+
 		for (int i=1; i<n; i++) {
 			if (images[i].getNFrames()>1)
 				concatSlices = false;
 			if (images[i].getBitDepth()!=bitDepth
 			|| images[i].getNChannels()!=channels
 			|| (!concatSlices && images[i].getNSlices()!=slices)) {
-				IJ.error(pluginName, "Images do not all have the same dimensions or type");
+				IJMessage.error(pluginName, "Images do not all have the same dimensions or type");
 				return null;
 			}
 			Calibration cal2 = images[i].getCalibration();
-			if (cal2.pixelWidth!=cal.pixelWidth 
-			|| cal2.pixelHeight!=cal.pixelHeight 
+			if (cal2.pixelWidth!=cal.pixelWidth
+			|| cal2.pixelHeight!=cal.pixelHeight
 			|| cal2.pixelDepth != cal.pixelDepth)
 				keepCalibration = false;
 			if (images[i].getWidth()>maxWidth)
@@ -311,12 +311,12 @@ public class Concatenator implements PlugIn, ItemListener{
 			}
 		}
 		return imp2;
-	}	
-	
+	}
+
 	private boolean showDialog() {
 		boolean all_windows = false;
 		batch = Interpreter.isBatchMode();
-		macro = macro || (IJ.isMacro()&&Macro.getOptions()!=null);
+		macro = macro || (IJMacro.isMacro()&&Macro.getOptions()!=null);
 		if (Menus.commandInUse("Stack to Image5D") && !batch)
 			im4D = true;
 		showingDialog = Macro.getOptions()==null;
@@ -334,18 +334,18 @@ public class Concatenator implements PlugIn, ItemListener{
 			}
 			maxEntries = macroImageCount;
 		}
-		
+
 		// Checks
 		int[] wList = WindowManager.getIDList();
 		if (wList==null) {
-			IJ.error("No windows are open.");
+			IJMessage.error("No windows are open.");
 			return false;
 		} else if (wList.length < 2) {
-			IJ.error("Two or more windows must be open");
+			IJMessage.error("Two or more windows must be open");
 			return false;
 		}
 		int nImages = wList.length;
-		
+
 		String[] titles = new String[nImages];
 		String[] titles_none = new String[nImages + 1];
 		for (int i=0; i<nImages; i++) {
@@ -359,7 +359,7 @@ public class Concatenator implements PlugIn, ItemListener{
 			}
 		}
 		titles_none[nImages] = none;
-		
+
 		GenericDialog gd = new GenericDialog(pluginName);
 		gd.addCheckbox("All_open windows", all_option);
 		gd.addChoice("Image1:", titles, titles[0]);
@@ -379,7 +379,7 @@ public class Concatenator implements PlugIn, ItemListener{
 			if (all_option) itemStateChanged(new ItemEvent(allWindows, ItemEvent.ITEM_STATE_CHANGED, null, ItemEvent.SELECTED));
 		}
 		gd.showDialog();
-		
+
 		if (gd.wasCanceled())
 			return false;
 		all_windows = gd.getNextBoolean();
@@ -410,17 +410,17 @@ public class Concatenator implements PlugIn, ItemListener{
 			}
 		}
 		if (count<2) {
-			IJ.error(pluginName, "Please select at least 2 images");
+			IJMessage.error(pluginName, "Please select at least 2 images");
 			return false;
 		}
-		
+
 		imageTitles = new String[count];
 		images = new ImagePlus[count];
 		System.arraycopy(tmpStrArr, 0, imageTitles, 0, count);
 		System.arraycopy(tmpImpArr, 0, images, 0, count);
 		return true;
 	}
-	
+
 	// test if this imageplus appears again in the list
 	boolean isDuplicated(ImagePlus imp, int index) {
 		int length = images.length;
@@ -430,7 +430,7 @@ public class Concatenator implements PlugIn, ItemListener{
 		}
 		return false;
 	}
-	
+
 	public void itemStateChanged(ItemEvent ie) {
 		Choice c;
 		if (ie.getSource() == allWindows) { // User selected / unselected 'all windows' button
@@ -462,12 +462,12 @@ public class Concatenator implements PlugIn, ItemListener{
 			}
 		}
 	}
-	
+
 	public void setIm5D(boolean bool) {
 		im4D_option = bool;
 		im4D = bool;
 	}
-	
+
 	private void findMaxDimensions(ImagePlus[] images) {
 		boolean first = true;
 		ImagePlus currentImp = null;
@@ -489,5 +489,5 @@ public class Concatenator implements PlugIn, ItemListener{
 			}
 		}
 	}
-	
+
 }

@@ -90,7 +90,7 @@ public class LineWidthAdjuster extends PlugInFrame implements PlugIn,
 
     public  synchronized void textValueChanged(TextEvent e) {
         int width = (int)Tools.parseDouble(tf.getText(), -1);
-		//IJ.log(""+width);
+		//IJMessage.log(""+width);
         if (width==-1) return;
         if (width<0) width=1;
         if (width!=Line.getWidth()) {

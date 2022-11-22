@@ -9,7 +9,7 @@ import ij.plugin.frame.Recorder;
 import java.awt.image.ColorModel;
 
 
-/** Implements the "Stack to HyperStack", "RGB to HyperStack" 
+/** Implements the "Stack to HyperStack", "RGB to HyperStack"
 	and "HyperStack to Stack" commands. */
 public class HyperStackConverter implements PlugIn {
 	public static final int CZT=0, CTZ=1, ZCT=2, ZTC=3, TCZ=4, TZC=5;
@@ -27,7 +27,7 @@ public class HyperStackConverter implements PlugIn {
     	else if (arg.equals("hstostack"))
     		convertHSToStack(imp);
 	}
-	
+
 	/** Converts the specified stack into a hyperstack with 'c' channels, 'z' slices and
 		 't' frames using the default ordering ("xyczt") and display mode ("Composite"). */
 	public static ImagePlus toHyperStack(ImagePlus imp, int c, int z, int t) {
@@ -95,15 +95,15 @@ public class HyperStackConverter implements PlugIn {
 		imp2.setOverlay(imp.getOverlay());
 		return imp2;
 	}
-	
+
 	/** Converts the specified hyperstack into a stack. */
 	public static void toStack(ImagePlus imp) {
 		if (imp.isHyperStack()||imp.isComposite()) {
 			imp.setDimensions(1,imp.getStackSize(),1);
-			imp.draw();				
+			imp.draw();
 		}
 	}
-	
+
 	private static void reorderVirtualStack(ImagePlus imp, int order) {
 		if (!(imp.getStack() instanceof VirtualStack))
 			return;
@@ -111,11 +111,11 @@ public class HyperStackConverter implements PlugIn {
 		VirtualStack vstack = (VirtualStack)imp.getStack();
 		vstack.setIndexes(indexes);
 	}
-	
+
 	//String msg = "This is a custom VirtualStack. To switch to "+orders[order]+" order,\n"
 	//	+"save in TIFF format, import as a TIFF Virtual Stack and\n"
 	//	+"again use the \"Stack to Hyperstack\" command.";
-	
+
 	private static int[] shuffleVirtual(ImagePlus imp, int order) {
 		int n = imp.getStackSize();
 		int nChannels = imp.getNChannels();
@@ -158,8 +158,8 @@ public class HyperStackConverter implements PlugIn {
 		}
 		return indexes1;
 	}
-		
-	/** Displays the specified stack in a HyperStack window. Based on the 
+
+	/** Displays the specified stack in a HyperStack window. Based on the
 		Stack_to_Image5D class in Joachim Walter's Image5D plugin. */
 	void convertStackToHS(ImagePlus imp) {
         int nChannels = imp.getNChannels();
@@ -167,7 +167,7 @@ public class HyperStackConverter implements PlugIn {
         int nFrames = imp.getNFrames();
 		int stackSize = imp.getImageStackSize();
 		if (stackSize==1) {
-			IJ.error("Stack to HyperStack", "Stack required");
+			IJMessage.error("Stack to HyperStack", "Stack required");
 			return;
 		}
 		boolean rgb = imp.getBitDepth()==24;
@@ -196,11 +196,11 @@ public class HyperStackConverter implements PlugIn {
 			return;
 		}
 		if (rgb && nChannels>1) {
-			IJ.error("HyperStack Converter", "RGB stacks are limited to one channel");
+			IJMessage.error("HyperStack Converter", "RGB stacks are limited to one channel");
 			return;
 		}
 		if (nChannels*nSlices*nFrames!=stackSize) {
-			IJ.error("HyperStack Converter", "channels x slices x frames <> stack size");
+			IJMessage.error("HyperStack Converter", "channels x slices x frames <> stack size");
 			return;
 		}
 		imp.setDimensions(nChannels, nSlices, nFrames);
@@ -245,8 +245,8 @@ public class HyperStackConverter implements PlugIn {
 		}
 	}
 
-	/** Changes the dimension order of a 4D or 5D stack from 
-		the specified order (CTZ, ZCT, ZTC, TCZ or TZC) to 
+	/** Changes the dimension order of a 4D or 5D stack from
+		the specified order (CTZ, ZCT, ZTC, TCZ or TZC) to
 		the XYCZT order used by ImageJ. */
 	public void shuffle(ImagePlus imp, int order) {
         int nChannels = imp.getNChannels();
@@ -316,10 +316,10 @@ public class HyperStackConverter implements PlugIn {
 		if (Recorder.record && Recorder.scriptMode())
 			Recorder.recordCall("HyperStackConverter.toStack(imp);");
 	}
-	
+
 	void newHyperStack() {
 		IJ.runMacroFile("ij.jar:HyperStackMaker", "");
 	}
-	
+
 }
 

@@ -6,7 +6,7 @@ import ij.gui.*;
 import ij.text.*;
 /** Implements the Plugins/Utilities/Run Benchmark command when
 	the current image is 512x512 and RGB. Results and additional
-	benchmarks are available at<br> 
+	benchmarks are available at<br>
 	"http://imagej.nih.gov/ij/plugins/benchmarks.html". */
 public class Benchmark implements PlugInFilter{
 
@@ -14,7 +14,7 @@ public class Benchmark implements PlugInFilter{
 	ImagePlus imp;
 	boolean showUpdates= true;
 	int counter;
-	
+
 	public int setup(String arg, ImagePlus imp) {
 		this.imp = imp;
 		return DOES_ALL+NO_CHANGES+SNAPSHOT;
@@ -70,11 +70,11 @@ public class Benchmark implements PlugInFilter{
 		ip.reset();
 		updateScreen(imp);
 	}
-	
+
 	void updateScreen(ImagePlus imp) {
 		if (showUpdates)
 			imp.updateAndDraw();
-		IJ.showStatus((counter++) + "/"+72);
+		IJMessage.showStatus((counter++) + "/"+72);
 	}
 
 	/*

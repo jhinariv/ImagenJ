@@ -22,10 +22,10 @@ public class ShapeRoi extends Roi {
 
 	/***/
 	static final int NO_TYPE = 128;
-	
+
 	/**The maximum tolerance allowed in calculating the length of the curve segments of this ROI's shape.*/
 	static final double MAXERROR = 1.0e-3;
-	
+
 	/** Coefficient used to obtain a flattened version of this ROI's shape. A flattened shape is the
 	*   closest approximation of the original shape's curve segments with line segments.
 	*   The FLATNESS is an indication of the maximum deviation between the flattened and the original shape. */
@@ -35,7 +35,7 @@ public class ShapeRoi extends Roi {
 	 *  (determining which pixels near the border are filled), but lower speed when filling shapes with
 	 *  curved borders. */
 	static final double FILL_FLATNESS = 0.01;
-	
+
 	/**Parsing a shape composed of linear segments less than this value will result in Roi objects of type
 	 * {@link ij.gui.Roi#POLYLINE} and {@link ij.gui.Roi#POLYGON} for open and closed shapes, respectively.
 	 * Conversion of shapes open and closed with more than MAXPOLY line segments will result,
@@ -48,24 +48,24 @@ public class ShapeRoi extends Roi {
 
 	/**The <code>java.awt.Shape</code> encapsulated by this object.*/
 	private Shape shape;
-	
-	/**The instance value of the maximum tolerance (MAXERROR) allowed in calculating the 
+
+	/**The instance value of the maximum tolerance (MAXERROR) allowed in calculating the
 	 * length of the curve segments of this ROI's shape.
 	 */
 	private double maxerror = ShapeRoi.MAXERROR;
-	
-	/**The instance value of the coefficient (FLATNESS) used to 
+
+	/**The instance value of the coefficient (FLATNESS) used to
 	 * obtain a flattened version of this ROI's shape.
 	 */
 	private double flatness = ShapeRoi.FLATNESS;
-	
+
 	/**The instance value of MAXPOLY.*/
 	private int maxPoly = ShapeRoi.MAXPOLY;
-    
+
 	/**If <strong></code>true</code></strong> then methods that manipulate this ROI's shape will work on
 	 * a flattened version of the shape. */
 	private boolean flatten;
-	
+
 	/**Flag which specifies how Roi objects will be constructed from closed (sub)paths having more than
 	 * <code>MAXPOLY</code> and composed exclusively of line segments.
 	 * If <strong><code>true</code></strong> then (sub)path will be parsed into a
@@ -77,7 +77,7 @@ public class ShapeRoi extends Roi {
 	 * If <strong><code>true</code></strong> then (sub)path will be parsed into a {@link ij.gui.Roi#ANGLE};
 	 * else, into a {@link ij.gui.Roi#POLYLINE}. */
 	private boolean forceAngle = false;
-	
+
 	private Vector savedRois; //not really used any more
 	private static Stroke defaultStroke = new BasicStroke();
 
@@ -139,9 +139,9 @@ public class ShapeRoi extends Roi {
 		x = r.x;
 		y = r.y;
 		width = r.width;
-		height = r.height;		
+		height = r.height;
 		state = NORMAL;
-		oldX=x; oldY=y; oldWidth=width; oldHeight=height;				
+		oldX=x; oldY=y; oldWidth=width; oldHeight=height;
 		AffineTransform at = new AffineTransform();
 		at.translate(-x, -y);
 		shape = new GeneralPath(at.createTransformedShape(shape));
@@ -151,7 +151,7 @@ public class ShapeRoi extends Roi {
 		flatten = false;
 		type = COMPOSITE;
 	}
-	
+
 	/**Returns a deep copy of this. */
 	public synchronized Object clone() { // the equivalent of "operator=" ?
 		ShapeRoi sr = (ShapeRoi)super.clone();
@@ -164,7 +164,7 @@ public class ShapeRoi extends Roi {
 		sr.setShape(ShapeRoi.cloneShape(shape));
 		return sr;
 	}
-	
+
 	/** Returns a deep copy of the argument. */
 	static Shape cloneShape(Shape rhs) {
 		if (rhs==null) return null;
@@ -275,7 +275,7 @@ public class ShapeRoi extends Roi {
 		int roiType = roi.getType();
 		switch(roiType) {
 			case Roi.LINE:
-				Line line = (Line)roi;				
+				Line line = (Line)roi;
 				shape = new Line2D.Double ((double)(line.x1-r.x), (double)(line.y1-r.y), (double)(line.x2-r.x), (double)(line.y2-r.y) );
 				break;
 			case Roi.RECTANGLE:
@@ -289,7 +289,7 @@ public class ShapeRoi extends Roi {
 				closeShape = false;
 			case Roi.POLYGON: case Roi.FREEROI: case Roi.TRACED_ROI: case Roi.OVAL:
 				if (roiType == Roi.OVAL) {
-					//shape = new Ellipse2D.Double(-0.001, -0.001, r.width+0.002, r.height+0.002); //inaccurate (though better with increased diameter) 
+					//shape = new Ellipse2D.Double(-0.001, -0.001, r.width+0.002, r.height+0.002); //inaccurate (though better with increased diameter)
 					shape = ((OvalRoi)roi).getPolygon(false);
 				} else if (closeShape && !roi.subPixelResolution()) {
 					int nPoints =((PolygonRoi)roi).getNCoordinates();
@@ -345,12 +345,12 @@ public class ShapeRoi extends Roi {
 			}
 			this.startX = x;
 			this.startY = y;
-			//IJ.log("RoiToShape: "+x+" "+y+" "+width+" "+height+" "+bounds);
+			//IJMessage.log("RoiToShape: "+x+" "+y+" "+width+" "+height+" "+bounds);
 		}
 		return shape;
 	}
 
-	/** Constructs a GeneralPath from a float array of segment type+coordinates for each segment. 
+	/** Constructs a GeneralPath from a float array of segment type+coordinates for each segment.
 	 *  The resulting GeneralPath has winding rule WIND_EVEN_ODD, which is appropriate for closed shapes */
 	static GeneralPath makeShapeFromArray(float[] array) {
 		if(array==null) return null;
@@ -358,7 +358,7 @@ public class ShapeRoi extends Roi {
 		int index=0;
 		float[] seg = new float[7];
 		while (true) {
-			//if(index<array.length)IJ.log(index+" type="+array[index]);
+			//if(index<array.length)IJMessage.log(index+" type="+array[index]);
 			index = getSegment(array, seg, index);
 			if (index<0) break;
 			int type = (int)seg[0];
@@ -425,7 +425,7 @@ public class ShapeRoi extends Roi {
 	}
 
 	/**Converts a Shape into Roi object(s).
-	 * <br>This method parses the shape into (possibly more than one) Roi objects 
+	 * <br>This method parses the shape into (possibly more than one) Roi objects
 	 * and returns them in an array.
 	 * <br>A simple, &quot;regular&quot; path results in a single Roi following these simple rules:
 		<table><col><col><col>
@@ -520,7 +520,7 @@ public class ShapeRoi extends Roi {
 		Roi roi = shapeToRoi();
 		return (roi==null) ? this : roi;
 	}
-	
+
 	/**Implements the rules of conversion from <code>java.awt.geom.GeneralPath</code> to <code>ij.gui.Roi</code>.
 	 * @param nSegments The number of segments that compose the path (= number of vertices for a polygon)
 	 * @param polygonLength length of polygon in pixels, or NaN if curved segments
@@ -553,7 +553,7 @@ public class ShapeRoi extends Roi {
 			else
 				roiType = closed ? Roi.FREEROI : Roi.FREELINE;
 		}
-		//IJ.log("guessType n= "+nSegments+" len="+polygonLength+" longE="+(polygonLength/(nSegments*Math.sqrt(nSegments)) >= 2)+" hvert="+horizontalVerticalIntOnly+" clos="+closed+" -> "+roiType);
+		//IJMessage.log("guessType n= "+nSegments+" len="+polygonLength+" longE="+(polygonLength/(nSegments*Math.sqrt(nSegments)) >= 2)+" hvert="+horizontalVerticalIntOnly+" clos="+closed+" -> "+roiType);
 		return roiType;
 	}
 
@@ -742,10 +742,10 @@ public class ShapeRoi extends Roi {
 		}
 	}
 
-	/** Retrieves the end points and control points of the path as a float array. The array 
+	/** Retrieves the end points and control points of the path as a float array. The array
 	 *  contains a sequence of variable length segments that use from from one to seven array elements.
-	 *  The first element of a segment is the type as defined in the PathIterator interface. SEG_MOVETO 
-	 *  and SEG_LINETO segments also include two coordinates (one end point), SEG_QUADTO segments include four 
+	 *  The first element of a segment is the type as defined in the PathIterator interface. SEG_MOVETO
+	 *  and SEG_LINETO segments also include two coordinates (one end point), SEG_QUADTO segments include four
 	 *  coordinates and SEG_CUBICTO segments include six coordinates (three points).
 	 *  Coordinates are with respect to the image bounds, not the Roi bounds. */
 	public float[] getShapeAsArray() {
@@ -833,7 +833,7 @@ public class ShapeRoi extends Roi {
 				done = pIter.isDone();
 			}
 
-			//IJ.log("segType="+segType+" nCoord="+nCoords+" done="+done+" nPoi="+nPoints+" len="+pathLength);
+			//IJMessage.log("segType="+segType+" nCoord="+nCoords+" done="+done+" nPoi="+nPoints+" len="+pathLength);
 			if (segType == NO_SEGMENT_ANY_MORE || (segType == PathIterator.SEG_MOVETO && xPoints.size()>0)) {
 				// subpath finished: analyze it & create roi if appropriate
 				closed = closed || (xPoints.size()>0 && xPoints.get(0) == xPoints.getLast() && yPoints.get(0) == yPoints.getLast());
@@ -878,7 +878,7 @@ public class ShapeRoi extends Roi {
 					shapeArray.clear();
 					nSubPaths++;
 					pathLength = 0;
-					startCalX = coords[0];  
+					startCalX = coords[0];
 					startCalY = coords[1];
 					closed = false;
 					horVertOnly = true;
@@ -932,7 +932,7 @@ public class ShapeRoi extends Roi {
 	public void draw(Graphics g) {
 		Color color =  strokeColor!=null? strokeColor:ROIColor;
 		boolean isActiveOverlayRoi = !overlay && isActiveOverlayRoi();
-		//IJ.log("draw: "+overlay+"  "+isActiveOverlayRoi);
+		//IJMessage.log("draw: "+overlay+"  "+isActiveOverlayRoi);
 		if (isActiveOverlayRoi) {
 			if (color==Color.cyan)
 				color = Color.magenta;
@@ -966,7 +966,7 @@ public class ShapeRoi extends Roi {
 			drawRoiBrush(g);
 		if (state!=NORMAL && imp!=null && imp.getRoi()!=null)
 			showStatus();
-		if (updateFullWindow) 
+		if (updateFullWindow)
 			{updateFullWindow = false; imp.draw();}
 	}
 
@@ -987,7 +987,7 @@ public class ShapeRoi extends Roi {
 			offset=0; // not needed when brush width even
 		g.drawOval(sx-size/2+offset, sy-size/2+offset, size, size);
 	}
-	
+
 	/**Draws the shape of this object onto the specified ImageProcessor.
 	 * <br> This method will always draw a flattened version of the actual shape
 	 * (i.e., all curve segments will be approximated by line segments).
@@ -1043,7 +1043,7 @@ public class ShapeRoi extends Roi {
 		g2d.transform(AffineTransform.getTranslateInstance(-0.48, -0.49994)); //very inaccurate, only reasonable with "-0.48"
 		g2d.fill(shape);
 		Raster raster = bi.getRaster();
-		DataBufferByte buffer = (DataBufferByte)raster.getDataBuffer();		
+		DataBufferByte buffer = (DataBufferByte)raster.getDataBuffer();
 		byte[] mask = buffer.getData();
 		cachedMask = new ByteProcessor(width, height, mask, null);
 		cachedMask.setThreshold(255,255,ImageProcessor.NO_LUT_UPDATE);*/
@@ -1091,7 +1091,7 @@ public class ShapeRoi extends Roi {
 		for (int i=1; i<array.length; i++) val = Math.max(val,array[i]);
 		return val;
 	}
-	
+
 	static ShapeRoi getCircularRoi(int x, int y, int width) {
 		return new ShapeRoi(new OvalRoi(x - width / 2, y - width / 2, width, width));
 	}
@@ -1171,7 +1171,7 @@ public class ShapeRoi extends Roi {
 		FloatPolygon fp = getFloatPolygon(FLATNESS, /*separateSubpaths=*/ false, /*addPointForClose=*/ false, /*absoluteCoord=*/ true);
 		return fp == null ? null : fp.getConvexHull();
 	}
-	
+
 	public Polygon getPolygon() {
 		FloatPolygon fp = getFloatPolygon();
 		return new Polygon(toIntR(fp.xpoints), toIntR(fp.ypoints), fp.npoints);

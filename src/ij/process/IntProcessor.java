@@ -27,7 +27,7 @@ public class IntProcessor extends ColorProcessor {
 			findMinAndMax();
 		boolean firstTime = pixels8==null;
 		boolean thresholding = minThreshold!=NO_THRESHOLD && lutUpdateMode<NO_LUT_UPDATE;
-		//ij.IJ.log("createImage: "+firstTime+"  "+lutAnimation+"  "+thresholding);
+		//ij.IJMessage.log("createImage: "+firstTime+"  "+lutAnimation+"  "+thresholding);
 		if (firstTime || !lutAnimation)
 			create8BitImage(thresholding&&lutUpdateMode==RED_LUT);
 		if (cm==null)
@@ -55,7 +55,7 @@ public class IntProcessor extends ColorProcessor {
 		}
 		return createBufferedImage();
 	}
-	
+
 	// creates 8-bit image by linearly scaling from float to 8-bits
 	private byte[] create8BitImage(boolean thresholding) {
 		int size = width*height;
@@ -101,7 +101,7 @@ public class IntProcessor extends ColorProcessor {
 	public BufferedImage getBufferedImage() {
 		return convertToByte(true).getBufferedImage();
 	}
-	
+
 	@Override
 	public void setColorModel(ColorModel cm) {
 		if (cm!=null && !(cm instanceof IndexColorModel))
@@ -114,12 +114,12 @@ public class IntProcessor extends ColorProcessor {
 		inversionTested = false;
 		minThreshold = NO_THRESHOLD;
 	}
-	
+
 	@Override
 	public float getPixelValue(int x, int y) {
 		if (x>=0 && x<width && y>=0 && y<height)
 			return (float)pixels[y*width+x];
-		else 
+		else
 			return Float.NaN;
 	}
 
@@ -128,7 +128,7 @@ public class IntProcessor extends ColorProcessor {
 	public int getNChannels() {
 		return 1;
 	}
-	
+
 	public void findMinAndMax() {
 		int size = width*height;
 		int value;
@@ -151,7 +151,7 @@ public class IntProcessor extends ColorProcessor {
 		findMinAndMax();
 		resetThreshold();
 	}
-	
+
 	@Override
 	public void setMinAndMax(double minimum, double maximum, int channels) {
 		min = (int)minimum;

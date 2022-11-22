@@ -18,7 +18,7 @@ public class JavaScriptEvaluator implements PlugIn, Runnable  {
 		if (script.equals(""))
 			return;
 		this.script = script;
-		thread = new Thread(this, "JavaScript"); 
+		thread = new Thread(this, "JavaScript");
 		thread.setPriority(Math.max(thread.getPriority()-2, Thread.MIN_PRIORITY));
 		thread.start();
 	}
@@ -30,7 +30,7 @@ public class JavaScriptEvaluator implements PlugIn, Runnable  {
 		return null;
 	}
 
-	// Evaluates 'script' and returns any error messages as a String. 
+	// Evaluates 'script' and returns any error messages as a String.
 	public String eval(String script) {
 		this.script = script;
 		evaluating = true;
@@ -44,7 +44,7 @@ public class JavaScriptEvaluator implements PlugIn, Runnable  {
 	public void run() {
 		result = null;
 		error = null;
-		Thread.currentThread().setContextClassLoader(IJ.getClassLoader());
+		Thread.currentThread().setContextClassLoader(IJPlugin.getClassLoader());
 		if (IJ.isJava19())
 			System.setProperty("nashorn.args", "--language=es6"); // Use ECMAScript 6 on Java 9
 		try {
@@ -52,7 +52,7 @@ public class JavaScriptEvaluator implements PlugIn, Runnable  {
 				ScriptEngineManager scriptEngineManager = new ScriptEngineManager();
 				engine = scriptEngineManager.getEngineByName("ECMAScript");
 				if (engine == null) {
-					IJ.error("Could not find JavaScript engine");
+					IJMessage.error("Could not find JavaScript engine");
 					return;
 				}
 				if (!IJ.isJava18()) {
@@ -77,11 +77,11 @@ public class JavaScriptEvaluator implements PlugIn, Runnable  {
 				if (evaluating)
 					error = msg;
 				else
-					IJ.log(msg);
+					IJMessage.log(msg);
 			}
 		}
 	}
-	
+
 	public String toString() {
 		return result!=null?""+result:"";
 	}
